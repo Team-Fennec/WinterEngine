@@ -11,7 +11,7 @@ namespace DoomGame.Rendering;
 
 public class Shader
 {
-	int Handle;
+	public int Handle;
 	private bool disposedValue = false;
 
 	public Shader(string shaderName)
@@ -68,6 +68,14 @@ public class Shader
 		GL.DeleteShader(FragmentShader);
 	}
 
+	~Shader()
+	{
+		if (!disposedValue)
+		{
+			Logger.Log("Shader", "GPU Resource leak! Did you forget to call Dispose()?", LogType.Warning);
+		}
+	}
+
 	private void CompileShader(int shader)
 	{
 		GL.CompileShader(shader);
@@ -95,14 +103,6 @@ public class Shader
 			GL.DeleteProgram(Handle);
 
 			disposedValue = true;
-		}
-	}
-
-	~Shader()
-	{
-		if (!disposedValue)
-		{
-			Logger.Log("Shader", "GPU Resource leak! Did you forget to call Dispose()?", LogType.Warning);
 		}
 	}
 

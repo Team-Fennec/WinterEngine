@@ -1,12 +1,10 @@
 using System.IO;
-
+using System.Diagnostics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-
 using Newtonsoft.Json;
-
 using DoomGame.Resource.Types;
 using DoomGame.Rendering;
 using DoomGame.Debug;
@@ -18,10 +16,10 @@ public class Game : GameWindow
 {
 	#region debug object
 
-	float[] vertices;
-	uint[] indices;
-
+	ModelResource model;
 	Shader shader;
+
+	private Stopwatch _timer;
 
 	#endregion
 
@@ -47,13 +45,13 @@ public class Game : GameWindow
 		// TODO: move this code to some like dedicated rendering setup
 
 		// Load Model
-		LoadMDL("rectangle.model");
+		model = LoadMDL("rectangle.model");
 
 		// VBOs
 		VertexBufferObject = GL.GenBuffer();
 		GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
 		// Upload vertices to the buffer
-		GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
+		GL.BufferData(BufferTarget.ArrayBuffer, model.vertices.Length * sizeof(float), model.vertices, BufferUsageHint.StaticDraw);
 	
 		// Linking vertex attributes
 		VertexArrayObject = GL.GenVertexArray();
@@ -65,23 +63,25 @@ public class Game : GameWindow
 
 		ElementBufferObject = GL.GenBuffer();
 		GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
-		GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StaticDraw);
+		GL.BufferData(BufferTarget.ElementArrayBuffer, model.indices.Length * sizeof(uint), model.indices, BufferUsageHint.StaticDraw);
 
 		// Shaders
-		shader = new Shader("basic");
+		shader = new Shader("basic_uc");
 
 		shader.Use();
 
 		#endregion
+
+		_timer = new();
+		_timer.Start();
 	}
 
 	// Loads vertices and indices from a json file
-	private void LoadMDL(string filename)
+	private ModelResource LoadMDL(string filename)
 	{
 		if (!File.Exists($"models/{filename}"))
 		{
 			Logger.Log("Model", $"Could not find model file: \"{filename}\"", LogType.Warning);
-			return;
 		}
 
 		string modelSource = File.ReadAllText($"models/{filename}");
@@ -89,8 +89,7 @@ public class Game : GameWindow
 
 		Logger.Log("Model", $"Loaded model data \"{filename}\"", LogType.Info);
 
-		indices = modelData.indices;
-		vertices = modelData.vertices;
+		return modelData;
 	}
 
 	protected override void OnUnload()
@@ -110,8 +109,14 @@ public class Game : GameWindow
 
 		// Debug triangle Rendering
 		shader.Use();
+
+		double timeValue = _timer.Elapsed.TotalSeconds;
+		float greenValue = (float)Math.Sin(timeValue) / 2.0f + 0.5f;
+		int vertexColorLocation = GL.GetUniformLocation(shader.Handle, "ourColor");
+		GL.Uniform4(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+		
 		GL.BindVertexArray(VertexArrayObject);
-		GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
+		GL.DrawElements(PrimitiveType.Triangles, model.indices.Length, DrawElementsType.UnsignedInt, 0);
 
 		SwapBuffers();
 	}
