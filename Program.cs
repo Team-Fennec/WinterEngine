@@ -1,4 +1,6 @@
-﻿using DoomGame.Debug;
+﻿using OpenTK.Windowing.Desktop;
+
+using DoomGame.Debug;
 
 namespace DoomGame.Main;
 
@@ -9,8 +11,16 @@ class Program
 		// Initialize logger
 		Logger.Init();
 
+		NativeWindowSettings windowSettings = new() {
+			Title = "DoomGame",
+			Size = (800, 600),
+			MaximumSize = (800, 600),
+			MinimumSize = (800, 600)
+		}
+		
 		Logger.Log("Main", "Starting game loop...", LogType.Info);
-		using (Game game = new Game(800, 600, "DoomGame"))
+
+		using (Game game = new Game(windowSettings))
 		{
 			game.Run();
 		}

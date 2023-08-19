@@ -26,15 +26,8 @@ public class Game : GameWindow
 	int VertexBufferObject;
 	int VertexArrayObject;
 
-	public Game(int width, int height, string title)
-	: base(GameWindowSettings.Default, new() 
-		{
-			Size = (width, height), 
-			Title = title,
-			// Prevents the window from resizing
-			MaximumSize = (width, height),
-			MinimumSize = (width, height)
-		})
+	public Game(NativeWindowSettings windowSettings)
+	: base(GameWindowSettings.Default, windowSettings)
 	{
 		Logger.Log("Game", "Constructed GameWindow", LogType.Info);
 	}
