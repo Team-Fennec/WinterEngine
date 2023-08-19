@@ -1,11 +1,10 @@
-using System.IO;
 using System.Diagnostics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using Newtonsoft.Json;
 using DoomGame.Resource.Types;
+using DoomGame.Resource;
 using DoomGame.Rendering;
 using DoomGame.Debug;
 
@@ -45,7 +44,7 @@ public class Game : GameWindow
 		// TODO: move this code to some like dedicated rendering setup
 
 		// Load Model
-		model = LoadMDL("rectangle.model");
+		model = ResourceLoader.LoadModel("pentagon.model");
 
 		// VBOs
 		VertexBufferObject = GL.GenBuffer();
@@ -74,22 +73,6 @@ public class Game : GameWindow
 
 		_timer = new();
 		_timer.Start();
-	}
-
-	// Loads vertices and indices from a json file
-	private ModelResource LoadMDL(string filename)
-	{
-		if (!File.Exists($"models/{filename}"))
-		{
-			Logger.Log("Model", $"Could not find model file: \"{filename}\"", LogType.Warning);
-		}
-
-		string modelSource = File.ReadAllText($"models/{filename}");
-		ModelResource modelData = JsonConvert.DeserializeObject<ModelResource>(modelSource);
-
-		Logger.Log("Model", $"Loaded model data \"{filename}\"", LogType.Info);
-
-		return modelData;
 	}
 
 	protected override void OnUnload()

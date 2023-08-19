@@ -12,5 +12,6 @@ public struct ShaderResource
 public struct ModelResource
 {
 	public float[] vertices;
+	public float[] colors;
 	public uint[] indices;
 }

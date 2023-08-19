@@ -19,12 +19,12 @@ public class Shader
 		// Shader handles
 		int VertexShader, FragmentShader;
 
-		string shaderResourceSource = File.ReadAllText($"shaders/{shaderName}.shader");
+		string shaderResourceSource = File.ReadAllText($"game_data/shaders/{shaderName}.shader");
 		ShaderResource shaderResource = JsonConvert.DeserializeObject<ShaderResource>(shaderResourceSource);
 
 		// TODO: Move game data into a dedicated game data folder
-		string VertexShaderSource = File.ReadAllText($"shaders/{shaderResource.vertexShader}");
-		string FragmentShaderSource = File.ReadAllText($"shaders/{shaderResource.fragmentShader}");
+		string VertexShaderSource = File.ReadAllText($"game_data/shaders/{shaderResource.vertexShader}");
+		string FragmentShaderSource = File.ReadAllText($"game_data/shaders/{shaderResource.fragmentShader}");
 
 		#region Generate/Compile shaders
 
