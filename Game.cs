@@ -3,7 +3,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using DoomGame.Resource.Types;
+using DoomGame.Objects;
 using DoomGame.Resource;
 using DoomGame.Rendering;
 using DoomGame.Debug;
@@ -15,10 +15,8 @@ public class Game : GameWindow
 {
 	#region debug object
 
-	ModelResource model;
+	Model model;
 	Shader shader;
-
-	private Stopwatch _timer;
 
 	#endregion
 
@@ -44,35 +42,35 @@ public class Game : GameWindow
 		// TODO: move this code to some like dedicated rendering setup
 
 		// Load Model
-		model = ResourceLoader.LoadModel("pentagon.model");
+		model = new(ResourceLoader.LoadModel("triangle.model"));
 
 		// VBOs
 		VertexBufferObject = GL.GenBuffer();
 		GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
 		// Upload vertices to the buffer
-		GL.BufferData(BufferTarget.ArrayBuffer, model.vertices.Length * sizeof(float), model.vertices, BufferUsageHint.StaticDraw);
+		GL.BufferData(BufferTarget.ArrayBuffer, model.Vertices.Length * sizeof(float), model.Vertices, BufferUsageHint.StaticDraw);
 	
 		// Linking vertex attributes
 		VertexArrayObject = GL.GenVertexArray();
 
 		GL.BindVertexArray(VertexArrayObject);
 
-		GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+		GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 0);
 		GL.EnableVertexAttribArray(0);
+
+		GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 3 * sizeof(float));
+		GL.EnableVertexAttribArray(1);
 
 		ElementBufferObject = GL.GenBuffer();
 		GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
-		GL.BufferData(BufferTarget.ElementArrayBuffer, model.indices.Length * sizeof(uint), model.indices, BufferUsageHint.StaticDraw);
+		GL.BufferData(BufferTarget.ElementArrayBuffer, model.Indices.Length * sizeof(uint), model.Indices, BufferUsageHint.StaticDraw);
 
 		// Shaders
-		shader = new Shader("basic_uc");
+		shader = new Shader("basic"); // basic offers a solid color render using the model's vertex colors
 
 		shader.Use();
 
 		#endregion
-
-		_timer = new();
-		_timer.Start();
 	}
 
 	protected override void OnUnload()
@@ -92,14 +90,9 @@ public class Game : GameWindow
 
 		// Debug triangle Rendering
 		shader.Use();
-
-		double timeValue = _timer.Elapsed.TotalSeconds;
-		float greenValue = (float)Math.Sin(timeValue) / 2.0f + 0.5f;
-		int vertexColorLocation = GL.GetUniformLocation(shader.Handle, "ourColor");
-		GL.Uniform4(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 		
 		GL.BindVertexArray(VertexArrayObject);
-		GL.DrawElements(PrimitiveType.Triangles, model.indices.Length, DrawElementsType.UnsignedInt, 0);
+		GL.DrawElements(PrimitiveType.Triangles, model.Indices.Length, DrawElementsType.UnsignedInt, 0);
 
 		SwapBuffers();
 	}
