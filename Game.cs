@@ -7,34 +7,19 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 using Newtonsoft.Json;
 
+using DoomGame.Resource.Types;
 using DoomGame.Rendering;
 using DoomGame.Debug;
 
 namespace DoomGame.Main;
-
-// TODO: flesh this out into the proper model class/3d object class
-public struct Model3D
-{
-	public float[] vertices;
-	public uint[] indices;
-}
 
 // Kinda hate that game and gamewindow are a combined entity but wygd
 public class Game : GameWindow
 {
 	#region debug object
 
-	float[] vertices = {
-		 0.5f,  0.5f, 0.0f, // top right
-		 0.5f, -0.5f, 0.0f, // bottom right
-		-0.5f, -0.5f, 0.0f, // bottom left
-		-0.5f,  0.5f, 0.0f  // top left
-	};
-
-	uint[] indices = {
-		0, 1, 3, // first triange
-		1, 2, 3  // second triangle
-	};
+	float[] vertices;
+	uint[] indices;
 
 	Shader shader;
 
@@ -62,7 +47,7 @@ public class Game : GameWindow
 		// TODO: move this code to some like dedicated rendering setup
 
 		// Load Model
-		LoadMDL("rectangle.json");
+		LoadMDL("rectangle.model");
 
 		// VBOs
 		VertexBufferObject = GL.GenBuffer();
@@ -83,7 +68,7 @@ public class Game : GameWindow
 		GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StaticDraw);
 
 		// Shaders
-		shader = new Shader("shaders/v_basic.vsh", "shaders/f_basic.fsh");
+		shader = new Shader("basic");
 
 		shader.Use();
 
@@ -100,7 +85,7 @@ public class Game : GameWindow
 		}
 
 		string modelSource = File.ReadAllText($"models/{filename}");
-		Model3D modelData = JsonConvert.DeserializeObject<Model3D>(modelSource);
+		ModelResource modelData = JsonConvert.DeserializeObject<ModelResource>(modelSource);
 
 		Logger.Log("Model", $"Loaded model data \"{filename}\"", LogType.Info);
 

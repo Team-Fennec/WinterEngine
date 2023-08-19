@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using DoomGame.Debug;
+using DoomGame.Resource.Types;
+using Newtonsoft.Json;
 
 namespace DoomGame.Rendering;
 
@@ -12,15 +14,19 @@ public class Shader
 	int Handle;
 	private bool disposedValue = false;
 
-	public Shader(string vertexPath, string fragmentPath)
+	public Shader(string shaderName)
 	{
 		// Shader handles
-		int VertexShader, FragmentShader, success;
+		int VertexShader, FragmentShader;
 
-		string VertexShaderSource = File.ReadAllText(vertexPath);
-		string FragmentShaderSource = File.ReadAllText(fragmentPath);
+		string shaderResourceSource = File.ReadAllText($"shaders/{shaderName}.shader");
+		ShaderResource shaderResource = JsonConvert.DeserializeObject<ShaderResource>(shaderResourceSource);
 
-		#region Generate shaders and bind source code
+		// TODO: Move game data into a dedicated game data folder
+		string VertexShaderSource = File.ReadAllText($"shaders/{shaderResource.vertexShader}");
+		string FragmentShaderSource = File.ReadAllText($"shaders/{shaderResource.fragmentShader}");
+
+		#region Generate/Compile shaders
 
 		VertexShader = GL.CreateShader(ShaderType.VertexShader);
 		GL.ShaderSource(VertexShader, VertexShaderSource);
@@ -28,28 +34,11 @@ public class Shader
 		FragmentShader = GL.CreateShader(ShaderType.FragmentShader);
 		GL.ShaderSource(FragmentShader, FragmentShaderSource);
 
-		#endregion
-
-		#region Compile Shaders and check for errors
 		// Vertex Shader
-		GL.CompileShader(VertexShader);
-
-		GL.GetShader(VertexShader, ShaderParameter.CompileStatus, out success);
-		if (success == 0)
-		{
-			string infoLog = GL.GetShaderInfoLog(VertexShader);
-			Logger.Log("Shader", $"Error in Vertex Shader: {infoLog}", LogType.Error);
-		}
+		CompileShader(VertexShader);
 
 		// Fragment Shader
-		GL.CompileShader(FragmentShader);
-
-		GL.GetShader(FragmentShader, ShaderParameter.CompileStatus, out success);
-		if (success == 0)
-		{
-			string infoLog = GL.GetShaderInfoLog(FragmentShader);
-			Logger.Log("Shader", $"Error in Fragment Shader: {infoLog}", LogType.Error);
-		}
+		CompileShader(FragmentShader);
 
 		#endregion
 
@@ -62,7 +51,7 @@ public class Shader
 
 		GL.LinkProgram(Handle);
 
-		GL.GetProgram(Handle, GetProgramParameterName.LinkStatus, out success);
+		GL.GetProgram(Handle, GetProgramParameterName.LinkStatus, out int success);
 		if (success == 0)
 		{
 			string infoLog = GL.GetProgramInfoLog(Handle);
@@ -78,6 +67,19 @@ public class Shader
 		GL.DeleteShader(VertexShader);
 		GL.DeleteShader(FragmentShader);
 	}
+
+	private void CompileShader(int shader)
+	{
+		GL.CompileShader(shader);
+
+		GL.GetShader(shader, ShaderParameter.CompileStatus, out int success);
+		if (success == 0)
+		{
+			string infoLog = GL.GetShaderInfoLog(shader);
+			Logger.Log("Shader", $"Failed to compile shader: {infoLog}", LogType.Error);
+		}
+	}
+
 
 	public void Use()
 	{
