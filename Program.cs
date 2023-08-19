@@ -16,8 +16,8 @@ class Program
 			Size = (800, 600),
 			MaximumSize = (800, 600),
 			MinimumSize = (800, 600)
-		}
-		
+		};
+
 		Logger.Log("Main", "Starting game loop...", LogType.Info);
 
 		using (Game game = new Game(windowSettings))

@@ -1,22 +1,39 @@
+using System.IO;
+
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+
+using Newtonsoft.Json;
 
 using DoomGame.Rendering;
 using DoomGame.Debug;
 
 namespace DoomGame.Main;
 
+// TODO: flesh this out into the proper model class/3d object class
+public struct Model3D
+{
+	public float[] vertices;
+	public uint[] indices;
+}
+
 // Kinda hate that game and gamewindow are a combined entity but wygd
 public class Game : GameWindow
 {
-	#region Debug Triangle (My first ever thing displayed)
+	#region debug object
 
 	float[] vertices = {
-		-0.5f, -0.5f, 0.0f, // Bottom-left
-		 0.5f, -0.5f, 0.0f, // Bottom-right
-		-0.5f,  0.5f, 0.0f  // Top
+		 0.5f,  0.5f, 0.0f, // top right
+		 0.5f, -0.5f, 0.0f, // bottom right
+		-0.5f, -0.5f, 0.0f, // bottom left
+		-0.5f,  0.5f, 0.0f  // top left
+	};
+
+	uint[] indices = {
+		0, 1, 3, // first triange
+		1, 2, 3  // second triangle
 	};
 
 	Shader shader;
@@ -25,6 +42,7 @@ public class Game : GameWindow
 
 	int VertexBufferObject;
 	int VertexArrayObject;
+	int ElementBufferObject;
 
 	public Game(NativeWindowSettings windowSettings)
 	: base(GameWindowSettings.Default, windowSettings)
@@ -43,6 +61,9 @@ public class Game : GameWindow
 		#region Debug Triangle
 		// TODO: move this code to some like dedicated rendering setup
 
+		// Load Model
+		LoadMDL("rectangle.json");
+
 		// VBOs
 		VertexBufferObject = GL.GenBuffer();
 		GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
@@ -57,12 +78,34 @@ public class Game : GameWindow
 		GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
 		GL.EnableVertexAttribArray(0);
 
+		ElementBufferObject = GL.GenBuffer();
+		GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
+		GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StaticDraw);
+
 		// Shaders
 		shader = new Shader("shaders/v_basic.vsh", "shaders/f_basic.fsh");
 
 		shader.Use();
 
 		#endregion
+	}
+
+	// Loads vertices and indices from a json file
+	private void LoadMDL(string filename)
+	{
+		if (!File.Exists($"models/{filename}"))
+		{
+			Logger.Log("Model", $"Could not find model file: \"{filename}\"", LogType.Warning);
+			return;
+		}
+
+		string modelSource = File.ReadAllText($"models/{filename}");
+		Model3D modelData = JsonConvert.DeserializeObject<Model3D>(modelSource);
+
+		Logger.Log("Model", $"Loaded model data \"{filename}\"", LogType.Info);
+
+		indices = modelData.indices;
+		vertices = modelData.vertices;
 	}
 
 	protected override void OnUnload()
@@ -83,7 +126,7 @@ public class Game : GameWindow
 		// Debug triangle Rendering
 		shader.Use();
 		GL.BindVertexArray(VertexArrayObject);
-		GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
+		GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
 
 		SwapBuffers();
 	}
