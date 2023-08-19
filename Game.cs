@@ -42,7 +42,7 @@ public class Game : GameWindow
 		// TODO: move this code to some like dedicated rendering setup
 
 		// Load Model
-		model = new(ResourceLoader.LoadModel("rectangle.model"));
+		model = new(ResourceLoader.LoadModel("pentagon.model"));
 
 		// VBOs
 		VertexBufferObject = GL.GenBuffer();
