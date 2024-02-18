@@ -1,0 +1,4 @@
+{
+    shader: "UnlitVertexColored",
+    albedo: "bigjohn.png"
+}

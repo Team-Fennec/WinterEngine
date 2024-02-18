@@ -1,0 +1,14 @@
+<Project>
+	<Target Name="CopyResources" AfterTargets="PostBuildEvent">
+		<PropertyGroup>
+			<EmptyCheck>../Resources/*.*</EmptyCheck>
+		</PropertyGroup>
+		<ItemGroup>
+			<EmptyCheck Include="$(EmptyCheck)" />
+		</ItemGroup>
+		<Exec
+			Condition="'@(EmptyCheck)' != ''"
+			Command="copy &quot;../Resources/&quot; &quot;$(OutDir)&quot;" 
+		/>
+  	</Target>
+</Project>

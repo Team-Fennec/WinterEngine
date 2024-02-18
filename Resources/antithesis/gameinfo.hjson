@@ -1,0 +1,8 @@
+{
+    name: "Antithesis"
+    author: "K. 'ashi/eden' J."
+    resourcePaths: [
+        "antithesis",
+        "engine"
+    ]
+}
