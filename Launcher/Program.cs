@@ -50,7 +50,9 @@ internal class Program
             return 0;
         }
 
-        WinterEngine.Core.Engine.Run(gameName);
+        WinterEngine.Core.Engine.Init(gameName);
+        WinterEngine.Core.Engine.Run();
+        WinterEngine.Core.Engine.Shutdown();
 
         return 0;
     }

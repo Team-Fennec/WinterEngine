@@ -31,9 +31,7 @@ public class Engine
     private static bool _showAnotherWindow = false;
 	private static Vector3 _clearColor = new Vector3(0.45f, 0.55f, 0.6f);
 
-	// todo: Separate this out into init, run, and shutdown
-	public static int Run(string gameDir)
-	{
+	public static void Init(string gameDir) {
 		log.Info("Initializing Engine...");
 
 		log.Info("Reading Gameinfo...");
@@ -88,7 +86,10 @@ public class Engine
 
 		log.Info("Creating Veldrid Resources...");
 		CreateResources();
+	}
 
+	public static int Run()
+	{
 		log.Info("Starting Engine loop...");
 		var stopwatch = Stopwatch.StartNew();
 		float deltaTime = 0f;
@@ -137,6 +138,10 @@ public class Engine
 			_graphicsDevice.SwapBuffers(_graphicsDevice.MainSwapchain);
 		}
 
+		return 0;
+	}
+
+	public static void Shutdown() {
 		log.Info("Beginning Engine Shutdown");
 
 		_graphicsDevice.WaitForIdle();
@@ -155,8 +160,6 @@ public class Engine
 		_imguiRend.Dispose();
 
 		log.Info("Engine Shutdown Complete");
-
-		return 0;
 	}
 
 	static void CreateResources() {
