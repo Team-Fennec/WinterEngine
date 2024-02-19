@@ -435,8 +435,10 @@ namespace ImVGuiNET {
         public static bool InputText(string label, ref string input, uint charLimit) {
             ImGui.PushStyleVar(ImGuiStyleVar.FrameBorderSize, 0);
             
-            ImGui.Text(label);
-            ImGui.SameLine();
+            if (!label.StartsWith("##")) {
+                ImGui.Text(label);
+                ImGui.SameLine();
+            }
             bool ret = ImGui.InputText($"##{label}", ref input, charLimit);
             
             ImGui.PopStyleVar();

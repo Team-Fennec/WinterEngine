@@ -1,4 +1,4 @@
-using System.Numerics;
+using Microsoft.Xna.Framework;
 
 namespace WinterEngine.Actors;
 
@@ -9,6 +9,6 @@ public abstract class BaseActor
 
     public abstract void Spawn();
     public abstract void Death();
-	public abstract void Think(double deltaTime);
-    public abstract void Render(double deltaTime);
+	public abstract void Think(GameTime gameTime);
+    public abstract void Render(GameTime gameTime);
 }

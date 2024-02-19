@@ -1,8 +1,8 @@
-﻿using Veldrid.Sdl2;
-using Veldrid.StartupUtilities;
-using log4net;
+﻿using log4net;
 using log4net.Config;
 using System.Text;
+using System.IO;
+using System;
 
 internal class Program
 {
@@ -20,15 +20,7 @@ internal class Program
                 case "-game":
                     if (i == args.Length - 1)
                     {
-                        unsafe
-                        {
-                            Sdl2Native.SDL_ShowSimpleMessageBox(
-                                SDL_MessageBoxFlags.Error,
-                                "WinterEngine",
-                                "No game name provided! Pass -game <gamename> on start to load a game.",
-                                null
-                            );
-                        }
+                        Console.WriteLine("No game name provided! Pass -game <gamename> on start to load a game.");
                         return 0;
                     }
                     gameName = args[i + 1];
@@ -38,22 +30,13 @@ internal class Program
 
         if (gameName == "" || !Directory.Exists(gameName))
         {
-            unsafe
-            {
-                Sdl2Native.SDL_ShowSimpleMessageBox(
-                    SDL_MessageBoxFlags.Error,
-                    "WinterEngine",
-                    "No valid game provided! Pass -game <gamename> on start to load a game.",
-                    null
-                );
-            }
+            Console.WriteLine("No valid game name provided! Pass -game <gamename> on start to load a game.");
             return 0;
         }
 
-        WinterEngine.Core.Engine.Init(gameName);
-        WinterEngine.Core.Engine.Run();
-        WinterEngine.Core.Engine.Shutdown();
-
+        using var engine = new WinterEngine.Core.Engine(gameName);
+        engine.Run();
+        
         return 0;
     }
 }
