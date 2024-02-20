@@ -1,9 +1,0 @@
-{
-    "name": "Antithesis",
-    "author": "K. 'ashi/eden' J.",
-    "resourcePaths": [
-        {path: "antithesis", format: "folder"},
-        //{path: "antithesis/models_pak.spk", format: "snowpack"},
-        {path: "engine", format: "folder"}
-    ]
-}

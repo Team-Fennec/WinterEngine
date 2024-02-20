@@ -3,8 +3,6 @@ using System.IO;
 using System.IO.Compression;
 using WinterEngine.Resource.Types;
 using log4net;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 
 namespace WinterEngine.Resource;
 
@@ -13,7 +11,7 @@ public enum ResourceFormat {
 	Folder
 }
 
-internal struct ResourceProvider {
+public struct ResourceProvider {
 	public ResourceFormat format;
 	public string path;
 
@@ -83,14 +81,14 @@ public class ResourceManager
 				byte[] _buf = new byte[sizeof(int)];
 				packStream.Read(_buf, 0, sizeof(int));
 
-				if (BitConverter.ToInt32(_buf, 0) != SnowPack.ident) {
+				if (BitConverter.ToInt32(_buf, 0) != SnowPack.Ident) {
 					Console.WriteLine("Invalid file, not an SPK file");
 					throw new Exception();
 				}
 
 				packStream.Read(_buf, 0, sizeof(int));
 
-				if (BitConverter.ToInt32(_buf, 0) > SnowPack.version) {
+				if (BitConverter.ToInt32(_buf, 0) > SnowPack.Version) {
 					Console.WriteLine("Invalid file, version is too new");
 					throw new Exception();
 				}

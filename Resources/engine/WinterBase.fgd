@@ -1,0 +1,62 @@
+@SolidClass = worldspawn : "World entity"
+[
+	skybox(string) : "SkyBox"
+	music(string) : "Music"
+	ambience(string) : "Ambience"
+]
+
+@SolidClass = Decoration : "Used for decoration, not for gameplay"
+[
+
+]
+
+@SolidClass = FloatingDecoration : "Used for decoration, not for gameplay"
+[
+
+]
+
+@PointClass size(-16 -16 0, 16 16 16) model({ "path": model }) = StaticProp : "Static Prop" 
+[
+    model(String) : "Model file path" : : "Set this to a 3D model file."
+	radius(integer) : "Radius" : 6 : "Pushout Radius"
+	height(integer) : "Height" : 12 : "Pushout Height"
+]
+
+@PointClass size(-16 -16 0, 16 16 32) = PlayerSpawn : "Player start position" 
+[
+    name(string) : "Name" : "Start"
+]
+
+@PointClass size(-8 -8 -8, 8 8 8) = Node : "Moving entity path node"
+[
+    targetname(string) : "Target Name"
+]
+
+@SolidClass = FallingBlock : "Falls when player rides it"
+[
+   
+]
+
+@SolidClass = FloatyBlock : "Moves when player lands on it"
+[
+   
+]
+
+@SolidClass = DeathBlock : "Invisible; Kills the Player when hit"
+[
+]
+
+@SolidClass = SpikeBlock : "Visible; Kills the Player when hit"
+[
+]
+
+@SolidClass = MovingBlock : "Moves back and forth constantly"
+[
+   target(string) : "Target Node"
+   slow(integer) : "Go Slower"
+]
+
+@SolidClass = FixedCamera : "Lock Camera Position to a Target"
+[
+   target(string) : "Target Node"
+]

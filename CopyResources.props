@@ -1,5 +1,4 @@
 <Project>
-<!-- Fuck the content pipeline -->
 	<Target Name="CopyResources" AfterTargets="PostBuildEvent">
 		<PropertyGroup>
 			<EmptyCheck>../Resources/*.*</EmptyCheck>

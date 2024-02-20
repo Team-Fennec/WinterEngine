@@ -1,0 +1,8 @@
+{
+    "name": "Engine Testbed",
+    "author": "Team Fennec",
+    "searchPaths": [
+        {"path": "testbed", "type": "ResourceProvider.Folder"},
+        {"path": "engine", "type": "ResourceProvider.Folder"}
+    ]
+}
