@@ -5,7 +5,7 @@ namespace WinterEngine.Actors;
 public abstract class BaseActor
 {
     public Vector3 position;
-    public Quaternion rotation;
+    public Vector3 rotation;
 
     public abstract void Spawn();
     public abstract void Death();
