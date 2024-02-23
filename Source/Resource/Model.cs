@@ -1,3 +1,4 @@
+#if DONTUSEFORNOW
 using System.IO;
 using Microsoft.Xna.Framework;
 
@@ -136,3 +137,4 @@ public class ModelResource
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
 	}
 }
+#endif

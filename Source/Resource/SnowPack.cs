@@ -10,13 +10,14 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace WinterEngine.Content;
 
 /// <summary>
 /// Packed and Compressed game data
 /// </summary>
-public class SnowPack(string filePath) {
+public class SnowPack {
     /// <summary>The 4 bytes used to identify a pack file</summary>
     public const int MagicIdent = 4935763;
     /// <summary>The version of the format</summary>
@@ -25,16 +26,17 @@ public class SnowPack(string filePath) {
     /// <summary>Name of the pack (filename)</summary>
     public string Name;
     /// <summary>The path to the pack file</summary>
-    public string FilePath = filePath;
+    public string FilePath;
     /// <summary>The read header of the pack file</summary>
     public SnowPackHeaderV1 Header;
     /// <summary>The root ExtDecl</summary>
     public SnowPackExtDecl RootExt;
     
 #region Construction
-    public SnowPack() {
+    public SnowPack(string filePath) {
+        FilePath = filePath;
         if (!File.Exists(FilePath)) {
-            throw new FileNotFoundException($"Unable to locate pack file at {Path}");
+            throw new FileNotFoundException($"Unable to locate pack file at {FilePath}");
         }
         
         Name = Path.GetFileNameWithoutExtension(FilePath);
@@ -47,7 +49,7 @@ public class SnowPack(string filePath) {
                 Header = new SnowPackHeaderV1();
                 Header.header = new SnowPackFileHeader();
                 
-                Header.header.magic = reader.ReadInt32();
+                Header.header.magic = reader.ReadUInt32();
                 Header.header.version = reader.ReadByte();
                 
                 if (Header.header.magic != MagicIdent) {
@@ -58,14 +60,14 @@ public class SnowPack(string filePath) {
                 }
                 
                 Header.originSize = reader.ReadUInt16();
-                Header.origin = Convert.ToString(reader.ReadChars(Header.originSize));
+                Header.origin = new string(reader.ReadChars(Header.originSize));
                 // todo: use this crc for checking
                 Header.headerCrc = reader.ReadUInt32();
                 
                 // read the root ext
                 RootExt = new SnowPackExtDecl();
                 RootExt.extensionSize = reader.ReadByte();
-                RootExt.extension = Convert.ToString(reader.ReadChars(RootExt.extensionSize));
+                RootExt.extension = new string(reader.ReadChars(RootExt.extensionSize));
                 RootExt.directoryCount = reader.ReadUInt16();
                 
                 RootExt.directories = new SnowPackDirDecl[RootExt.directoryCount];
@@ -73,21 +75,21 @@ public class SnowPack(string filePath) {
                     RootExt.directories[i] = new SnowPackDirDecl();
         
                     RootExt.directories[i].pathSize = reader.ReadUInt16();
-                    RootExt.directories[i].path = Convert.ToString(reader.ReadChars(RootExt.directories[i].pathSize));
+                    RootExt.directories[i].path = new string(reader.ReadChars(RootExt.directories[i].pathSize));
                     RootExt.directories[i].entryCount = reader.ReadUInt16();
                     
                     RootExt.directories[i].entries = new SnowPackEntryDecl[RootExt.directories[i].entryCount];
-                    for (int i = 0; i < RootExt.directories[i].entries; i++) {
+                    for (int e = 0; e < RootExt.directories[i].entries.Length; e++) {
                         RootExt.directories[i].entries[e] = new SnowPackEntryDecl();
                     
                         RootExt.directories[i].entries[e].nameSize = reader.ReadByte();
-                        RootExt.directories[i].entries[e].name = Convert.ToString(reader.ReadChars(RootExt.directories[i].entries[e].nameSize));
+                        RootExt.directories[i].entries[e].name = new string(reader.ReadChars(RootExt.directories[i].entries[e].nameSize));
                         RootExt.directories[i].entries[e].compressionType = (CompressionType)reader.ReadByte();
                         RootExt.directories[i].entries[e].size = reader.ReadUInt32();
                         RootExt.directories[i].entries[e].crc = reader.ReadUInt32();
                         RootExt.directories[i].entries[e].sha = reader.ReadUInt32();
                         
-                        RootExt.directories[i].entries[e].data = reader.ReadBytes(RootExt.directories[i].entries[e].size);
+                        RootExt.directories[i].entries[e].data = reader.ReadBytes((int)RootExt.directories[i].entries[e].size);
                         // todo: does this factor in extensions correctly?
                         availableFiles.Add($"{RootExt.directories[i].path}/{RootExt.directories[i].entries[e].name}");
                     }
@@ -101,18 +103,19 @@ public class SnowPack(string filePath) {
     private List<string> availableFiles = new List<string>();
     
     public bool FileExists(string path) {
-        return availableFiles.Has(path);
+        return availableFiles.Contains(path);
     }
 #endregion
     
 #region Reading Files
     public StreamReader OpenEntry(string path) {
         if (!FileExists(path)) {
-            throw new FileNotFoundException($"{path} does not exist within package {name} ({path})");
+            throw new FileNotFoundException($"{path} does not exist within package {Name} ({path})");
         }
         
-        string rawPath = path.TrimEnd($"/{Path.GetFileName(path)}");
-        foreach (SnowPackDirDecl dirDecl in ext.directories) {
+        string endingPath = $"/{(Path.GetFileName(path))}";
+        string rawPath = path.TrimEnd(endingPath.ToCharArray(0, endingPath.Length));
+        foreach (SnowPackDirDecl dirDecl in RootExt.directories) {
             if (rawPath == dirDecl.path) {
                 foreach (SnowPackEntryDecl entryDecl in dirDecl.entries) {
                     if (entryDecl.name == Path.GetFileName(path)) {

@@ -1,7 +1,6 @@
 using Newtonsoft.Json;
 using System.IO;
 using System.IO.Compression;
-using WinterEngine.Resource.Types;
 using log4net;
 
 namespace WinterEngine.Resource;
@@ -28,7 +27,7 @@ public class ResourceManager
 
 	static List<ResourceProvider> resDirs = new List<ResourceProvider>();
 	
-	public static void AddResourceProvider(string path, ResourceFormat format) {
+	public static void AddResourceProvider(string path, ResourceFormat format = ResourceFormat.Folder) {
 		switch(format) {
 			case ResourceFormat.Folder:
 				if (Directory.Exists(path)) {
@@ -40,7 +39,7 @@ public class ResourceManager
 				}
 				break;
 			case ResourceFormat.Snowpack:
-				if (File.Exists(path)) {
+				/*if (File.Exists(path)) {
 					FileStream file = File.OpenRead(path);
 					byte[] _buf = new byte[sizeof(int)];
 					file.Read(_buf, 0, sizeof(int));
@@ -56,7 +55,7 @@ public class ResourceManager
 					file.Close();
 					resDirs.Add(new ResourceProvider(path, format));
 					log.Info($"Added resource pack {path}");
-				}
+				}*/
 				break;
 		}
 	}
@@ -70,7 +69,7 @@ public class ResourceManager
 				}
 				break;
 			case ResourceFormat.Snowpack:
-				SnowPack packData = new SnowPack();
+				/*SnowPack packData = new SnowPack();
 				FileStream packStream = File.OpenRead(resDir.path);
 				byte[] _buf = new byte[sizeof(int)];
 				packStream.Read(_buf, 0, sizeof(int));
@@ -90,7 +89,8 @@ public class ResourceManager
 
 				packStream.Read(packData.zipData, 0, (int)(packStream.Length - packStream.Position));
 				packStream.Close();
-				return new StreamReader(new ZipArchive(new MemoryStream(packData.zipData)).GetEntry(path).Open());
+				return new StreamReader(new ZipArchive(new MemoryStream(packData.zipData)).GetEntry(path).Open());*/
+				throw new Exception("Not implemented");
 			}
 		}
 

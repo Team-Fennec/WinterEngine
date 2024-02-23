@@ -31,9 +31,9 @@ public class ShaderResource {
             }
             
             if (vertexMode) {
-                vtxOut += line;
+                vtxOut += $"{line}\n";
             } else {
-                frgOut += line;
+                frgOut += $"{line}\n";
             }
         }
         
@@ -44,7 +44,7 @@ public class ShaderResource {
                 if (line.StartsWith("#include")) {
                     // parse out include and load it's code
                 } else {
-                    VertexCode += line;
+                    VertexCode += $"{line}\n";
                 }
                 
                 line = reader.ReadLine();
@@ -57,7 +57,7 @@ public class ShaderResource {
                 if (line.StartsWith("#include")) {
                     // parse out include and load it's code
                 } else {
-                    FragmentCode += line;
+                    FragmentCode += $"{line}\n";
                 }
                 
                 line = reader.ReadLine();
