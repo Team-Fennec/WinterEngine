@@ -43,7 +43,7 @@ public class ShaderResource {
             while (line != null) {
                 if (line.StartsWith("#include")) {
                     // parse out include and load it's code
-                    string inclFilename = line.Split(" ")[1].Trim("\"");
+                    string inclFilename = line.Split(" ")[1].Trim("\"".ToCharArray(0, 1));
                     StreamReader inclFile = ResourceManager.OpenResource(Path.Combine("shaders", "include", inclFilename));
                     string inclLine = inclFile.ReadLine();
                     while (inclLine != null) {
@@ -64,7 +64,7 @@ public class ShaderResource {
             while (line != null) {
                 if (line.StartsWith("#include")) {
                     // parse out include and load it's code
-                    string inclFilename = line.Split(" ")[1].Trim("\"");
+                    string inclFilename = line.Split(" ")[1].Trim("\"".ToCharArray(0, 1));
                     StreamReader inclFile = ResourceManager.OpenResource(Path.Combine("shaders", "include", inclFilename));
                     string inclLine = inclFile.ReadLine();
                     while (inclLine != null) {
