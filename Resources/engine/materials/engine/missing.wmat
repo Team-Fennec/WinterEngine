@@ -1,4 +1,4 @@
 {
-    "shader": "UnlitTexturedColored",
-    "texture": "engine/missing.png"
+    shader: "UnlitVertexColored",
+    albedo: "bigjohn.png"
 }

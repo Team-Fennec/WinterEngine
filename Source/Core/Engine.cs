@@ -1,36 +1,28 @@
-using log4net;
+﻿using log4net;
 using ImGuiNET;
 using Hjson;
 using System.Reflection;
 using WinterEngine.Gui;
 using WinterEngine.Resource;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace WinterEngine.Core;
 
-public class Engine : Module
+public class Engine : Game
 {
 	// Logger
     private static readonly ILog log = LogManager.GetLogger(typeof(Engine));
-    
-    public const string GamePath = "";
-	public const string GameTitle = "WinterEngine";
-	public const int Width = 640;
-	public const int Height = 360;
-	public static readonly Version Version = typeof(Engine).Assembly.GetName().Version!;
-	public static readonly string VersionString = $"v.{Version.Major}.{Version.Minor}.{Version.Build}";
 
 	public static GraphicsDeviceManager graphicsDeviceManager { get; private set; }
 	private SpriteBatch _spriteBatch;
 	private ImGuiRenderer _imGuiRenderer;
 
+	private string gameDir;
+
 	public List<Actors.BaseActor> actors = new List<Actors.BaseActor>();
 	public List<ImguiPanel> imguiPanels = new List<ImguiPanel>();
-	
-	public Engine()
-	{
-		// If this isn't stored, the delegate will get GC'd and everything will crash :)
-		audioEventCallback = MusicTimelineCallback;
-	}
 
 	public Engine(string gameDir) {
 		log.Info("Initializing Engine...");
@@ -42,18 +34,6 @@ public class Engine : Module
 		ResourceManager.Init(Content);
 	}
 
-	public override void Startup()
-	{
-		instance = this;
-		
-		Time.FixedStep = true;
-		App.VSync = true;
-		App.Title = GameTitle;
-		Audio.Init();
-
-		scenes.Push(new Startup());
-	}
-	
 	protected override void Initialize()
     {
 		log.Info("Reading Gameinfo...");
