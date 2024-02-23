@@ -43,6 +43,14 @@ public class ShaderResource {
             while (line != null) {
                 if (line.StartsWith("#include")) {
                     // parse out include and load it's code
+                    string inclFilename = line.Split(" ")[1].Trim("\"");
+                    StreamReader inclFile = ResourceManager.OpenResource(Path.Combine("shaders", "include", inclFilename));
+                    string inclLine = inclFile.ReadLine();
+                    while (inclLine != null) {
+                        VertexCode += $"{inclLine}\n";
+                        inclLine = inclFile.ReadLine();
+                    }
+                    inclFile.Close();
                 } else {
                     VertexCode += $"{line}\n";
                 }
@@ -56,6 +64,14 @@ public class ShaderResource {
             while (line != null) {
                 if (line.StartsWith("#include")) {
                     // parse out include and load it's code
+                    string inclFilename = line.Split(" ")[1].Trim("\"");
+                    StreamReader inclFile = ResourceManager.OpenResource(Path.Combine("shaders", "include", inclFilename));
+                    string inclLine = inclFile.ReadLine();
+                    while (inclLine != null) {
+                        VertexCode += $"{inclLine}\n";
+                        inclLine = inclFile.ReadLine();
+                    }
+                    inclFile.Close();
                 } else {
                     FragmentCode += $"{line}\n";
                 }
