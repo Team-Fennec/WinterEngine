@@ -3,8 +3,10 @@ VERTEX:
 
 layout(location = 0) in vec2 Position;
 layout(location = 1) in vec4 Color;
+layout(location = 2) in vec2 TexCoords;
 
 layout(location = 0) out vec4 fsin_Color;
+layout(location = 1) out vec2 fsin_texCoords;
 
 void main()
 {
@@ -12,6 +14,7 @@ void main()
     fsin_texCoords = TexCoords;
     fsin_Color = Color;
 }
+
 FRAGMENT:
 #version 450
 
