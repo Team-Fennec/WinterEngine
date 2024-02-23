@@ -1,3 +1,4 @@
+using ImVGuiNET;
 using ImGuiNET;
 using Microsoft.Xna.Framework;
 
@@ -14,8 +15,8 @@ public sealed class DebugConsole : ImguiPanel {
     protected override void OnLayout() {
         ImGui.Text("hello world this is the dev console");
         
-        ImGui.InputText("##console_input", ref conInput, 1024);
+        ImVGui.InputText("##console_input", ref conInput, 1024);
         ImGui.SameLine();
-        ImGui.Button("Submit##console_submit");
+        ImVGui.Button("Submit##console_submit");
     }
 }

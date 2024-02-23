@@ -70,6 +70,7 @@ public class ResourceManager
 	}
 
 	public static StreamReader OpenResource(string path) {
+		// todo: handle xnb files
 		foreach (ResourceProvider resDir in resDirs) {
 			switch(resDir.format) {
 			case ResourceFormat.Folder:

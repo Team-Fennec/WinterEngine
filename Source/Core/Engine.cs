@@ -1,7 +1,12 @@
 ﻿using log4net;
 using ImGuiNET;
+using ImVGuiNET;
+using System.Diagnostics;
+using System.Numerics;
+using System.Text;
 using Hjson;
 using System.Reflection;
+using WinterEngine.Rendering;
 using WinterEngine.Gui;
 using WinterEngine.Resource;
 using Microsoft.Xna.Framework;
@@ -18,6 +23,9 @@ public class Engine : Game
 	public static GraphicsDeviceManager graphicsDeviceManager { get; private set; }
 	private SpriteBatch _spriteBatch;
 	private ImGuiRenderer _imGuiRenderer;
+
+	private static bool _showImGuiDemoWindow = true;
+    private static bool _showAnotherWindow = false;
 
 	private string gameDir;
 
@@ -74,6 +82,7 @@ public class Engine : Game
 		log.Info("Initializing ImGui...");
 		_imGuiRenderer = new ImGuiRenderer(this);
 		_imGuiRenderer.RebuildFontAtlas();
+		ImVGui.StyleEngineTools();
 
 		imguiPanels.Add(new DebugConsole());
 
@@ -83,6 +92,7 @@ public class Engine : Game
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
+		ResourceManager.OpenResource("models/gort.obj").Close();
     }
 
 	protected override void Update(GameTime gameTime)
@@ -107,6 +117,13 @@ public class Engine : Game
 
 		// Call BeforeLayout first to set things up
 		_imGuiRenderer.BeforeLayout(gameTime);
+
+		// imgui stuff
+		ImGui.Checkbox("show imgui demo", ref _showImGuiDemoWindow);
+
+		if (_showImGuiDemoWindow) {
+			ImGui.ShowDemoWindow(ref _showImGuiDemoWindow);
+		}
 
 		// Draw our UI
 		foreach (ImguiPanel panel in imguiPanels) {

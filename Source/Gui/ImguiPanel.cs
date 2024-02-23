@@ -1,3 +1,4 @@
+using ImVGuiNET;
 using ImGuiNET;
 using Microsoft.Xna.Framework;
 
@@ -10,7 +11,7 @@ public abstract class ImguiPanel {
 
     public void DrawLayout() {
         if (Visible) {
-            if (ImGui.Begin(Name, ref Visible)) {
+            if (ImVGui.Begin(Name, ref Visible)) {
                 OnLayout();
 
                 ImGui.End();
