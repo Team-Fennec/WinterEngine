@@ -1,26 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
-    <RollForward>Major</RollForward>
-    <PublishReadyToRun>false</PublishReadyToRun>
-    <TieredCompilation>false</TieredCompilation>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="Icon.ico" />
-    <None Remove="Icon.bmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Icon.ico" />
-    <EmbeddedResource Include="Icon.bmp" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Hjson" Version="3.0.0" />
     <PackageReference Include="log4net" Version="2.0.15" />
+    <ProjectReference Include="..\Veldrid.SDL2\Veldrid.SDL2.csproj" />
     <ProjectReference Include="..\Source\WinterEngine.csproj" />
-    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
+    <PackageReference Include="Veldrid.StartupUtilities" Version="4.9.0" />
   </ItemGroup>
 </Project>
