@@ -1,5 +1,5 @@
 ﻿
-namespace WinterEngine.Actors;
+namespace Celeste64;
 
 public abstract class Attacher : Actor, IRidePlatforms
 {
