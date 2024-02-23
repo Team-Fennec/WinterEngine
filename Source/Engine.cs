@@ -1,4 +1,4 @@
-﻿using Veldrid;
+using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.SPIRV;
 using Veldrid.StartupUtilities;

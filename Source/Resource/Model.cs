@@ -1,64 +1,138 @@
-using WinterEngine.Resource.Types;
-//using WinterEngine.Rendering;
+using System.IO;
+using Microsoft.Xna.Framework;
 
-namespace WinterEngine.Resource;
+namespace WinterEngine.Resource.Types;
 
-// Takes a model resource and builds the proper data sets
-// to use the model.
-public class Model
+public struct ModelFace {
+    public int vert1;
+    public int vert2;
+    public int vert3;
+
+	public int norm1;
+    public int norm2;
+    public int norm3;
+
+	public int uv1;
+    public int uv2;
+    public int uv3;
+}
+
+public struct ModelObject {
+	public ModelObject() {
+		name = "";
+		faces = new List<ModelFace>();
+	}
+
+	public string name;
+    public List<ModelFace> faces;
+}
+
+public struct ModelFrame {
+	public ModelFrame() {
+		objects = new List<ModelObject>();
+		vertices = new List<Vector3>();
+		normals = new List<Vector3>();
+		texCoords = new List<Vector2>();
+	}
+
+    public List<ModelObject> objects;
+	public List<Vector3> vertices;
+    public List<Vector3> normals;
+    public List<Vector2> texCoords;
+}
+
+// Holds data about a model
+public class ModelResource
 {
-	private ModelResource modelResource;
+	public string name = "Unused"; // unused
+	public string material;
+	public List<ModelFrame> frames;
 
-	public float[] Vertices { get => vertices; }
-	public uint[] Indices { get => indices; }
+	public ModelResource(string modelPath) {
+		StreamReader modelFile = ResourceManager.OpenResource($"models/{modelPath}.wmdl");
 
-	private float[] vertices;
-	private uint[] indices;
+		frames = new List<ModelFrame>();
 
-	public Model()
-	{
-		modelResource = new();
-	}
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+		while (true) {
+			string line = modelFile.ReadLine();
+			if (line == null) {
+				break;
+			}
 
-	public Model(ModelResource model)
-	{
-		modelResource = model;
+            if (line.StartsWith("#")) {
+				continue; // skip over comments
+			}
 
-		CompileModel();
-	}
+            string[] splitLine = line.Split(" ");
 
-	public Model(float[] _vertices, float[] _colors, uint[] _indices, float[] _texcoords)
-	{
-		modelResource = new()
-		{
-			vertices = _vertices,
-			colors = _colors,
-			indices = _indices,
-			texCoords = _texcoords
-		};
+			if (splitLine[0] == "tex") {
+				material = splitLine[1];
+				continue;
+			}
 
-		CompileModel();
-	}
+			if (splitLine[0] == "framestart") {
+				ModelFrame frame = new ModelFrame();
+				while (line != "frameend") {
+					line = modelFile.ReadLine();
+					splitLine = line.Split(" ");
+					if (splitLine[0] == "o") {
+						ModelObject obj = new ModelObject();
+						obj.name = splitLine[1];
+						while (line != "endo") {
+							line = modelFile.ReadLine();
+							splitLine = line.Split(" ");
 
-	// takes the current resource data and builds the proper
-	// opengl compatible vertex list
-	public void CompileModel()
-	{
-		List<float> fullArray = new();
+							switch (splitLine[0]) {
+								case "v":
+									frame.vertices.Add(new Vector3(
+										float.Parse(splitLine[1]), 
+										float.Parse(splitLine[2]),
+										float.Parse(splitLine[3])
+									));
+									break;
+								case "vn":
+									frame.normals.Add(new Vector3(
+										float.Parse(splitLine[1]), 
+										float.Parse(splitLine[2]),
+										float.Parse(splitLine[3])
+									));
+									break;
+								case "vt":
+									frame.texCoords.Add(new Vector2(
+										float.Parse(splitLine[1]), 
+										float.Parse(splitLine[2])
+									));
+									break;
+								case "f":
+									ModelFace face = new ModelFace();
+									string[] v1 = splitLine[1].Split("/");
+									string[] v2 = splitLine[2].Split("/");
+									string[] v3 = splitLine[3].Split("/");
 
-		for (int i = 0; i < modelResource.vertices.Length; i += 3)
-		{
-			fullArray.Add(modelResource.vertices[i]);
-			fullArray.Add(modelResource.vertices[i+1]);
-			fullArray.Add(modelResource.vertices[i+2]);
+									face.vert1	= int.Parse(v1[0]) - 1;
+									face.uv1	= int.Parse(v1[1]) - 1;
+									face.norm1	= int.Parse(v1[2]) - 1;
+									
+									face.vert2	= int.Parse(v2[0]) - 1;
+									face.uv2	= int.Parse(v2[1]) - 1;
+									face.norm2	= int.Parse(v2[2]) - 1;
 
-			fullArray.Add(modelResource.colors[i]);
-			fullArray.Add(modelResource.colors[i+1]);
-			fullArray.Add(modelResource.colors[i+2]);
+									face.vert3	= int.Parse(v3[0]) - 1;
+									face.uv3	= int.Parse(v3[1]) - 1;
+									face.norm3	= int.Parse(v3[2]) - 1;
+
+									obj.faces.Add(face);
+									break;
+							}
+						}
+						frame.objects.Add(obj);
+					}
+				}
+				frames.Add(frame);
+			}
 		}
-
-		vertices = fullArray.ToArray();
-
-		indices = modelResource.indices;
+		modelFile.Close();
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
 	}
 }
