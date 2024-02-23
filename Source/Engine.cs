@@ -48,10 +48,11 @@ public class Engine
 		}
 
 		// search for progs.dll inside the game folder
-		if (File.Exists(Path.Combine(gameDir, "progs.dll"))) {
-			string execAssemPath = Assembly.GetExecutingAssembly().Location;
+		if (Directory.Exists(Path.Combine(gameDir, "bin"))) {
+		    // get listing of files inside directory and load them
+			/*string execAssemPath = Assembly.GetExecutingAssembly().Location;
 			Assembly.LoadFile(Path.Combine(Path.GetDirectoryName(execAssemPath), gameDir, "progs.dll"));
-			log.Info("Loaded progs.dll for game");
+			log.Info("Loaded");*/
 		}
 
 		log.Info("Initializing Veldrid SDL2 Window...");
