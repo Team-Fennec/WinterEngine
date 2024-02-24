@@ -14,6 +14,7 @@ using System.Reflection;
 using WinterEngine.Rendering;
 using WinterEngine.Actors;
 using WinterEngine.Resource;
+using Vortice.Mathematics;
 
 namespace WinterEngine.Core;
 
@@ -84,7 +85,7 @@ public class Engine
 		log.Info("Initializing GraphicsDevice...");
 		GraphicsDeviceOptions options = new GraphicsDeviceOptions(
 			true,
-			null,
+			PixelFormat.R32_Float,
 			false,
 			ResourceBindingModel.Improved,
 			true,
@@ -280,14 +281,14 @@ public class Engine
 			_cl.Begin();
 
 			_cl.UpdateBuffer(_projectionBuffer, 0, Matrix4x4.CreatePerspectiveFieldOfView(
-                1.0f,
+                (float)Mathf.Deg2Rad(90),
                 (float)960 / 540,
                 0.5f,
-                100f));
+                9999f));
 
-            _cl.UpdateBuffer(_viewBuffer, 0, Matrix4x4.CreateLookAt(Vector3.UnitZ * 20.5f, Vector3.Zero, Vector3.UnitY));
+            _cl.UpdateBuffer(_viewBuffer, 0, Matrix4x4.CreateLookAt(Vector3.UnitZ * 4000, Vector3.UnitZ * 180, Vector3.UnitY));
 			
-            Matrix4x4 rotation = Matrix4x4.CreateFromYawPitchRoll(0, (float)rotationValue, (float)rotationValue);
+            Matrix4x4 rotation = Matrix4x4.CreateFromYawPitchRoll((float)-rotationValue, (float)rotationValue, (float)-rotationValue);
 
             if (rotationValue > 359) {
 				rotationValue = 0;
@@ -302,13 +303,13 @@ public class Engine
 			_cl.ClearColorTarget(0, new RgbaFloat(_clearColor.X, _clearColor.Y, _clearColor.Z, 1f));
 
 			// Send calls to renderer main to render everything
-			//_cl.ClearDepthStencil(1f);
+			_cl.ClearDepthStencil(1f);
             _cl.SetPipeline(_pipeline);
             _cl.SetVertexBuffer(0, _vertexBuffer);
             _cl.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);
             _cl.SetGraphicsResourceSet(0, _projViewSet);
             _cl.SetGraphicsResourceSet(1, _worldTextureSet);
-            _cl.DrawIndexed((uint)GetCubeIndices().Length, 1, 0, 0, 0);
+            _cl.DrawIndexed((uint)GetModelIndices().Length, 1, 0, 0, 0);
 
 			_imguiRend.Render(_graphicsDevice, _cl);
 
@@ -339,58 +340,6 @@ public class Engine
 		_imguiRend.Dispose();
 
 		log.Info("Engine Shutdown Complete");
-	}
-
-	private static ushort[] GetCubeIndices()
-	{
-		ushort[] indices =
-		{
-			0,1,2, 0,2,3,
-			4,5,6, 4,6,7,
-			8,9,10, 8,10,11,
-			12,13,14, 12,14,15,
-			16,17,18, 16,18,19,
-			20,21,22, 20,22,23,
-		};
-
-		return indices;
-	}
-
-	private static VertexPositionColorTexture[] GetCubeVertices() {
-		VertexPositionColorTexture[] vertices = new VertexPositionColorTexture[]
-		{
-			// Top
-			new VertexPositionColorTexture(new Vector3(-0.5f, +0.5f, -0.5f), RgbaFloat.White, new Vector2(0, 0)),
-			new VertexPositionColorTexture(new Vector3(+0.5f, +0.5f, -0.5f), RgbaFloat.White, new Vector2(1, 0)),
-			new VertexPositionColorTexture(new Vector3(+0.5f, +0.5f, +0.5f), RgbaFloat.White, new Vector2(1, 1)),
-			new VertexPositionColorTexture(new Vector3(-0.5f, +0.5f, +0.5f), RgbaFloat.White, new Vector2(0, 1)),
-			// Bottom                                                             
-			new VertexPositionColorTexture(new Vector3(-0.5f,-0.5f, +0.5f),  RgbaFloat.White, new Vector2(0, 0)),
-			new VertexPositionColorTexture(new Vector3(+0.5f,-0.5f, +0.5f),  RgbaFloat.White, new Vector2(1, 0)),
-			new VertexPositionColorTexture(new Vector3(+0.5f,-0.5f, -0.5f),  RgbaFloat.White, new Vector2(1, 1)),
-			new VertexPositionColorTexture(new Vector3(-0.5f,-0.5f, -0.5f),  RgbaFloat.White, new Vector2(0, 1)),
-			// Left                                                               
-			new VertexPositionColorTexture(new Vector3(-0.5f, +0.5f, -0.5f), RgbaFloat.White, new Vector2(0, 0)),
-			new VertexPositionColorTexture(new Vector3(-0.5f, +0.5f, +0.5f), RgbaFloat.White, new Vector2(1, 0)),
-			new VertexPositionColorTexture(new Vector3(-0.5f, -0.5f, +0.5f), RgbaFloat.White, new Vector2(1, 1)),
-			new VertexPositionColorTexture(new Vector3(-0.5f, -0.5f, -0.5f), RgbaFloat.White, new Vector2(0, 1)),
-			// Right                                                              
-			new VertexPositionColorTexture(new Vector3(+0.5f, +0.5f, +0.5f), RgbaFloat.White, new Vector2(0, 0)),
-			new VertexPositionColorTexture(new Vector3(+0.5f, +0.5f, -0.5f), RgbaFloat.White, new Vector2(1, 0)),
-			new VertexPositionColorTexture(new Vector3(+0.5f, -0.5f, -0.5f), RgbaFloat.White, new Vector2(1, 1)),
-			new VertexPositionColorTexture(new Vector3(+0.5f, -0.5f, +0.5f), RgbaFloat.White, new Vector2(0, 1)),
-			// Back                                                               
-			new VertexPositionColorTexture(new Vector3(+0.5f, +0.5f, -0.5f), RgbaFloat.White, new Vector2(0, 0)),
-			new VertexPositionColorTexture(new Vector3(-0.5f, +0.5f, -0.5f), RgbaFloat.White, new Vector2(1, 0)),
-			new VertexPositionColorTexture(new Vector3(-0.5f, -0.5f, -0.5f), RgbaFloat.White, new Vector2(1, 1)),
-			new VertexPositionColorTexture(new Vector3(+0.5f, -0.5f, -0.5f), RgbaFloat.White, new Vector2(0, 1)),
-			// Front                                                              
-			new VertexPositionColorTexture(new Vector3(-0.5f, +0.5f, +0.5f), RgbaFloat.White, new Vector2(0, 0)),
-			new VertexPositionColorTexture(new Vector3(+0.5f, +0.5f, +0.5f), RgbaFloat.White, new Vector2(1, 0)),
-			new VertexPositionColorTexture(new Vector3(+0.5f, -0.5f, +0.5f), RgbaFloat.White, new Vector2(1, 1)),
-			new VertexPositionColorTexture(new Vector3(-0.5f, -0.5f, +0.5f), RgbaFloat.White, new Vector2(0, 1)),
-		};
-		return vertices;
 	}
 
 	static VertexPositionColorTexture[] GetModelVertices() {
@@ -477,7 +426,7 @@ public class Engine
 		);
 
 		pipelineDescription.RasterizerState = new RasterizerStateDescription(
-			cullMode: FaceCullMode.None,
+			cullMode: FaceCullMode.Back,
 			fillMode: PolygonFillMode.Solid,
 			frontFace: FrontFace.Clockwise,
 			depthClipEnabled: true,
