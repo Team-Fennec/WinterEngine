@@ -1,7 +1,7 @@
 /*
  * VTFLibWrapper
  *
- * Handles literally everything relating to VTF Support in Chisel
+ * Handles literally everything relating to VTF Support in Chisel (and now WinterEngine!)
  *
  * Made by the amazing SCell555
  */
