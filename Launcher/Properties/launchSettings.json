@@ -2,7 +2,7 @@
   "profiles": {
     "Launcher": {
       "commandName": "Project",
-      "commandLineArgs": "-game antithesis"
+      "commandLineArgs": "-game testgame"
     }
   }
 }

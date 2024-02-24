@@ -1,0 +1,4 @@
+{
+    shader: "UnlitTextured",
+    albedo: "black.png"
+}

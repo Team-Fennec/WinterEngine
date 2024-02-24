@@ -29,7 +29,7 @@ internal class Program
                                 null
                             );
                         }
-                        return 0;
+                        return 1;
                     }
                     gameName = args[i + 1];
                     break;
@@ -47,13 +47,10 @@ internal class Program
                     null
                 );
             }
-            return 0;
+            return 1;
         }
 
         WinterEngine.Core.Engine.Init(gameName);
-        WinterEngine.Core.Engine.Run();
-        WinterEngine.Core.Engine.Shutdown();
-
-        return 0;
+        return WinterEngine.Core.Engine.Run();
     }
 }

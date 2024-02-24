@@ -1,6 +1,6 @@
-VERTEX:
 #version 450
 
+VERTEX:
 layout(location = 0) in vec2 Position;
 layout(location = 1) in vec4 Color;
 layout(location = 2) in vec2 TexCoords;
@@ -16,14 +16,12 @@ void main()
 }
 
 FRAGMENT:
-#version 450
-
 layout(location = 0) in vec4 fsin_Color;
 layout(location = 1) in vec2 fsin_texCoords;
 layout(location = 0) out vec4 fsout_color;
 
-layout(set = 1, binding = 1) uniform texture2D SurfaceTexture;
-layout(set = 1, binding = 2) uniform sampler SurfaceSampler;
+layout(set = 1, binding = 0) uniform texture2D SurfaceTexture;
+layout(set = 1, binding = 1) uniform sampler SurfaceSampler;
 
 void main()
 {

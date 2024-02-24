@@ -1,11 +1,10 @@
-VERTEX:
 #version 450
 
+VERTEX:
 #include "Buffers.glsl"
 
 layout(location = 0) in vec3 Position;
 layout(location = 1) in vec4 Color;
-layout(location = 2) in vec2 TexCoords;
 
 layout(location = 0) out vec4 fsin_Color;
 
@@ -19,8 +18,6 @@ void main()
 }
 
 FRAGMENT:
-#version 450
-
 layout(location = 0) in vec4 fsin_Color;
 layout(location = 0) out vec4 fsout_color;
 

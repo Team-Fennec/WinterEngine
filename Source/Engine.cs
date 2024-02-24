@@ -1,20 +1,16 @@
 using Veldrid;
-using Veldrid.Sdl2;
-using Veldrid.SPIRV;
-using Veldrid.StartupUtilities;
 using Veldrid.ImageSharp;
 using log4net;
 using ImGuiNET;
-using ImVGuiNET;
 using System.Diagnostics;
 using System.Numerics;
-using System.Text;
 using Hjson;
 using System.Reflection;
 using WinterEngine.Rendering;
+using WinterEngine.Rendering.RenderObjects;
 using WinterEngine.Actors;
 using WinterEngine.Resource;
-using Vortice.Mathematics;
+using Veldrid.Sdl2;
 
 namespace WinterEngine.Core;
 
@@ -24,26 +20,17 @@ public class Engine
     private static readonly ILog log = LogManager.GetLogger(typeof(Engine));
 
 	private static ImageSharpTexture _missingTexData;
+	private static MeshHandle _snapMesh;
+	private static ShaderHandle _snapShader;
+	private static ROModel _snapModel;
 
-	private static GraphicsDevice _graphicsDevice;
-	private static Sdl2Window _window;
-	private static CommandList _cl;
-	private static ImGuiController _imguiRend;
-	private static DeviceBuffer _projectionBuffer;
-	private static DeviceBuffer _viewBuffer;
-	private static DeviceBuffer _worldBuffer;
-	private static DeviceBuffer _vertexBuffer;
-	private static DeviceBuffer _indexBuffer;
-	private static Shader[] _shaders;
-	private static Pipeline _pipeline;
-	private static Texture _surfaceTexture;
-	private static TextureView _surfaceTextureView;
-	private static ResourceSet _projViewSet;
-	private static ResourceSet _worldTextureSet;
+	private static int _returnCode = 0;
 
 	private static bool _showImGuiDemoWindow = true;
     private static bool _showAnotherWindow = false;
-	private static Vector3 _clearColor = new Vector3(0.45f, 0.55f, 0.6f);
+
+	private static Assembly clientAssembly;
+	private static CGameClient clientInstance;
 
 	public static void Init(string gameDir) {
 		log.Info("Initializing Engine...");
@@ -58,60 +45,55 @@ public class Engine
 		JsonValue resDirs;
 		gameInfoData.Qo().TryGetValue("resourcePaths", out resDirs);
 		foreach (JsonValue jValue in resDirs.Qa()) {
-			Resource.ResourceManager.AddResourceProvider(jValue.Qstr());
+			ResourceManager.AddResourceProvider(jValue.Qstr());
 		}
 
-		// search for progs.dll inside the game folder
+		// search for bin dir
 		if (Directory.Exists(Path.Combine(gameDir, "bin"))) {
-			foreach (string binFile in Directory.EnumerateFiles(Path.Combine(gameDir, "bin"))) {
-				if (Path.GetExtension(binFile) == "dll") {
-					//string execAssemPath = Assembly.GetExecutingAssembly().Location;
-					Assembly.LoadFile(binFile);
-					log.Info($"Loaded game assembly {Path.GetFileName(binFile)}");
-				}
-			}
-		}
+			// try and load client.dll
+			if (File.Exists(Path.Combine(gameDir, "bin", "client.dll"))) {
+                string execAssemPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                clientAssembly = Assembly.LoadFile(Path.Combine(execAssemPath, gameDir, "bin", "client.dll"));
+                log.Info("Loaded Client Dll");
+            } else {
+				Error("Unable to find client.dll in game bin folder");
+            }
+		} else {
+            Error("Unable to find bin folder in game folder");
+        }
 
-		log.Info("Initializing Veldrid SDL2 Window...");
-		WindowCreateInfo windowCI = new WindowCreateInfo() {
-			X = 100,
-			Y = 100,
-			WindowWidth = 960,
-			WindowHeight = 540,
-			WindowTitle = gameProperName.Qstr()
-		};
-		_window = VeldridStartup.CreateWindow(ref windowCI);
-
-		log.Info("Initializing GraphicsDevice...");
-		GraphicsDeviceOptions options = new GraphicsDeviceOptions(
-			true,
-			PixelFormat.R32_Float,
-			false,
-			ResourceBindingModel.Improved,
-			true,
-			true,
-			false
+		// spin up the first instance of a client class we find
+		clientInstance = (CGameClient)clientAssembly.CreateInstance(
+			clientAssembly.GetTypes().Where(t => typeof(CGameClient).IsAssignableFrom(t)).First().FullName
 		);
-		_graphicsDevice = VeldridStartup.CreateGraphicsDevice(_window, options, GraphicsBackend.Direct3D11);
+		clientInstance.ClientStartup();
 
-		log.Info("Initializing ImGui...");
+		Device.Init(gameProperName.Qstr());
 
-		_imguiRend = new ImGuiController(
-			_graphicsDevice,
-			_graphicsDevice.MainSwapchain.Framebuffer.OutputDescription,
-			_window.Width,
-			_window.Height
-		);
-		//ImVGui.StyleEngineTools();
+		Renderer.Init();
 
 		modelData = new Md3Model("snap");
 
 		// load the snap png data using the resource manager and dispense it to veldrid
 		StreamReader snapTex = ResourceManager.OpenResource("materials/models/snap.png");
 		_missingTexData = new ImageSharpTexture(snapTex.BaseStream, false);
+		snapTex.Close();
 
-		log.Info("Creating Veldrid Resources...");
-		CreateResources();
+		// create snap model to display
+		_snapModel = new ROModel();
+
+		ShaderResource unlitTextured = new ShaderResource("UnlitTextured");
+
+		_snapModel.Shader = new ShaderHandle(
+			unlitTextured.ShaderName,
+			unlitTextured.VertexCode,
+			unlitTextured.FragmentCode
+		);
+		_snapModel.Texture = new TextureHandle(_missingTexData.CreateDeviceTexture(
+			Renderer.GraphicsDevice,
+			Renderer.GraphicsDevice.ResourceFactory
+		));
+		_snapModel.Mesh = new MeshHandle(GetModelVertices(), GetModelIndices());
 	}
 
 	static Md3Model modelData;
@@ -261,14 +243,13 @@ public class Engine
 		var stopwatch = Stopwatch.StartNew();
 		float deltaTime = 0f;
 
-		float rotationValue = 0;
-		while (_window.Exists)
+		while (Device.Window.Exists)
 		{
 			deltaTime = stopwatch.ElapsedTicks / (float)Stopwatch.Frequency;
 			stopwatch.Restart();
-			InputSnapshot snapshot = _window.PumpEvents();
-			if (!_window.Exists) { break; }
-			_imguiRend.Update(deltaTime, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
+			InputSnapshot snapshot = Device.Window.PumpEvents();
+			if (!Device.Window.Exists) { break; }
+			Renderer.ImGuiController.Update(deltaTime, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
 
 			// imgui stuff
 			ImGui.Checkbox("show imgui demo", ref _showImGuiDemoWindow);
@@ -278,69 +259,39 @@ public class Engine
 			}
 			DisplayModelData(modelData);
 
-			_cl.Begin();
-
-			_cl.UpdateBuffer(_projectionBuffer, 0, Matrix4x4.CreatePerspectiveFieldOfView(
-                (float)Mathf.Deg2Rad(90),
-                (float)960 / 540,
-                0.5f,
-                9999f));
-
-            _cl.UpdateBuffer(_viewBuffer, 0, Matrix4x4.CreateLookAt(Vector3.UnitZ * 4000, Vector3.UnitZ * 180, Vector3.UnitY));
-			
-            Matrix4x4 rotation = Matrix4x4.CreateFromYawPitchRoll((float)-rotationValue, (float)rotationValue, (float)-rotationValue);
-
-            if (rotationValue > 359) {
-				rotationValue = 0;
-			} else {
-				rotationValue += 1.0f * deltaTime;
-			}
-
-            _cl.UpdateBuffer(_worldBuffer, 0, ref rotation);
-
-			_cl.SetFramebuffer(_graphicsDevice.MainSwapchain.Framebuffer);
-
-			_cl.ClearColorTarget(0, new RgbaFloat(_clearColor.X, _clearColor.Y, _clearColor.Z, 1f));
-
-			// Send calls to renderer main to render everything
-			_cl.ClearDepthStencil(1f);
-            _cl.SetPipeline(_pipeline);
-            _cl.SetVertexBuffer(0, _vertexBuffer);
-            _cl.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);
-            _cl.SetGraphicsResourceSet(0, _projViewSet);
-            _cl.SetGraphicsResourceSet(1, _worldTextureSet);
-            _cl.DrawIndexed((uint)GetModelIndices().Length, 1, 0, 0, 0);
-
-			_imguiRend.Render(_graphicsDevice, _cl);
-
-			_cl.End();
-			_graphicsDevice.SubmitCommands(_cl);
-			_graphicsDevice.SwapBuffers(_graphicsDevice.MainSwapchain);
+			Renderer.PushRO(_snapModel);
+			Renderer.Render();
 		}
 
-		return 0;
-	}
+		Shutdown();
+		return _returnCode;
+    }
 
 	public static void Shutdown() {
 		log.Info("Beginning Engine Shutdown");
+        
+		clientInstance.ClientShutdown();
+		
+		Renderer.Shutdown();
 
-		_graphicsDevice.WaitForIdle();
-
-		log.Info("Disposing Veldrid Resources...");
-
-		_pipeline.Dispose();
-		foreach (Shader shader in _shaders)
-		{
-			shader.Dispose();
-		}
-		_cl.Dispose();
-		_vertexBuffer.Dispose();
-		_indexBuffer.Dispose();
-		_graphicsDevice.Dispose();
-		_imguiRend.Dispose();
-
-		log.Info("Engine Shutdown Complete");
+        log.Info("Engine Shutdown Complete");
 	}
+
+	public static void Error(string message) {
+		log.Error(message);
+        unsafe {
+            Sdl2Native.SDL_ShowSimpleMessageBox(
+                SDL_MessageBoxFlags.Error,
+                "Winter Engine",
+                $"Engine Error:\n{message}",
+                null
+            );
+        }
+		// begin a clean shutdown of the engine
+		_returnCode = 1; // signify an error occurred
+		if (Device.Window != null)
+			Device.Window.Close();
+    }
 
 	static VertexPositionColorTexture[] GetModelVertices() {
 		List<VertexPositionColorTexture> vertList = new List<VertexPositionColorTexture>();
@@ -368,112 +319,5 @@ public class Engine
         }
 
         return indxList.ToArray();
-	}
-
-	static void CreateResources() {
-		ResourceFactory factory = _graphicsDevice.ResourceFactory;
-
-		_projectionBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer));
-		_viewBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer));
-		_worldBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer));
-
-		_vertexBuffer = factory.CreateBuffer(
-			new BufferDescription(
-				(uint)(VertexPositionColorTexture.SizeInBytes * GetModelVertices().Length),
-				BufferUsage.VertexBuffer
-			)
-		);
-		_indexBuffer = factory.CreateBuffer(
-			new BufferDescription(
-				sizeof(ushort) * (uint)GetModelIndices().Length,
-				BufferUsage.IndexBuffer
-			)
-		);
-
-        _surfaceTexture = _missingTexData.CreateDeviceTexture(_graphicsDevice, factory);
-        _surfaceTextureView = factory.CreateTextureView(_surfaceTexture);
-
-        _graphicsDevice.UpdateBuffer(_vertexBuffer, 0, GetModelVertices());
-		_graphicsDevice.UpdateBuffer(_indexBuffer, 0, GetModelIndices());
-
-		VertexLayoutDescription vertexLayout = new VertexLayoutDescription(
-			new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
-			new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4),
-			new VertexElementDescription("TexCoords", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2)
-		);
-
-		// load shader code
-		Resource.ShaderResource basicShader = new("UnlitTextured");
-
-		ShaderDescription vertexShaderDesc = new ShaderDescription(
-			ShaderStages.Vertex,
-			Encoding.UTF8.GetBytes(basicShader.VertexCode),
-			"main");
-		ShaderDescription fragmentShaderDesc = new ShaderDescription(
-			ShaderStages.Fragment,
-			Encoding.UTF8.GetBytes(basicShader.FragmentCode),
-			"main");
-
-		_shaders = factory.CreateFromSpirv(vertexShaderDesc, fragmentShaderDesc);
-
-		GraphicsPipelineDescription pipelineDescription = new GraphicsPipelineDescription();
-		pipelineDescription.BlendState = BlendStateDescription.SingleOverrideBlend;
-
-		pipelineDescription.DepthStencilState = new DepthStencilStateDescription(
-			depthTestEnabled: true,
-			depthWriteEnabled: true,
-			comparisonKind: ComparisonKind.LessEqual
-		);
-
-		pipelineDescription.RasterizerState = new RasterizerStateDescription(
-			cullMode: FaceCullMode.Back,
-			fillMode: PolygonFillMode.Solid,
-			frontFace: FrontFace.Clockwise,
-			depthClipEnabled: true,
-			scissorTestEnabled: false
-		);
-
-		pipelineDescription.PrimitiveTopology = PrimitiveTopology.TriangleList;
-		pipelineDescription.ResourceLayouts = new ResourceLayout[] {
-			factory.CreateResourceLayout(
-                new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("ProjectionBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-                    new ResourceLayoutElementDescription("ViewBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex)
-				)
-			),
-			factory.CreateResourceLayout(
-				new ResourceLayoutDescription(
-					new ResourceLayoutElementDescription("WorldBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-					new ResourceLayoutElementDescription("SurfaceTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-					new ResourceLayoutElementDescription("SurfaceSampler", ResourceKind.Sampler, ShaderStages.Fragment)
-				)
-			)
-		};
-
-		pipelineDescription.ShaderSet = new ShaderSetDescription(
-			vertexLayouts: new VertexLayoutDescription[] { vertexLayout },
-			shaders: _shaders
-		);
-
-		pipelineDescription.Outputs = _graphicsDevice.SwapchainFramebuffer.OutputDescription;
-
-		_pipeline = factory.CreateGraphicsPipeline(pipelineDescription);
-
-		_projViewSet = factory.CreateResourceSet(new ResourceSetDescription(
-            pipelineDescription.ResourceLayouts[0],
-			_projectionBuffer,
-			_viewBuffer
-			)
-		);
-
-		_worldTextureSet = factory.CreateResourceSet(new ResourceSetDescription(
-            pipelineDescription.ResourceLayouts[1],
-			_worldBuffer,
-			_surfaceTextureView,
-			_graphicsDevice.Aniso4xSampler
-			)
-		);
-
-		_cl = factory.CreateCommandList();
 	}
 }

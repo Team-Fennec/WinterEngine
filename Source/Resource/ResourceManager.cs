@@ -2,6 +2,8 @@ using Newtonsoft.Json;
 using System.IO;
 using System.IO.Compression;
 using log4net;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using WinterEngine.Core;
 
 namespace WinterEngine.Resource;
 
@@ -34,7 +36,7 @@ public class ResourceManager
 					log.Info($"Added resource path {path}");
 					resDirs.Add(new ResourceProvider(path, format));
 				} else {
-					log.Error($"Failed to add resource directory: No directory was found at path {path}.");
+					Engine.Error($"Failed to add resource directory: No directory was found at path {path}.");
 					return;
 				}
 				break;

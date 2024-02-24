@@ -1,45 +1,64 @@
-using Hjson;
+using log4net;
+using System.Text;
+using Veldrid;
+using Veldrid.SPIRV;
+using WinterEngine.Rendering;
 
 namespace WinterEngine.Resource;
 
 public class ShaderResource {
-    public string FragmentCode;
-    public string VertexCode;
+    public string ShaderName { get; private set; }
+    public string FragmentCode { get; private set; }
+    public string VertexCode { get; private set; }
 
     public ShaderResource(string name) {
+        ShaderName = name;
         StreamReader shaderFile = ResourceManager.OpenResource(Path.Combine("shaders", $"{name}.glsl"));
-        
-        bool vertexMode = false;
+
+        int writerMode = 0; // 0 - global, 1 - vertex, 2 - fragment
         FragmentCode = "";
         VertexCode = "";
-        
+
         string vtxOut = "";
         string frgOut = "";
         
-        string line = "";
         // load code into strings
         while (true) {
-            line = shaderFile.ReadLine();
+            string line = shaderFile.ReadLine();
             if (line == null) break;
             
             if (line == "VERTEX:") {
-                vertexMode = true;
+                writerMode = 1;
                 continue;
             } else if (line == "FRAGMENT:") {
-                vertexMode = false;
+                writerMode = 2;
                 continue;
             }
-            
-            if (vertexMode) {
-                vtxOut += $"{line}\n";
-            } else {
-                frgOut += $"{line}\n";
+
+            switch (writerMode) {
+                case 0:
+                    vtxOut += $"{line}\n";
+                    frgOut += $"{line}\n";
+                    break;
+                case 1:
+                    vtxOut += $"{line}\n";
+                    break;
+                case 2:
+                    frgOut += $"{line}\n";
+                    break;
             }
         }
-        
-        // parse shader code
-        using (StringReader reader = new StringReader(vtxOut)) {
-            line = reader.ReadLine();
+        VertexCode = ParseShaderCode(vtxOut);
+        FragmentCode = ParseShaderCode(frgOut);
+
+        shaderFile.Close();
+    }
+
+    string ParseShaderCode(string input) {
+        string output = "";
+
+        using (StringReader reader = new StringReader(input)) {
+            string line = reader.ReadLine();
             while (line != null) {
                 if (line.StartsWith("#include")) {
                     // parse out include and load it's code
@@ -47,37 +66,17 @@ public class ShaderResource {
                     StreamReader inclFile = ResourceManager.OpenResource(Path.Combine("shaders", "include", inclFilename));
                     string inclLine = inclFile.ReadLine();
                     while (inclLine != null) {
-                        VertexCode += $"{inclLine}\n";
+                        output += $"{inclLine}\n";
                         inclLine = inclFile.ReadLine();
                     }
                     inclFile.Close();
                 } else {
-                    VertexCode += $"{line}\n";
+                    output += $"{line}\n";
                 }
-                
+
                 line = reader.ReadLine();
             }
         }
-        
-        using (StringReader reader = new StringReader(frgOut)) {
-            line = reader.ReadLine();
-            while (line != null) {
-                if (line.StartsWith("#include")) {
-                    // parse out include and load it's code
-                    string inclFilename = line.Split(" ")[1].Trim("\"".ToCharArray(0, 1));
-                    StreamReader inclFile = ResourceManager.OpenResource(Path.Combine("shaders", "include", inclFilename));
-                    string inclLine = inclFile.ReadLine();
-                    while (inclLine != null) {
-                        VertexCode += $"{inclLine}\n";
-                        inclLine = inclFile.ReadLine();
-                    }
-                    inclFile.Close();
-                } else {
-                    FragmentCode += $"{line}\n";
-                }
-                
-                line = reader.ReadLine();
-            }
-        }
+        return output;
     }
 }
