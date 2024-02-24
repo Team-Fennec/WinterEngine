@@ -3,21 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinterEngine", "Source\WinterEngine.csproj", "{B6434837-16AD-4EBA-BEA0-204D6937E1E4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinterEngine", "Source\WinterEngine.csproj", "{B6434837-16AD-4EBA-BEA0-204D6937E1E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Launcher", "Launcher\Launcher.csproj", "{81473072-EAC9-4EA3-A932-79C67289B3B9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Launcher", "Launcher\Launcher.csproj", "{81473072-EAC9-4EA3-A932-79C67289B3B9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D292F79B-EBC4-4D95-97EB-023253A98BBB} = {D292F79B-EBC4-4D95-97EB-023253A98BBB}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veldrid.ImGui", "Veldrid.ImGui\Veldrid.ImGui.csproj", "{D292F79B-EBC4-4D95-97EB-023253A98BBB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Veldrid.ImGui", "Veldrid.ImGui\Veldrid.ImGui.csproj", "{D292F79B-EBC4-4D95-97EB-023253A98BBB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veldrid.SDL2", "Veldrid.SDL2\Veldrid.SDL2.csproj", "{A24186A7-569D-4FA1-B37A-5FEF67663515}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Veldrid.SDL2", "Veldrid.SDL2\Veldrid.SDL2.csproj", "{A24186A7-569D-4FA1-B37A-5FEF67663515}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{B6434837-16AD-4EBA-BEA0-204D6937E1E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -36,5 +36,8 @@ Global
 		{A24186A7-569D-4FA1-B37A-5FEF67663515}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A24186A7-569D-4FA1-B37A-5FEF67663515}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A24186A7-569D-4FA1-B37A-5FEF67663515}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal

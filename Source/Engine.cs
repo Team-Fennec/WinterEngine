@@ -2,6 +2,7 @@ using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.SPIRV;
 using Veldrid.StartupUtilities;
+using Veldrid.ImageSharp;
 using log4net;
 using ImGuiNET;
 using ImVGuiNET;
@@ -21,14 +22,23 @@ public class Engine
 	// Logger
     private static readonly ILog log = LogManager.GetLogger(typeof(Engine));
 
+	private static ImageSharpTexture _missingTexData;
+
 	private static GraphicsDevice _graphicsDevice;
 	private static Sdl2Window _window;
 	private static CommandList _cl;
 	private static ImGuiController _imguiRend;
+	private static DeviceBuffer _projectionBuffer;
+	private static DeviceBuffer _viewBuffer;
+	private static DeviceBuffer _worldBuffer;
 	private static DeviceBuffer _vertexBuffer;
 	private static DeviceBuffer _indexBuffer;
 	private static Shader[] _shaders;
 	private static Pipeline _pipeline;
+	private static Texture _surfaceTexture;
+	private static TextureView _surfaceTextureView;
+	private static ResourceSet _projViewSet;
+	private static ResourceSet _worldTextureSet;
 
 	private static bool _showImGuiDemoWindow = true;
     private static bool _showAnotherWindow = false;
@@ -52,15 +62,17 @@ public class Engine
 
 		// search for progs.dll inside the game folder
 		if (Directory.Exists(Path.Combine(gameDir, "bin"))) {
-		    // get listing of files inside directory and load them
-			/*string execAssemPath = Assembly.GetExecutingAssembly().Location;
-			Assembly.LoadFile(Path.Combine(Path.GetDirectoryName(execAssemPath), gameDir, "progs.dll"));
-			log.Info("Loaded");*/
+			foreach (string binFile in Directory.EnumerateFiles(Path.Combine(gameDir, "bin"))) {
+				if (Path.GetExtension(binFile) == "dll") {
+					//string execAssemPath = Assembly.GetExecutingAssembly().Location;
+					Assembly.LoadFile(binFile);
+					log.Info($"Loaded game assembly {Path.GetFileName(binFile)}");
+				}
+			}
 		}
 
 		log.Info("Initializing Veldrid SDL2 Window...");
-		WindowCreateInfo windowCI = new WindowCreateInfo()
-		{
+		WindowCreateInfo windowCI = new WindowCreateInfo() {
 			X = 100,
 			Y = 100,
 			WindowWidth = 960,
@@ -70,13 +82,16 @@ public class Engine
 		_window = VeldridStartup.CreateWindow(ref windowCI);
 
 		log.Info("Initializing GraphicsDevice...");
-		GraphicsDeviceOptions options = new GraphicsDeviceOptions
-		{
-			PreferStandardClipSpaceYDirection = true,
-			PreferDepthRangeZeroToOne = true
-		};
-		_graphicsDevice = VeldridStartup.CreateGraphicsDevice(_window, options);
-		_cl = _graphicsDevice.ResourceFactory.CreateCommandList();
+		GraphicsDeviceOptions options = new GraphicsDeviceOptions(
+			true,
+			null,
+			false,
+			ResourceBindingModel.Improved,
+			true,
+			true,
+			false
+		);
+		_graphicsDevice = VeldridStartup.CreateGraphicsDevice(_window, options, GraphicsBackend.Direct3D11);
 
 		log.Info("Initializing ImGui...");
 
@@ -89,6 +104,10 @@ public class Engine
 		//ImVGui.StyleEngineTools();
 
 		modelData = new Md3Model("snap");
+
+		// load the snap png data using the resource manager and dispense it to veldrid
+		StreamReader snapTex = ResourceManager.OpenResource("materials/models/snap.png");
+		_missingTexData = new ImageSharpTexture(snapTex.BaseStream, false);
 
 		log.Info("Creating Veldrid Resources...");
 		CreateResources();
@@ -241,6 +260,7 @@ public class Engine
 		var stopwatch = Stopwatch.StartNew();
 		float deltaTime = 0f;
 
+		float rotationValue = 0;
 		while (_window.Exists)
 		{
 			deltaTime = stopwatch.ElapsedTicks / (float)Stopwatch.Frequency;
@@ -258,21 +278,37 @@ public class Engine
 			DisplayModelData(modelData);
 
 			_cl.Begin();
+
+			_cl.UpdateBuffer(_projectionBuffer, 0, Matrix4x4.CreatePerspectiveFieldOfView(
+                1.0f,
+                (float)960 / 540,
+                0.5f,
+                100f));
+
+            _cl.UpdateBuffer(_viewBuffer, 0, Matrix4x4.CreateLookAt(Vector3.UnitZ * 20.5f, Vector3.Zero, Vector3.UnitY));
+			
+            Matrix4x4 rotation = Matrix4x4.CreateFromYawPitchRoll(0, (float)rotationValue, (float)rotationValue);
+
+            if (rotationValue > 359) {
+				rotationValue = 0;
+			} else {
+				rotationValue += 1.0f * deltaTime;
+			}
+
+            _cl.UpdateBuffer(_worldBuffer, 0, ref rotation);
+
 			_cl.SetFramebuffer(_graphicsDevice.MainSwapchain.Framebuffer);
 
 			_cl.ClearColorTarget(0, new RgbaFloat(_clearColor.X, _clearColor.Y, _clearColor.Z, 1f));
 
 			// Send calls to renderer main to render everything
-			_cl.SetVertexBuffer(0, _vertexBuffer);
-			_cl.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);
-			_cl.SetPipeline(_pipeline);
-			_cl.DrawIndexed(
-				indexCount: 6,
-				instanceCount: 2,
-				indexStart: 0,
-				vertexOffset: 0,
-				instanceStart: 0
-			);
+			//_cl.ClearDepthStencil(1f);
+            _cl.SetPipeline(_pipeline);
+            _cl.SetVertexBuffer(0, _vertexBuffer);
+            _cl.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);
+            _cl.SetGraphicsResourceSet(0, _projViewSet);
+            _cl.SetGraphicsResourceSet(1, _worldTextureSet);
+            _cl.DrawIndexed((uint)GetCubeIndices().Length, 1, 0, 0, 0);
 
 			_imguiRend.Render(_graphicsDevice, _cl);
 
@@ -305,31 +341,120 @@ public class Engine
 		log.Info("Engine Shutdown Complete");
 	}
 
+	private static ushort[] GetCubeIndices()
+	{
+		ushort[] indices =
+		{
+			0,1,2, 0,2,3,
+			4,5,6, 4,6,7,
+			8,9,10, 8,10,11,
+			12,13,14, 12,14,15,
+			16,17,18, 16,18,19,
+			20,21,22, 20,22,23,
+		};
+
+		return indices;
+	}
+
+	private static VertexPositionColorTexture[] GetCubeVertices() {
+		VertexPositionColorTexture[] vertices = new VertexPositionColorTexture[]
+		{
+			// Top
+			new VertexPositionColorTexture(new Vector3(-0.5f, +0.5f, -0.5f), RgbaFloat.White, new Vector2(0, 0)),
+			new VertexPositionColorTexture(new Vector3(+0.5f, +0.5f, -0.5f), RgbaFloat.White, new Vector2(1, 0)),
+			new VertexPositionColorTexture(new Vector3(+0.5f, +0.5f, +0.5f), RgbaFloat.White, new Vector2(1, 1)),
+			new VertexPositionColorTexture(new Vector3(-0.5f, +0.5f, +0.5f), RgbaFloat.White, new Vector2(0, 1)),
+			// Bottom                                                             
+			new VertexPositionColorTexture(new Vector3(-0.5f,-0.5f, +0.5f),  RgbaFloat.White, new Vector2(0, 0)),
+			new VertexPositionColorTexture(new Vector3(+0.5f,-0.5f, +0.5f),  RgbaFloat.White, new Vector2(1, 0)),
+			new VertexPositionColorTexture(new Vector3(+0.5f,-0.5f, -0.5f),  RgbaFloat.White, new Vector2(1, 1)),
+			new VertexPositionColorTexture(new Vector3(-0.5f,-0.5f, -0.5f),  RgbaFloat.White, new Vector2(0, 1)),
+			// Left                                                               
+			new VertexPositionColorTexture(new Vector3(-0.5f, +0.5f, -0.5f), RgbaFloat.White, new Vector2(0, 0)),
+			new VertexPositionColorTexture(new Vector3(-0.5f, +0.5f, +0.5f), RgbaFloat.White, new Vector2(1, 0)),
+			new VertexPositionColorTexture(new Vector3(-0.5f, -0.5f, +0.5f), RgbaFloat.White, new Vector2(1, 1)),
+			new VertexPositionColorTexture(new Vector3(-0.5f, -0.5f, -0.5f), RgbaFloat.White, new Vector2(0, 1)),
+			// Right                                                              
+			new VertexPositionColorTexture(new Vector3(+0.5f, +0.5f, +0.5f), RgbaFloat.White, new Vector2(0, 0)),
+			new VertexPositionColorTexture(new Vector3(+0.5f, +0.5f, -0.5f), RgbaFloat.White, new Vector2(1, 0)),
+			new VertexPositionColorTexture(new Vector3(+0.5f, -0.5f, -0.5f), RgbaFloat.White, new Vector2(1, 1)),
+			new VertexPositionColorTexture(new Vector3(+0.5f, -0.5f, +0.5f), RgbaFloat.White, new Vector2(0, 1)),
+			// Back                                                               
+			new VertexPositionColorTexture(new Vector3(+0.5f, +0.5f, -0.5f), RgbaFloat.White, new Vector2(0, 0)),
+			new VertexPositionColorTexture(new Vector3(-0.5f, +0.5f, -0.5f), RgbaFloat.White, new Vector2(1, 0)),
+			new VertexPositionColorTexture(new Vector3(-0.5f, -0.5f, -0.5f), RgbaFloat.White, new Vector2(1, 1)),
+			new VertexPositionColorTexture(new Vector3(+0.5f, -0.5f, -0.5f), RgbaFloat.White, new Vector2(0, 1)),
+			// Front                                                              
+			new VertexPositionColorTexture(new Vector3(-0.5f, +0.5f, +0.5f), RgbaFloat.White, new Vector2(0, 0)),
+			new VertexPositionColorTexture(new Vector3(+0.5f, +0.5f, +0.5f), RgbaFloat.White, new Vector2(1, 0)),
+			new VertexPositionColorTexture(new Vector3(+0.5f, -0.5f, +0.5f), RgbaFloat.White, new Vector2(1, 1)),
+			new VertexPositionColorTexture(new Vector3(-0.5f, -0.5f, +0.5f), RgbaFloat.White, new Vector2(0, 1)),
+		};
+		return vertices;
+	}
+
+	static VertexPositionColorTexture[] GetModelVertices() {
+		List<VertexPositionColorTexture> vertList = new List<VertexPositionColorTexture>();
+
+		for (int i = 0; i < modelData.Surfaces[0].numVerts; i++) {
+			List<Md3Vertex> md3verts = modelData.Surfaces[0].vertices;
+
+			vertList.Add(new VertexPositionColorTexture(
+				new Vector3(md3verts[i].x, md3verts[i].y, md3verts[i].z),
+				RgbaFloat.White,
+				modelData.Surfaces[0].texCoords[i]
+			));
+		}
+
+		return vertList.ToArray();
+	}
+
+	static ushort[] GetModelIndices() {
+		List<ushort> indxList = new List<ushort>();
+
+		for (int i = 0; i < modelData.Surfaces[0].numTriangles; i++) {
+			indxList.Add((ushort)modelData.Surfaces[0].triangles[i].indexes[0]);
+            indxList.Add((ushort)modelData.Surfaces[0].triangles[i].indexes[1]);
+            indxList.Add((ushort)modelData.Surfaces[0].triangles[i].indexes[2]);
+        }
+
+        return indxList.ToArray();
+	}
+
 	static void CreateResources() {
 		ResourceFactory factory = _graphicsDevice.ResourceFactory;
 
-		VertexPositionColor[] quadVertices =
-		{
-			new VertexPositionColor(new Vector2(-0.75f, 0.75f), RgbaFloat.Red),
-			new VertexPositionColor(new Vector2(0.75f, 0.75f), RgbaFloat.Green),
-			new VertexPositionColor(new Vector2(-0.75f, -0.75f), RgbaFloat.Blue),
-			new VertexPositionColor(new Vector2(0.75f, -0.75f), RgbaFloat.Yellow)
-		};
+		_projectionBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer));
+		_viewBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer));
+		_worldBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer));
 
-		ushort[] quadIndices = { 0, 1, 2, 0, 2, 3 };
+		_vertexBuffer = factory.CreateBuffer(
+			new BufferDescription(
+				(uint)(VertexPositionColorTexture.SizeInBytes * GetModelVertices().Length),
+				BufferUsage.VertexBuffer
+			)
+		);
+		_indexBuffer = factory.CreateBuffer(
+			new BufferDescription(
+				sizeof(ushort) * (uint)GetModelIndices().Length,
+				BufferUsage.IndexBuffer
+			)
+		);
 
-		_vertexBuffer = factory.CreateBuffer(new BufferDescription(4 * VertexPositionColor.SizeInBytes, BufferUsage.VertexBuffer));
-		_indexBuffer = factory.CreateBuffer(new BufferDescription(6 * sizeof(ushort), BufferUsage.IndexBuffer));
+        _surfaceTexture = _missingTexData.CreateDeviceTexture(_graphicsDevice, factory);
+        _surfaceTextureView = factory.CreateTextureView(_surfaceTexture);
 
-		_graphicsDevice.UpdateBuffer(_vertexBuffer, 0, quadVertices);
-		_graphicsDevice.UpdateBuffer(_indexBuffer, 0, quadIndices);
+        _graphicsDevice.UpdateBuffer(_vertexBuffer, 0, GetModelVertices());
+		_graphicsDevice.UpdateBuffer(_indexBuffer, 0, GetModelIndices());
 
 		VertexLayoutDescription vertexLayout = new VertexLayoutDescription(
-		new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
-		new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4));
+			new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
+			new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4),
+			new VertexElementDescription("TexCoords", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2)
+		);
 
 		// load shader code
-		Resource.ShaderResource basicShader = new("UnlitVertexColored");
+		Resource.ShaderResource basicShader = new("UnlitTextured");
 
 		ShaderDescription vertexShaderDesc = new ShaderDescription(
 			ShaderStages.Vertex,
@@ -352,7 +477,7 @@ public class Engine
 		);
 
 		pipelineDescription.RasterizerState = new RasterizerStateDescription(
-			cullMode: FaceCullMode.Back,
+			cullMode: FaceCullMode.None,
 			fillMode: PolygonFillMode.Solid,
 			frontFace: FrontFace.Clockwise,
 			depthClipEnabled: true,
@@ -360,7 +485,21 @@ public class Engine
 		);
 
 		pipelineDescription.PrimitiveTopology = PrimitiveTopology.TriangleList;
-		pipelineDescription.ResourceLayouts = System.Array.Empty<ResourceLayout>();
+		pipelineDescription.ResourceLayouts = new ResourceLayout[] {
+			factory.CreateResourceLayout(
+                new ResourceLayoutDescription(
+                    new ResourceLayoutElementDescription("ProjectionBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex),
+                    new ResourceLayoutElementDescription("ViewBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex)
+				)
+			),
+			factory.CreateResourceLayout(
+				new ResourceLayoutDescription(
+					new ResourceLayoutElementDescription("WorldBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex),
+					new ResourceLayoutElementDescription("SurfaceTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
+					new ResourceLayoutElementDescription("SurfaceSampler", ResourceKind.Sampler, ShaderStages.Fragment)
+				)
+			)
+		};
 
 		pipelineDescription.ShaderSet = new ShaderSetDescription(
 			vertexLayouts: new VertexLayoutDescription[] { vertexLayout },
@@ -370,5 +509,22 @@ public class Engine
 		pipelineDescription.Outputs = _graphicsDevice.SwapchainFramebuffer.OutputDescription;
 
 		_pipeline = factory.CreateGraphicsPipeline(pipelineDescription);
+
+		_projViewSet = factory.CreateResourceSet(new ResourceSetDescription(
+            pipelineDescription.ResourceLayouts[0],
+			_projectionBuffer,
+			_viewBuffer
+			)
+		);
+
+		_worldTextureSet = factory.CreateResourceSet(new ResourceSetDescription(
+            pipelineDescription.ResourceLayouts[1],
+			_worldBuffer,
+			_surfaceTextureView,
+			_graphicsDevice.Aniso4xSampler
+			)
+		);
+
+		_cl = factory.CreateCommandList();
 	}
 }
