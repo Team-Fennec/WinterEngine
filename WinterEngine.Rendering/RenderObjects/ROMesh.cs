@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Numerics;
 
 namespace WinterEngine.Rendering.RenderObjects; 
 public class ROModel : RenderObject {
     public TextureHandle Texture;
     public ShaderHandle Shader;
     public MeshHandle Mesh;
+
+    // todo: add support for defining specific positions and shit to rendering
+    public Vector3 Position;
+    public Vector3 Rotation;
 
     public ROModel() {
         Name = $"RO_Model_{Guid.NewGuid()}";
