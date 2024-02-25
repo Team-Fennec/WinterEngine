@@ -1,7 +1,7 @@
 ﻿using log4net;
 using WinterEngine.Core;
 
-namespace TestGame;
+namespace TestGameClient;
 
 public class CTestGameClient : CGameClient {
     public override void ClientStartup() {

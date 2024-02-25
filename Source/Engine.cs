@@ -31,8 +31,10 @@ public class Engine
 
 	private static Assembly clientAssembly;
 	private static CGameClient clientInstance;
+    private static Assembly serverAssembly;
+    private static CGameServer serverInstance;
 
-	private static List<ImGuiPanel> imGuiPanels = new List<ImGuiPanel>();
+    private static List<ImGuiPanel> imGuiPanels = new List<ImGuiPanel>();
 
 	public static void Init(string gameDir) {
 		log.Info("Initializing Engine...");
@@ -52,9 +54,16 @@ public class Engine
 
 		// search for bin dir
 		if (Directory.Exists(Path.Combine(gameDir, "bin"))) {
-			// try and load client.dll
-			if (File.Exists(Path.Combine(gameDir, "bin", "client.dll"))) {
-                string execAssemPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string execAssemPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            // try and load server.dll
+            if (File.Exists(Path.Combine(gameDir, "bin", "server.dll"))) {
+                serverAssembly = Assembly.LoadFile(Path.Combine(execAssemPath, gameDir, "bin", "server.dll"));
+                log.Info("Loaded Server Dll");
+            } else {
+                Error("Unable to find server.dll in game bin folder");
+            }
+            // try and load client.dll
+            if (File.Exists(Path.Combine(gameDir, "bin", "client.dll"))) {
                 clientAssembly = Assembly.LoadFile(Path.Combine(execAssemPath, gameDir, "bin", "client.dll"));
                 log.Info("Loaded Client Dll");
             } else {
@@ -64,8 +73,14 @@ public class Engine
             Error("Unable to find bin folder in game folder");
         }
 
-		// spin up the first instance of a client class we find
-		clientInstance = (CGameClient)clientAssembly.CreateInstance(
+        // spin up the first instance of a server class we find
+        serverInstance = (CGameServer)serverAssembly.CreateInstance(
+            serverAssembly.GetTypes().Where(t => typeof(CGameServer).IsAssignableFrom(t)).First().FullName
+        );
+        serverInstance.ServerStartup();
+
+        // spin up the first instance of a client class we find
+        clientInstance = (CGameClient)clientAssembly.CreateInstance(
 			clientAssembly.GetTypes().Where(t => typeof(CGameClient).IsAssignableFrom(t)).First().FullName
 		);
 		clientInstance.ClientStartup();
@@ -290,10 +305,8 @@ public class Engine
                 null
             );
         }
-		// begin a clean shutdown of the engine
-		_returnCode = 1; // signify an error occurred
-		if (Device.Window != null)
-			Device.Window.Close();
+		// Just fucking exit lol
+		Environment.Exit(1);
     }
 
 	static VertexPositionColorTexture[] GetModelVertices() {
