@@ -77,7 +77,7 @@ public class Engine
         serverInstance = (CGameServer)serverAssembly.CreateInstance(
             serverAssembly.GetTypes().Where(t => typeof(CGameServer).IsAssignableFrom(t)).First().FullName
         );
-        serverInstance.ServerStartup();
+        serverInstance.Startup();
 
         // spin up the first instance of a client class we find
         clientInstance = (CGameClient)clientAssembly.CreateInstance(
