@@ -7,8 +7,31 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RootNamespace>WinterEngine</RootNamespace>
+    <AssemblyVersion>7.0</AssemblyVersion>
   </PropertyGroup>
 
+  <Target Name="GenerateVersionClass" BeforeTargets="BeforeCompile;CoreCompile" Outputs="$(IntermediateOutputPath)GeneratedFile.cs">
+    <PropertyGroup>
+      <GeneratedText>
+        <![CDATA[
+using System%3B
+
+namespace $(RootNamespace)%3B
+
+public static class EngineVersion {
+    public const Version Version = new Version("$(AssemblyVersion)")%3B
+    public const string Build = "$([System.DateTime]::Now.ToString("yyyyMMddHHmmss"))"%3B
+}
+    ]]>
+      </GeneratedText>
+      <GeneratedFilePath>$(IntermediateOutputPath)EngineVersion.gen.cs</GeneratedFilePath>
+    </PropertyGroup>
+    <ItemGroup>
+      <FileWrites Include="$(GeneratedFilePath)" />
+    </ItemGroup>
+    <WriteLinesToFile Lines="$(GeneratedText)" File="$(GeneratedFilePath)" WriteOnlyWhenDifferent="true" Overwrite="true" />
+  </Target>
+  
   <ItemGroup>
     <PackageReference Include="Hjson" Version="3.0.0" />
     <PackageReference Include="ImGui.NET" Version="1.90.1.1" />

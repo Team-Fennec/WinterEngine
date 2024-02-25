@@ -1,10 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using WinterEngine;
+using WinterEngine.Actors;
+using WinterEngine.Rendering;
 
-namespace TestGame {
-    internal class RotatingSnap {
+namespace TestGame;
+public class RotatingSnap : BaseActor, IHasModel {
+
+
+    public override void Death() {
+        throw new NotImplementedException();
+    }
+
+    public override void Render(double deltaTime) {
+        Renderer.PushRO();
+    }
+
+    public override void Spawn() {
+        
+    }
+
+    public override void Think(double deltaTime) {
+        throw new NotImplementedException();
     }
 }

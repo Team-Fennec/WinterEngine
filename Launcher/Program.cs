@@ -1,15 +1,18 @@
 ﻿using Veldrid.Sdl2;
-using Veldrid.StartupUtilities;
 using log4net;
 using log4net.Config;
-using System.Text;
+using System.Reflection;
+using WinterEngine;
 
 internal class Program
 {
     private static int Main(string[] args)
     {
-        // Set up a simple configuration that logs on the console.
-        BasicConfigurator.Configure();
+        // Set up log4net
+        XmlConfigurator.Configure(new FileInfo("logconfig.xml"));
+
+        LogManager.GetLogger("Launcher").Info($"WinterEngine {EngineVersion.Version.Major} patch {EngineVersion.Version.Minor} (build {EngineVersion.Build})");
+
 
         // loop through command line arguments
         string gameName = "";

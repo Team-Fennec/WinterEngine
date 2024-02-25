@@ -13,7 +13,6 @@ using WinterEngine.Resource;
 using Veldrid.Sdl2;
 
 namespace WinterEngine.Core;
-
 public class Engine
 {
 	// Logger
