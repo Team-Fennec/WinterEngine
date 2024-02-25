@@ -1,24 +1,25 @@
-﻿using WinterEngine;
-using WinterEngine.Actors;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using WinterEngine.Attributes;
-using WinterEngine.Rendering;
 
-namespace TestGameClient;
+namespace WinterEngine.Actors;
 
-[EntityClass("test_snaprotate")]
-public class RotatingSnapActor : BaseActor {
-
+[EntityClass("base_player")]
+public class CBasePlayer : BaseActor {
 
     public override void Death() {
         throw new NotImplementedException();
     }
 
     public override void Render(double deltaTime) {
-        //Renderer.PushRO();
+        throw new NotImplementedException();
     }
 
     public override void Spawn() {
-        
+        throw new NotImplementedException();
     }
 
     public override void Think(double deltaTime) {
