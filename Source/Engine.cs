@@ -289,7 +289,7 @@ public class Engine
 		log.Info("Beginning Engine Shutdown");
         
 		clientInstance.ClientShutdown();
-		serverInstance.ServerShutdown();
+		serverInstance.Shutdown();
 		
 		Renderer.Shutdown();
 
