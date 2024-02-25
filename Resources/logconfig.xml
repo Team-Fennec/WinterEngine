@@ -5,6 +5,12 @@
     </layout>
   </appender>
 
+  <appender name="GameConsole" type="WinterEngine.Gui.UIConsoleAppender">
+    <layout type="log4net.Layout.PatternLayout">
+      <conversionPattern value="[%level][%logger] %message%newline" />
+    </layout>
+  </appender>
+
   <appender name="Console-Error" type="log4net.Appender.ConsoleAppender">
     <filter type="log4net.Filter.LevelRangeFilter">
       <levelMin value="ERROR" />
@@ -44,6 +50,7 @@
 
   <root>
     <appender-ref ref="Console" />
+    <appender-ref ref="GameConsole" />
     <appender-ref ref="Console-Error" />
     <appender-ref ref="RollingFile" />
     <appender-ref ref="RollingFile-Error" />

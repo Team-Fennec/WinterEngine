@@ -10,9 +10,7 @@ internal class Program
     {
         // Set up log4net
         XmlConfigurator.Configure(new FileInfo("logconfig.xml"));
-
-        LogManager.GetLogger("Launcher").Info($"WinterEngine {EngineVersion.Version.Major} patch {EngineVersion.Version.Minor} (build {EngineVersion.Build})");
-
+        //LogManager.GetLogger("Launcher").Info($"WinterEngine {EngineVersion.Version.Major} patch {EngineVersion.Version.Minor} (build {EngineVersion.Build})");
 
         // loop through command line arguments
         string gameName = "";

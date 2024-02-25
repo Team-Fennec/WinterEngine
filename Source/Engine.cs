@@ -10,6 +10,7 @@ using WinterEngine.Rendering;
 using WinterEngine.Rendering.RenderObjects;
 using WinterEngine.Actors;
 using WinterEngine.Resource;
+using WinterEngine.Gui;
 using Veldrid.Sdl2;
 
 namespace WinterEngine.Core;
@@ -30,6 +31,8 @@ public class Engine
 
 	private static Assembly clientAssembly;
 	private static CGameClient clientInstance;
+
+	private static List<ImGuiPanel> imGuiPanels = new List<ImGuiPanel>();
 
 	public static void Init(string gameDir) {
 		log.Info("Initializing Engine...");
@@ -71,7 +74,10 @@ public class Engine
 
 		Renderer.Init();
 
-		modelData = new Md3Model("snap");
+		// create gameconsole panel
+		imGuiPanels.Add(new UIGameConsole());
+
+        modelData = new Md3Model("snap");
 
 		// load the snap png data using the resource manager and dispense it to veldrid
 		StreamReader snapTex = ResourceManager.OpenResource("materials/models/snap.png");
@@ -251,10 +257,8 @@ public class Engine
 			Renderer.ImGuiController.Update(deltaTime, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
 
 			// imgui stuff
-			ImGui.Checkbox("show imgui demo", ref _showImGuiDemoWindow);
-
-			if (_showImGuiDemoWindow) {
-				ImGui.ShowDemoWindow(ref _showImGuiDemoWindow);
+			foreach (ImGuiPanel panel in imGuiPanels) {
+				panel.DoLayout();
 			}
 			DisplayModelData(modelData);
 
