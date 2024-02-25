@@ -30,8 +30,8 @@ public class Engine
     private static bool _showAnotherWindow = false;
 
 	private static Assembly clientAssembly;
-	private static CGameClient clientInstance;
     private static Assembly serverAssembly;
+	private static CGameClient clientInstance;
     private static CGameServer serverInstance;
 
     private static List<ImGuiPanel> imGuiPanels = new List<ImGuiPanel>();

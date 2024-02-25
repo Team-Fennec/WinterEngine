@@ -12,8 +12,6 @@ public abstract class BaseActor {
     [EntityKV("rotation")]
     public Vector3 rotation; // I fucking hate quaternions
 
-    public abstract void Spawn();
-    public abstract void Death();
-	public abstract void Think(double deltaTime);
+    // we render on the client
     public abstract void Render(double deltaTime);
 }

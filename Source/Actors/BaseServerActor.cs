@@ -11,4 +11,9 @@ public abstract class BaseServerActor {
     public Vector3 position;
     [EntityKV("rotation")]
     public Vector3 rotation; // I fucking hate quaternions
+
+    // most/all logic occurs on the server
+    public abstract void Spawn();
+    public abstract void Death();
+    public abstract void Think(double deltaTime);
 }
