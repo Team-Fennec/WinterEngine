@@ -29,10 +29,8 @@ public class Engine
 	private static bool _showImGuiDemoWindow = true;
     private static bool _showAnotherWindow = false;
 
-	private static Assembly clientAssembly;
-    private static Assembly serverAssembly;
-	private static CGameClient clientInstance;
-    private static CGameServer serverInstance;
+	private static Assembly gameAssembly;
+	private static GameModule gameInstance;
 
     private static List<ImGuiPanel> imGuiPanels = new List<ImGuiPanel>();
 
@@ -55,35 +53,22 @@ public class Engine
 		// search for bin dir
 		if (Directory.Exists(Path.Combine(gameDir, "bin"))) {
             string execAssemPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            // try and load server.dll
-            if (File.Exists(Path.Combine(gameDir, "bin", "server.dll"))) {
-                serverAssembly = Assembly.LoadFile(Path.Combine(execAssemPath, gameDir, "bin", "server.dll"));
-                log.Info("Loaded Server Dll");
-            } else {
-                Error("Unable to find server.dll in game bin folder");
-            }
             // try and load client.dll
-            if (File.Exists(Path.Combine(gameDir, "bin", "client.dll"))) {
-                clientAssembly = Assembly.LoadFile(Path.Combine(execAssemPath, gameDir, "bin", "client.dll"));
-                log.Info("Loaded Client Dll");
+            if (File.Exists(Path.Combine(gameDir, "bin", "game.dll"))) {
+                gameAssembly = Assembly.LoadFile(Path.Combine(execAssemPath, gameDir, "bin", "game.dll"));
+                log.Info("Loaded Game Dll");
             } else {
-				Error("Unable to find client.dll in game bin folder");
+				Error("Unable to find game.dll in game bin folder");
             }
 		} else {
             Error("Unable to find bin folder in game folder");
         }
 
-        // spin up the first instance of a server class we find
-        serverInstance = (CGameServer)serverAssembly.CreateInstance(
-            serverAssembly.GetTypes().Where(t => typeof(CGameServer).IsAssignableFrom(t)).First().FullName
-        );
-        serverInstance.Startup();
-
         // spin up the first instance of a client class we find
-        clientInstance = (CGameClient)clientAssembly.CreateInstance(
-			clientAssembly.GetTypes().Where(t => typeof(CGameClient).IsAssignableFrom(t)).First().FullName
+        gameInstance = (GameModule)gameAssembly.CreateInstance(
+			gameAssembly.GetTypes().Where(t => typeof(GameModule).IsAssignableFrom(t)).First().FullName
 		);
-		clientInstance.ClientStartup();
+		gameInstance.Startup();
 
 		Device.Init(gameProperName.Qstr());
 
@@ -288,9 +273,7 @@ public class Engine
 	public static void Shutdown() {
 		log.Info("Beginning Engine Shutdown");
         
-		clientInstance.ClientShutdown();
-		serverInstance.Shutdown();
-		
+		gameInstance.Shutdown();
 		Renderer.Shutdown();
 
         log.Info("Engine Shutdown Complete");

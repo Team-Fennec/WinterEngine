@@ -7,9 +7,7 @@ using System.Threading.Tasks;
 namespace WinterEngine.Attributes;
 
 /// <summary>
-/// Binds an actor class to an entity class in the map editor and internal entity system.
-/// 
-/// Binding both a server and client entity to the same name is extremely important.
+/// Binds an actor class to an entity class for the map editor & internal entity system.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 public class EntityClassAttribute : Attribute {
