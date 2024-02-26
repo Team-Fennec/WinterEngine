@@ -51,7 +51,10 @@ internal class Program
             return 1;
         }
 
-#if !DEBUG
+#if DEBUG
+        WinterEngine.Core.Engine.Init(gameName);
+        WinterEngine.Core.Engine.Run();
+#else
         try {
             WinterEngine.Core.Engine.Init(gameName);
             WinterEngine.Core.Engine.Run();
@@ -74,9 +77,6 @@ internal class Program
             
     	    return 1;
         }
-#else
-        WinterEngine.Core.Engine.Init(gameName);
-        WinterEngine.Core.Engine.Run();
 #endif
 
         return 0;
