@@ -1,8 +1,8 @@
-﻿using WinterEngine.Rendering.RenderObjects;
+using WinterEngine.Rendering.RenderObjects;
 using WinterEngine.Rendering;
 using WinterEngine.Resource;
 
-namespace WinterEngine;
+namespace WinterEngine.Interfaces;
 
 public interface IHasModel {
     public ROModel RenderObject { get; set; }

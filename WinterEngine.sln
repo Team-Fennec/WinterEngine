@@ -1,9 +1,8 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinterEngine", "Source\WinterEngine.csproj", "{B6434837-16AD-4EBA-BEA0-204D6937E1E4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinterEngine", "WinterEngine\WinterEngine.csproj", "{B6434837-16AD-4EBA-BEA0-204D6937E1E4}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0BF7C2F1-445C-48BE-9448-61B1061A85EC} = {0BF7C2F1-445C-48BE-9448-61B1061A85EC}
 	EndProjectSection
@@ -34,17 +33,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ThirdParty", "ThirdParty", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{8B3C0E2D-E41C-4C01-87D3-3B1CB4942794}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestGameClient", "TestGame\TestGameClient.csproj", "{A33A80A3-42BA-4DB2-9660-A3E4B4FBC198}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestGame", "TestGame\TestGame.csproj", "{A33A80A3-42BA-4DB2-9660-A3E4B4FBC198}"
 	ProjectSection(ProjectDependencies) = postProject
 		{18DA813B-5F03-42FD-81FD-7CE62F5E4236} = {18DA813B-5F03-42FD-81FD-7CE62F5E4236}
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Generators", "Generators", "{32B81A45-1454-4459-A7B1-44E13AC14F0D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestGameServer", "TestGameServer\TestGameServer.csproj", "{18DA813B-5F03-42FD-81FD-7CE62F5E4236}"
-	ProjectSection(ProjectDependencies) = postProject
-		{0BF7C2F1-445C-48BE-9448-61B1061A85EC} = {0BF7C2F1-445C-48BE-9448-61B1061A85EC}
-		{B6434837-16AD-4EBA-BEA0-204D6937E1E4} = {B6434837-16AD-4EBA-BEA0-204D6937E1E4}
 	EndProjectSection
 EndProject
 Global

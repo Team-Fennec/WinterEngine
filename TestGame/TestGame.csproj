@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GameDir>testgame</GameDir>
-    <AssemblyName>client</AssemblyName>
+    <AssemblyName>game</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,15 +14,6 @@
     <ProjectReference Include="..\Source\WinterEngine.csproj" />
     <ProjectReference Include="..\WinterEngine.Rendering\WinterEngine.Rendering.csproj" />
   </ItemGroup>
-
-  <Target AfterTargets="Build" Name="CopyDllToGameFolder">
-    <Copy Condition="'$(Configuration)' == 'Debug'"
-          SourceFiles="$(OutDir)/client.pdb"
-          DestinationFolder="../Resources/$(GameDir)/bin/"
-    />
-    <Copy
-          SourceFiles="$(OutDir)/client.dll"
-          DestinationFolder="../Resources/$(GameDir)/bin/"
-    />
-  </Target>
+  
+  <Import Project="../CopyToGameBin.props" />
 </Project>

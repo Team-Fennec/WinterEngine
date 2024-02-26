@@ -1,4 +1,4 @@
-﻿using Veldrid.Sdl2;
+using Veldrid.Sdl2;
 using log4net;
 using log4net.Config;
 using System.Reflection;
@@ -10,7 +10,7 @@ internal class Program
     {
         // Set up log4net
         XmlConfigurator.Configure(new FileInfo("logconfig.xml"));
-        //LogManager.GetLogger("Launcher").Info($"WinterEngine {EngineVersion.Version.Major} patch {EngineVersion.Version.Minor} (build {EngineVersion.Build})");
+        LogManager.GetLogger("Launcher").Info($"WinterEngine {EngineVersion.Version.Major} patch {EngineVersion.Version.Minor} (build {EngineVersion.Build})");
 
         // loop through command line arguments
         string gameName = "";

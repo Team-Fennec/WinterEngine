@@ -1,4 +1,4 @@
-﻿using Hjson;
+using Hjson;
 using log4net;
 
 namespace WinterEngine.Resource;

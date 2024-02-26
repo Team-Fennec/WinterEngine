@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <Target AfterTargets="Build" Name="CopyDllToGameFolder">
+        <Copy Condition="'$(Configuration)' == 'Debug'"
+            SourceFiles="$(OutDir)/$(AssemblyName).pdb"
+            DestinationFolder="../Resources/$(GameDir)/bin/"
+        />
+        <Copy
+            SourceFiles="$(OutDir)/$(AssemblyName).dll"
+            DestinationFolder="../Resources/$(GameDir)/bin/"
+        />
+    </Target>
+</Project>

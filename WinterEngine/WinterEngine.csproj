@@ -33,6 +33,10 @@ public static class EngineVersion {
   </Target>
   
   <ItemGroup>
+    <Compile Include="$(IntermediateOutputPath)EngineVersion.gen.cs" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <PackageReference Include="Hjson" Version="3.0.0" />
     <PackageReference Include="ImGui.NET" Version="1.90.1.1" />
     <PackageReference Include="log4net" Version="2.0.15" />
