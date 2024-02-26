@@ -34,6 +34,8 @@ public class Engine
 
     private static List<ImGuiPanel> imGuiPanels = new List<ImGuiPanel>();
 
+    public static bool IsRunning = false;
+
 	public static void Init(string gameDir) {
 		log.Info("Initializing Engine...");
 
@@ -76,6 +78,8 @@ public class Engine
 
 		// create gameconsole panel
 		imGuiPanels.Add(new UIGameConsole());
+		
+		IsRunning = true;
 
         modelData = new Md3Model("snap");
 
@@ -272,13 +276,14 @@ public class Engine
 
 	public static void Shutdown() {
 		log.Info("Beginning Engine Shutdown");
+		IsRunning = false;
         
 		gameInstance.Shutdown();
 		Renderer.Shutdown();
 
         log.Info("Engine Shutdown Complete");
 	}
-
+    
 	public static void Error(string message) {
 		log.Error(message);
         unsafe {

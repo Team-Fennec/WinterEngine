@@ -1,8 +1,5 @@
 using log4net;
 using System.Text;
-using Veldrid;
-using Veldrid.SPIRV;
-using WinterEngine.Rendering;
 
 namespace WinterEngine.Resource;
 

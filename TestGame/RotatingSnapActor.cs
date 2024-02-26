@@ -1,17 +1,14 @@
-using WinterEngine;
-using WinterEngine.Actors;
-using WinterEngine.Attributes;
-using WinterEngine.Rendering;
 
 namespace TestGame;
 
 [EntityClass("test_snaprotate")]
-public class RotatingSnapActor : BaseActor {
+public class RotatingSnapActor : BaseActor, IHasModel {
     public override void Death() {
         throw new NotImplementedException();
     }
 
     public override void Spawn() {
+        // load in model 
         throw new NotImplementedException();
     }
 

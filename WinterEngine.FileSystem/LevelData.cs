@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Numerics;
-using Vortice.Mathematics;
 
 namespace WinterEngine.Resource;
 
@@ -25,15 +24,15 @@ public struct LevelSector {
     public int ceilingHeight;
     public string surfaceTexture;
     public int surfaceScale;
-    public Color floorColor;
-    public Color ceilingColor;
+    public int[] floorColor;
+    public int[] ceilingColor;
 }
 
 public struct LevelWall {
     public int startPoint;
     public int endPoint;
     public string texture;
-    public Color color;
+    public int[] color;
     public Vector2 textureScale;
 }
 

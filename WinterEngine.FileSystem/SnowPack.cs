@@ -12,7 +12,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace WinterEngine.Content;
+namespace WinterEngine.Resource;
 
 /// <summary>
 /// Packed and Compressed game data

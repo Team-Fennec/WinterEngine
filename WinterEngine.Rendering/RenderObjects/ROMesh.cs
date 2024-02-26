@@ -1,6 +1,7 @@
-﻿using System.Numerics;
+using System.Numerics;
 
-namespace WinterEngine.Rendering.RenderObjects; 
+namespace WinterEngine.Rendering.RenderObjects;
+
 public class ROModel : RenderObject {
     public TextureHandle Texture;
     public ShaderHandle Shader;
