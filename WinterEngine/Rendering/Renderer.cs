@@ -180,15 +180,6 @@ public static class Renderer {
     }
 
     public static void Render() {
-        // check every render object we have into an imgui window for debug purposes
-        /*if (ImGui.Begin("Render Object Debug")) {
-            foreach (RenderObject ro in renderObjects) {
-                ImGui.Text(ro.Name);
-            }
-            
-            ImGui.End();
-        }*/
-        
         _cl.Begin();
 
         _cl.UpdateBuffer(_projectionBuffer, 0, Matrix4x4.CreatePerspectiveFieldOfView(

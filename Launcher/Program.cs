@@ -4,6 +4,8 @@ using log4net.Config;
 using System.Reflection;
 using WinterEngine;
 
+using static WinterEngine.Translation.StringTools;
+
 internal class Program
 {
     private static int Main(string[] args)
@@ -11,7 +13,9 @@ internal class Program
         // Set up log4net
         XmlConfigurator.Configure(new FileInfo("logconfig.xml"));
         LogManager.GetLogger("Launcher").Info($"WinterEngine {EngineVersion.Version.Major} patch {EngineVersion.Version.Minor} (build {EngineVersion.Build})");
-
+    
+        WinterEngine.Core.Engine.PreInit();
+    
         // loop through command line arguments
         string gameName = "";
         for (int i = 0; i < args.Length; i++)
@@ -25,8 +29,8 @@ internal class Program
                         {
                             Sdl2Native.SDL_ShowSimpleMessageBox(
                                 SDL_MessageBoxFlags.Error,
-                                "WinterEngine",
-                                "No game name provided! Pass -game <gamename> on start to load a game.",
+                                "Winter Engine",
+                                TRS("engine.error.no_game_provided"),
                                 null
                             );
                         }
@@ -43,8 +47,8 @@ internal class Program
             {
                 Sdl2Native.SDL_ShowSimpleMessageBox(
                     SDL_MessageBoxFlags.Error,
-                    "WinterEngine",
-                    "No valid game provided! Pass -game <gamename> on start to load a game.",
+                    "Winter Engine",
+                    TRS("engine.error.invalid_game_provided"),
                     null
                 );
             }

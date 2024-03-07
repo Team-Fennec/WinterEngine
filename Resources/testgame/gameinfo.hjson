@@ -3,7 +3,7 @@
     author: "ashi",
     publisher: "your mother",
     resourcePaths: [
-        "testgame",
-        "engine"
+        // we load engine automatically
+        "testgame"
     ]
 }

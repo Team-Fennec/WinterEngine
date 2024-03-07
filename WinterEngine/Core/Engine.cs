@@ -1,6 +1,5 @@
 using Veldrid;
 using Veldrid.ImageSharp;
-using log4net;
 using ImGuiNET;
 using System.Diagnostics;
 using System.Numerics;
@@ -12,6 +11,8 @@ using WinterEngine.Actors;
 using WinterEngine.Resource;
 using WinterEngine.Gui;
 using Veldrid.Sdl2;
+
+using static WinterEngine.Localization.StringTools;
 
 namespace WinterEngine.Core;
 public class Engine
@@ -35,6 +36,15 @@ public class Engine
     private static List<ImGuiPanel> imGuiPanels = new List<ImGuiPanel>();
 
     public static bool IsRunning = false;
+
+    public static void PreInit() {
+        log.Info("Adding baseline engine resources");
+        // adds the engine resources and starts up certain engine systems
+        ResourceManager.AddResourceProvider("engine", ResourceFormat.Folder);
+        
+        // todo(engine): get system lang and load the corresponding translation (or try to)
+        TranslationManager.AddTranslation("engine_english.hjson");
+    }
 
 	public static void Init(string gameDir) {
 		log.Info("Initializing Engine...");
@@ -60,10 +70,10 @@ public class Engine
                 gameAssembly = Assembly.LoadFile(Path.Combine(execAssemPath, gameDir, "bin", "game.dll"));
                 log.Info("Loaded Game Dll");
             } else {
-				Error("Unable to find game.dll in game bin folder");
+				Error(TRS("engine.error.load_game_dll_fail"));
             }
 		} else {
-            Error("Unable to find bin folder in game folder");
+            Error(TRS("engine.error.no_bin_folder"));
         }
 
         // spin up the first instance of a client class we find
