@@ -4,7 +4,7 @@ using Veldrid.SPIRV;
 
 namespace WinterEngine.Rendering;
 public class ShaderHandle {
-    private static readonly ILog log = LogManager.GetLogger(typeof(ShaderHandle));
+    private static readonly ILog log = LogManager.GetLogger("RenderSystem");
 
     public string ShaderName { get; private set; }
     public Shader VertexShader { get; private set; }

@@ -3,23 +3,23 @@ using Veldrid;
 namespace WinterEngine.Rendering;
 
 public class MeshHandle {
-	private static readonly ILog log = LogManager.GetLogger(typeof(MeshHandle));
+	private static readonly ILog log = LogManager.GetLogger("RenderSystem");
 
 	public DeviceBuffer VertexBuffer { get; private set; }
 	public DeviceBuffer IndexBuffer { get; private set; }
 
-	public VertexPositionColorTexture[] Vertices;
+	public Vertex[] Vertices;
 	public ushort[] Indices;
 
 	public uint IndexCount => (uint)Indices.Length;
 
-	public MeshHandle(VertexPositionColorTexture[] vertices, ushort[] indices) {
+	public MeshHandle(Vertex[] vertices, ushort[] indices) {
         Vertices = vertices;
         Indices = indices;
 
 		VertexBuffer = Renderer.GraphicsDevice.ResourceFactory.CreateBuffer(
 			new BufferDescription(
-				(uint)(VertexPositionColorTexture.SizeInBytes * Vertices.Length),
+				(uint)(Vertex.SizeInBytes * Vertices.Length),
 				BufferUsage.VertexBuffer
 			)
 		);
@@ -42,7 +42,7 @@ public class MeshHandle {
 		}
 	}
 
-	public void Update(VertexPositionColorTexture[] vertices, ushort[] indices) {
+	public void Update(Vertex[] vertices, ushort[] indices) {
 		// This doesn't check or change sizes because if you want a different model
 		// then you should be making a new handle. This function is meant for updating
 		// existing vertices for vertex based animation.
