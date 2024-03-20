@@ -1,40 +1,71 @@
 using WinterEngine.SceneSystem;
 using System.Diagnostics;
+using Xunit.Abstractions;
+using XUnit.Project.Attributes;
 
 namespace SceneSystemTest;
 
-public class SceneTests
+public class SSFixt : IDisposable
 {
+    public SSFixt()
+    {
+        // nothing needed
+    }
+
+    public void Dispose()
+    {
+        // nothing needed
+    }
+
     public Scene testScene;
     public TestEntA testEnt;
     public int countPaused;
+}
 
-    [Fact]
-    public void SceneLoopTest()
+[TestCaseOrderer(
+    ordererTypeName: "XUnit.Project.Orderers.PriorityOrderer",
+    ordererAssemblyName: "SceneSystemTest")]
+public class SceneTests : IClassFixture<SSFixt>
+{
+    SSFixt fixture;
+
+    public SceneTests(SSFixt fixture)
     {
+        this.fixture = fixture;
+    }
+
+    [Fact, TestPriority(0)]
+    public void CreateLoadSceneTest()
+    {
+        //output.WriteLine("================================================");
         #region Creating and Loading Scene
         //=================================================//
-        Console.WriteLine("Creating and Loading Scene...");
+        //output.WriteLine("Creating and Loading Scene...");
 
         // if the name isn't matching something is very wrong
         Scene newScene = new Scene("Testing Scene");
         Assert.True(newScene.Name == "Testing Scene");
 
         // these should be the same object, as load scene returns what's added
-        testScene = SceneManager.LoadScene(newScene);
-        Assert.True(testScene == newScene);
+        fixture.testScene = SceneManager.LoadScene(newScene);
+        Assert.True(fixture.testScene == newScene);
 
-        Assert.True(testScene == SceneManager.CurrentScene);
+        Assert.True(fixture.testScene == SceneManager.CurrentScene);
         #endregion
+    }
 
+    [Fact, TestPriority(1)]
+    public void DoubleLoadFailTest()
+    {
+        //output.WriteLine("================================================");
         #region Double Load Scene Fail
         //=================================================//
-        Console.WriteLine("Attempting to double load Scene...\n(a pass means this operation failed which is good)");
+        //output.WriteLine("Attempting to double load Scene...\n(a pass means this operation failed which is good)");
 
         bool didFail = false;
         try
         {
-            SceneManager.LoadScene(testScene);
+            SceneManager.LoadScene(fixture.testScene);
         }
         catch (Exception ex)
         {
@@ -43,34 +74,49 @@ public class SceneTests
 
         Assert.True(didFail);
         #endregion
+    }
 
+    [Fact, TestPriority(2)]
+    public void CreateAddEntityTest()
+    {
+        //output.WriteLine("================================================");
         #region Creating and Adding Entity
         //=================================================//
-        Console.WriteLine("Creating and Adding Test Entity...");
+        //output.WriteLine("Creating and Adding Test Entity...");
         
-        testEnt = new TestEntA();
-        testEnt.Name = "Testing Entity";
+        fixture.testEnt = new TestEntA();
+        fixture.testEnt.Name = "Testing Entity";
 
-        Assert.True(testScene.AddEntity(testEnt) == testEnt);
+        Assert.True(fixture.testScene.AddEntity(fixture.testEnt) == fixture.testEnt);
         #endregion
+    }
 
+    [Fact, TestPriority(3)]
+    public void CheckEntityDataTest()
+    {
+        //output.WriteLine("================================================");
         #region Checking Entity Data
         //=================================================//
-        Console.WriteLine("Checking entity data in scene...");
+        //output.WriteLine("Checking entity data in scene...");
 
-        Assert.True(testScene.GetEntity<TestEntA>("Testing Entity") == testEnt);
-        Assert.True(testEnt.Transform.Parent != null);
-        Assert.True(testEnt.Transform.Parent == testScene.RootTransform);
+        Assert.True(fixture.testScene.GetEntity<TestEntA>("Testing Entity") == fixture.testEnt);
+        Assert.True(fixture.testEnt.Transform.Parent != null);
+        Assert.True(fixture.testEnt.Transform.Parent == fixture.testScene.RootTransform);
         #endregion
+    }
 
+    [Fact, TestPriority(4)]
+    public void DoubleAddFailTest()
+    {
+        //output.WriteLine("================================================");
         #region Double Add Fail
         //=================================================//
-        Console.WriteLine("Attempting to double add entity...\n(a pass means this operation failed which is good)");
+        //output.WriteLine("Attempting to double add entity...\n(a pass means this operation failed which is good)");
 
-        didFail = false;
+        bool didFail = false;
         try
         {
-            testScene.AddEntity(testEnt);
+            fixture.testScene.AddEntity(fixture.testEnt);
         }
         catch (Exception ex)
         {
@@ -79,16 +125,26 @@ public class SceneTests
 
         Assert.True(didFail);
         #endregion
+    }
 
+    [Fact, TestPriority(5)]
+    public void GetNonexistFailTest()
+    {   
+        //output.WriteLine("================================================");
         #region Get Nonexistent Entity Fail
         //=================================================//
-        Console.WriteLine("Attempting to get an entity that doesn't exist...\n(a pass means this operation failed which is good)");
-        Assert.True(testScene.GetEntity("I don't exist") == null);
+        //output.WriteLine("Attempting to get an entity that doesn't exist...\n(a pass means this operation failed which is good)");
+        Assert.True(fixture.testScene.GetEntity("I don't exist") == null);
         #endregion
+    }
 
+    [Fact, TestPriority(6)]
+    public void SceneLoopTest()
+    {
+        //output.WriteLine("================================================");
         #region Scene Loop
         //=================================================//
-        Console.WriteLine("Running scene loop...");
+        //output.WriteLine("Running scene loop...");
         
         Stopwatch timer = new Stopwatch();
         timer.Start();
@@ -104,20 +160,25 @@ public class SceneTests
         // Get the elapsed time as a TimeSpan value.
         TimeSpan ts = timer.Elapsed;
         // Format and display the TimeSpan value.
-        string elapsedTime = String.Format("{2:00}.{3:00}", ts.Seconds, ts.Milliseconds / 10);
-        Console.WriteLine($"Scene Runtime: {elapsedTime}");
+        string elapsedTime = String.Format("{0:00}.{1:00}", ts.Seconds, ts.Milliseconds / 10);
+        //output.WriteLine($"Scene Runtime: {elapsedTime}");
 
-        Console.WriteLine("Entity counter should NOT be zero.");
-        Assert.True(testEnt.Counter > 0);
+        //output.WriteLine("Entity counter should NOT be zero.");
+        Assert.True(fixture.testEnt.Counter > 0);
         #endregion
+    }
 
+    [Fact, TestPriority(7)]
+    public void ScenePauseTest()
+    {
+        //output.WriteLine("================================================");
         #region Scene Pause
         //=================================================//
-        Console.WriteLine("Pausing scene and running loop...");
-        testScene.Paused = true;
-        countPaused = testEnt.Counter;
+        //output.WriteLine("Pausing scene and running loop...");
+        fixture.testScene.Paused = true;
+        fixture.countPaused = fixture.testEnt.Counter;
 
-        timer = new Stopwatch();
+        Stopwatch timer = new Stopwatch();
         timer.Start();
         while(true)
         {
@@ -129,22 +190,27 @@ public class SceneTests
         timer.Stop();
 
         // Get the elapsed time as a TimeSpan value.
-        ts = timer.Elapsed;
+        TimeSpan ts = timer.Elapsed;
         // Format and display the TimeSpan value.
-        elapsedTime = String.Format("{2:00}.{3:00}", ts.Seconds, ts.Milliseconds / 10);
-        Console.WriteLine($"Scene Runtime: {elapsedTime}");
+        string elapsedTime = String.Format("{0:00}.{1:00}", ts.Seconds, ts.Milliseconds / 10);
+        //output.WriteLine($"Scene Runtime: {elapsedTime}");
 
-        Console.WriteLine("Counter should not have changed");
-        Assert.True(testEnt.Counter == countPaused);
+        //output.WriteLine("Counter should not have changed");
+        Assert.True(fixture.testEnt.Counter == fixture.countPaused);
         #endregion
+    }
 
+    [Fact, TestPriority(8)]
+    public void UnloadSceneTest()
+    {
+        //output.WriteLine("================================================");
         #region Unload Scene
         //=================================================//
-        Console.WriteLine("Unloading scene and running loop...");
-        SceneManager.UnloadScene(testScene);
-        countPaused = testEnt.Counter;
+        //output.WriteLine("Unloading scene and running loop...");
+        SceneManager.UnloadScene(fixture.testScene);
+        fixture.countPaused = fixture.testEnt.Counter;
 
-        timer = new Stopwatch();
+        Stopwatch timer = new Stopwatch();
         timer.Start();
         while(true)
         {
@@ -156,15 +222,13 @@ public class SceneTests
         timer.Stop();
 
         // Get the elapsed time as a TimeSpan value.
-        ts = timer.Elapsed;
+        TimeSpan ts = timer.Elapsed;
         // Format and display the TimeSpan value.
-        elapsedTime = String.Format("{2:00}.{3:00}", ts.Seconds, ts.Milliseconds / 10);
-        Console.WriteLine($"Scene Runtime: {elapsedTime}");
+        string elapsedTime = String.Format("{0:00}.{1:00}", ts.Seconds, ts.Milliseconds / 10);
+        //output.WriteLine($"Scene Runtime: {elapsedTime}");
 
-        Console.WriteLine("Counter should not have changed");
-        Assert.True(testEnt.Counter == countPaused);
+        //output.WriteLine("Counter should not have changed");
+        Assert.True(fixture.testEnt.Counter == fixture.countPaused);
         #endregion
-
-        Console.WriteLine("All pass!");
     }
 }
