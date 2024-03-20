@@ -1,5 +1,4 @@
 using System.IO;
-using WinterEngine.Core;
 
 namespace WinterEngine.Resource;
 
@@ -25,7 +24,7 @@ public abstract class ResourceProvider
 public class ResourceManager
 {
 	// Logger
-    private static readonly ILog log = LogManager.GetLogger(typeof(ResourceManager));
+    private static readonly ILog log = LogManager.GetLogger("ResourceManager");
 
 	static List<ResourceProvider> resDirs = new List<ResourceProvider>();
 	static Dictionary<Type, IResource> registeredResources = new Dictionary<Type, IResource>();

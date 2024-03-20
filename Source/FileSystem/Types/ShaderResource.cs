@@ -1,4 +1,3 @@
-using log4net;
 using System.Text;
 using Veldrid;
 
