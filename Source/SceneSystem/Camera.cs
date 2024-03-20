@@ -1,8 +1,7 @@
 using MathLib;
 using System.Numerics;
-using WinterEngine;
 
-namespace WinterEngine.RenderSystem;
+namespace WinterEngine.SceneSystem;
 
 public class Camera
 {
@@ -19,11 +18,11 @@ public class Camera
     
     public Matrix4x4 GetProjection()
     {
-        
+        throw new NotImplementedException();
     }
     
     public Matrix4x4 GetView()
     {
-        
+        throw new NotImplementedException();
     }
 }

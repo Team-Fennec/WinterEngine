@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>WinterEngine.SceneSystem</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../MathLib/MathLib.csproj" />
+    <ProjectReference Include="../../DatamodelLib/Datamodel.NET.csproj" />
+    <PackageReference Include="Veldrid" Version="4.9.0" />
+    <PackageReference Include="log4net" Version="2.0.15" />
+  </ItemGroup>
+
+</Project>
