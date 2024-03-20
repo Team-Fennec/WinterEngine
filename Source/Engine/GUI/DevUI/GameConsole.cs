@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Numerics;
 using WinterEngine.Core;
 
-namespace WinterEngine.Gui;
+namespace WinterEngine.Gui.DevUI;
 
 public class UIGameConsole : ImGuiPanel {
     string userInput = "";
