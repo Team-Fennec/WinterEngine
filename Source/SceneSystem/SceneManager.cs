@@ -26,6 +26,20 @@ public static class SceneManager
 	}
 
 #region Loading/Unloading Scenes
+	public static void UnloadScene(Scene scene)
+	{
+		log.Info($"Unloading scene {scene.Name}");
+		if (scene == m_CurrentScene)
+		{
+			m_Scenes.Remove(scene);
+			m_Scenes[0] = m_CurrentScene;
+		}
+		else
+		{
+			m_Scenes.Remove(scene);
+		}
+	}
+
 	public static void UnloadScene(int index)
 	{
 		log.Info($"Unloading scene {m_Scenes[index].Name}");
@@ -61,23 +75,26 @@ public static class SceneManager
 	}
 
 	// attempts to load the given scene from an asset file
-	public static void LoadScene(string name)
+	public static Scene LoadScene(string name)
 	{
 		// todo(scenesystem): Load scene from file
 		throw new NotImplementedException();
 	}
 
-	public static void LoadScene(Scene scene)
+	public static Scene LoadScene(Scene scene)
 	{
 		if (m_Scenes.Contains(scene))
 		{
-			log.Error("Attempted to add scene object to the array >1 times. Don't do that.");
-			return;
+			Exception ex = new Exception();
+			log.Fatal("Attempted to add scene object to the array >1 times. Don't do that.", ex);
+			throw ex;
 		}
 		else
 		{
 			log.Info($"Loading scene {scene.Name}");
+			m_CurrentScene = scene;
 			m_Scenes.Add(scene);
+			return scene;
 		}
 	}
 #endregion

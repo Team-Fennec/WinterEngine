@@ -11,15 +11,21 @@ public class Scene
 	private static readonly ILog log = LogManager.GetLogger("Scene");
 	public string Name;
 	public bool Paused;
+	public Transform RootTransform => m_Root;
 
 	private List<Entity> m_Entities;
+	private Transform m_Root;
 
-	public Scene()
+	#region Constructors
+	public Scene() : this("You Forgot To Name Your Scene") {}
+	public Scene(string name)
 	{
-		Name = "You Forgot To Name Your Scene";
+		Name = name;
 		Paused = false;
 		m_Entities = new List<Entity>();
+		m_Root = new Transform();
 	}
+	#endregion
 
 	public void Update(double deltaTime)
 	{
@@ -31,14 +37,21 @@ public class Scene
 	}
 
 	#region Entity Management Methods
-	public void AddEntity(Entity entity)
+	public Entity AddEntity(Entity entity)
 	{
 		if (m_Entities.Contains(entity))
 		{
-			log.Error("Duplicate entity detected! don't do that");
-			return;
+			Exception ex = new Exception();
+			log.Fatal("Attempted to duplicate entity!", ex);
+			throw ex;
+		}
+
+		if (entity.Transform.Parent == null)
+		{
+			entity.Transform.SetParent(m_Root);
 		}
 		m_Entities.Add(entity);
+		return entity;
 	}
 
 	public Entity? GetEntity(string name)
