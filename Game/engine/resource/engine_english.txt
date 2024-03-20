@@ -1,0 +1,12 @@
+"Lang"
+{
+    "Language" "english"
+    "tokens" {
+        "engine.name" "Winter Engine"
+        
+        "engine.error.no_bin_folder" "Could not find 'bin' folder within game directory"
+        "engine.error.load_game_dll_fail" "Unable to load game library."
+        "engine.error.no_game_provided" "No game provided. Use -game <name> on startup to launch a game."
+        "engine.error.invalid_game_provided" "Invalid game provided. Use -game <name> on startup to launch a game."
+    }
+}

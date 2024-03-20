@@ -1,0 +1,9 @@
+"gameinfo" {
+    "name" "Testing Game"
+    "author" "Team Fennec"
+
+    "ResourcePaths" {
+        // engine is loaded automatically
+        "folder" "testgame"
+    }
+}

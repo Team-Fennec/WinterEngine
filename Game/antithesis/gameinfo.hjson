@@ -1,8 +1,0 @@
-{
-    name: "Antithesis"
-    author: "K. 'ashi/eden' J.",
-    resourcePaths: [
-        // the folder for engine data is automatically loaded due to it's importance
-        "antithesis"
-    ]
-}

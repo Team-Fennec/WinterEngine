@@ -1,9 +1,0 @@
-{
-    name: "Testing Game"
-    author: "ashi",
-    publisher: "your mother",
-    resourcePaths: [
-        // we load engine automatically
-        "testgame"
-    ]
-}

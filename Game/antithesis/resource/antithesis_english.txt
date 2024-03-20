@@ -1,8 +1,0 @@
-"Lang"
-{
-    "Language" "english"
-    "tokens"
-    {
-        "GameUI_NewGame" "New Game"
-    }
-}
