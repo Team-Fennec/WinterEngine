@@ -1,12 +1,10 @@
 using System;
-using WinterEngine.Rendering;
+using MathLib;
 
 namespace WinterEngine.Resource;
 
 public abstract class ModelResource : IResource
 {
     public List<MaterialResource> Materials;
-    public abstract (VertexPositionColorTexture[], ushort[]) GetData();
-    
-    // todo(model resource): should this hold a render function to render it's data or?
+    public abstract (Vertex[], ushort[]) GetData();
 }

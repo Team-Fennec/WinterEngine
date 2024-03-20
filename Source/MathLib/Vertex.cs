@@ -1,10 +1,10 @@
 using System;
-using Veldrid;
 using System.Numerics;
+using Veldrid;
 
-namespace WinterEngine.Rendering;
+namespace MathLib;
 
-public struct VertexPositionColorTexture {
+public struct Vertex {
     public const uint SizeInBytes = 36;
 
     public float PosX;
@@ -19,7 +19,11 @@ public struct VertexPositionColorTexture {
     public float TexU;
     public float TexV;
 
-    public VertexPositionColorTexture(Vector3 pos, RgbaFloat color, Vector2 uv) {
+#region Constructors
+    public Vertex() : this(Vector3.Zero, RgbaFloat.White, Vector2.Zero) {}
+    public Vertex(Vector3 pos) : this(pos, RgbaFloat.White, Vector2.Zero) {}
+    public Vertex(Vector3 pos, RgbaFloat color) : this(pos, color, Vector2.Zero) {}
+    public Vertex(Vector3 pos, RgbaFloat color, Vector2 uv) {
         PosX = pos.X;
         PosY = pos.Y;
         PosZ = pos.Z;
@@ -30,4 +34,5 @@ public struct VertexPositionColorTexture {
         TexU = uv.X;
         TexV = uv.Y;
     }
+#endregion
 }
