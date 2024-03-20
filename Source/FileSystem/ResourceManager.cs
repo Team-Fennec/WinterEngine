@@ -35,6 +35,31 @@ public class ResourceManager
 	    resDirs.Add(resProvide);
 	}
 	
+	public static Stream GetData(string path)
+	{
+		Stream resData;
+	    
+	    foreach (ResourceProvider resProv in resDirs)
+	    {
+	        if (resProv.FileExists(path))
+	        {
+                resData = resProv.OpenFile(path);
+                break;
+	        }
+	    }
+	    
+	    if (resData != null)
+	    {
+    	    return resData;
+	    }
+	    else
+	    {
+    	    FileNotFoundException except = new FileNotFoundException();
+    		log.Error($"Cannot find a resource by path {path}");
+    		throw except;
+	    }
+	}
+
 	public static T Load<T>(string path) where T : IResource, new()
 	{
 	    Stream resData;
