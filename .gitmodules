@@ -1,0 +1,6 @@
+[submodule "DatamodelLib"]
+	path = DatamodelLib
+	url = https://github.com/Team-Fennec/Datamodel.NET
+[submodule "ValveKeyValue"]
+	path = ValveKeyValue
+	url = https://github.com/ValveResourceFormat/ValveKeyValue.git

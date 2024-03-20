@@ -1,3 +1,0 @@
-# don't copy any assembly or debug files from resources
-*/bin/*.dll
-*/bin/*.pdb
