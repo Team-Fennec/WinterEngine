@@ -10,10 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MathLib\MathLib.csproj" />
-    <ProjectReference Include="..\Source\WinterEngine.csproj" />
-    <ProjectReference Include="..\WinterEngine.Rendering\WinterEngine.Rendering.csproj" />
+    <ProjectReference Include="../../MathLib/MathLib.csproj" />
+    <ProjectReference Include="../../Engine/WinterEngine.csproj" />
+    <ProjectReference Include="../../RenderSystem/WinterEngine.RenderSystem.csproj" />
   </ItemGroup>
   
-  <Import Project="../CopyToGameBin.props" />
+  <Import Project="../../build_tools/CopyToGameBin.props" />
 </Project>

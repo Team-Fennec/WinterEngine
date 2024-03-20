@@ -43,9 +43,9 @@ public static class EngineVersion {
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Veldrid.ImageSharp" Version="4.9.0" />
     <ProjectReference Include="../MathLib/MathLib.csproj" />
-    <ProjectReference Include="../Veldrid.SDL2/Veldrid.SDL2.csproj" />
-    <ProjectReference Include="../Veldrid.ImGui/Veldrid.ImGui.csproj" />
-    <ProjectReference Include="../DatamodelLib/Datamodel.NET.csproj" />
+    <ProjectReference Include="../../Veldrid.SDL2/Veldrid.SDL2.csproj" />
+    <ProjectReference Include="../../Veldrid.ImGui/Veldrid.ImGui.csproj" />
+    <ProjectReference Include="../../DatamodelLib/Datamodel.NET.csproj" />
     <PackageReference Include="Veldrid" Version="4.9.0" />
     <PackageReference Include="Veldrid.SPIRV" Version="1.0.15" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="4.9.0" />
