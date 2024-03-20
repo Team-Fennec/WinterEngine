@@ -1,4 +1,4 @@
-#define RENDER_DEBUG_FEATURES
+#define RENDER_DEBUG
 
 using Veldrid;
 using Veldrid.Sdl2;
@@ -37,21 +37,26 @@ public static class Renderer {
     
     private static CommandList _cl;
     private static Vector3 _clearColor = new Vector3(0.45f, 0.55f, 0.6f);
-    private Stack<FaceCullMode> cullMode = new Stack<FaceCullMode>();
-    private Stack<bool> depthMode = new Stack<bool>();
 
     private static readonly VertexLayoutDescription vertexLayout = new VertexLayoutDescription(
         new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
+        new VertexElementDescription("Normal", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
         new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4),
         new VertexElementDescription("TexCoords", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2)
     );
 
     public static void DrawMesh(MeshHandle mesh) {
+    #if RENDER_DEBUG
+        _cl.PushDebugGroup("RenderSystem_DrawMesh");
+    #endif
         _cl.SetVertexBuffer(0, mesh.VertexBuffer);
         _cl.SetIndexBuffer(mesh.IndexBuffer, IndexFormat.UInt16);
         _cl.SetGraphicsResourceSet(0, _projViewSet);
         _cl.SetGraphicsResourceSet(1, _worldTextureSet);
         _cl.DrawIndexed(mesh.IndexCount, 1, 0, 0, 0);
+    #if RENDER_DEBUG
+        _cl.PopDebugGroup();
+    #endif
     }
 
     public static void UseShader(ShaderHandle shader) {
@@ -216,11 +221,5 @@ public static class Renderer {
 
         // Send calls to renderer main to render everything
         _cl.ClearDepthStencil(1f);
-
-        // Run through the render objects
-        while (renderObjects.Count > 0) {
-            renderObjects.First().Render();
-            renderObjects.Pop();
-        }
     }
 }
