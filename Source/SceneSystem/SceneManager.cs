@@ -32,7 +32,14 @@ public static class SceneManager
 		if (scene == m_CurrentScene)
 		{
 			m_Scenes.Remove(scene);
-			m_Scenes[0] = m_CurrentScene;
+			if (m_Scenes.Count == 0)
+			{
+				m_CurrentScene = null;
+			}
+			else 
+			{
+				m_Scenes[0] = m_CurrentScene;
+			}
 		}
 		else
 		{
@@ -46,7 +53,14 @@ public static class SceneManager
 		if (m_Scenes[index] == m_CurrentScene)
 		{
 			m_Scenes.RemoveAt(index);
-			m_Scenes[0] = m_CurrentScene;
+			if (m_Scenes.Count == 0)
+			{
+				m_CurrentScene = null;
+			}
+			else 
+			{
+				m_Scenes[0] = m_CurrentScene;
+			}
 		}
 		else
 		{
@@ -65,7 +79,14 @@ public static class SceneManager
 			if (scene == m_CurrentScene)
 			{
 				m_Scenes.Remove(scene);
-				m_Scenes[0] = m_CurrentScene;
+				if (m_Scenes.Count == 0)
+				{
+					m_CurrentScene = null;
+				}
+				else 
+				{
+					m_Scenes[0] = m_CurrentScene;
+				}
 			}
 			else
 			{
