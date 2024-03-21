@@ -1,0 +1,21 @@
+using WinterEngine.Resource;
+using ValveKeyValue;
+
+namespace FileSystemTest;
+
+public sealed class KVTestRes : IResource
+{
+    public string Apple;
+    public string Tomato;
+    
+    public KVTestRes(Stream stream)
+    {
+        // read KVData
+        var kv = KVSerializer.Create(KVSerializationFormat.KeyValues1Text);
+        KVObject TestData = kv.Deserialize(stream);
+        
+        Apple = TestData["apple"].Value;
+        Tomato = TestData["tomato"].Value;
+        stream.Close();
+    }
+}

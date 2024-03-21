@@ -2,8 +2,9 @@ using System.Reflection;
 using System.Linq;
 using System.IO;
 using Datamodel;
+using WinterEngine.Resource;
 
-namespace WinterEngine.Resource;
+namespace WinterEngine.MaterialSystem;
 
 [AttributeUsage(AttributeTargets.Property, AllowMultiple=false, Inherited=true)]
 public class MatPropertyAttribute : Attribute {
@@ -14,21 +15,19 @@ public class MatPropertyAttribute : Attribute {
     }
 }
 
-public abstract class MaterialResource : IResource {
+public class MaterialResource {
     const int FormatVersion = 1;
     
     public static MaterialResource Load(string matName)
     {
-        StreamReader fileStream = ResourceManager.OpenResource($"materials/{matname}.wmat");
-        MemoryStream mdlMem = new MemoryStream();
-        fStream.BaseStream.CopyTo(mdlMem);
-        fStream.Close();
-        return Deserialize(mdlMem);
+        Stream fileStream = ResourceManager.GetData($"materials/{matname}.wmat");
+        return Deserialize(fileStream);
     }
     
     public static MaterialResource Deserialize(Stream stream)
     {
         Datamodel input = Datamodel.Load(stream);
+        stream.Close();
         
         // check the shader value and try to instantiate that type
         string shaderName = input.Root.Get<string>("shader");

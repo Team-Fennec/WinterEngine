@@ -1,0 +1,6 @@
+// this isn't testing the keyvalues system, it's testing to make sure
+// the resource system can load files correctly.
+"TestKV" {
+    "apple" "fruit"
+    "tomato" "vegetable"
+}

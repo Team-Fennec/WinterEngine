@@ -13,10 +13,9 @@ public class ShaderResource : IResource
     public PolygonFillMode FillMode;
     public bool DepthTest;
 
-    public ShaderResource(string name)
+    public ShaderResource(Stream stream)
     {
-        ShaderName = name;
-        StreamReader shaderFile = ResourceManager.OpenResource(Path.Combine("shaders", $"{name}.glsl"));
+        StreamReader shaderFile = new StreamReader(stream);
 
         int writerMode = 0; // 0 - global, 1 - vertex, 2 - fragment
         FragmentCode = "";

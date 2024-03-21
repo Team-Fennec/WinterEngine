@@ -6,5 +6,4 @@ namespace WinterEngine.Resource.Types;
 
 public class TextureResource : IResource
 {
-    
 }

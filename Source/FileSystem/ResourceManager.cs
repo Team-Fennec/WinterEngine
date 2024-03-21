@@ -4,18 +4,11 @@ namespace WinterEngine.Resource;
 
 public interface IResource
 {
-    public void ReadData(Stream data);
+    public ResourceProvider(Stream stream) {}
 }
 
 public abstract class ResourceProvider
 {
-    string path;
-    
-    public ResourceProvider(string path)
-    {
-        this.path = path;
-    }
-    
 	public abstract Stream OpenFile(string filePath);
 	public abstract bool FileExists(string filePath);
 	public abstract bool DirExists(string dirPath);
@@ -74,8 +67,7 @@ public class ResourceManager
 	    
 	    if (resData != null)
 	    {
-    	    T retRes = new T();
-    	    t.LoadData()
+    	    T retRes = new T(resData);
     	    return retRes;
 	    }
 	    else

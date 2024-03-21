@@ -10,8 +10,4 @@ public abstract class ModelResource : IResource
     public abstract (Vertex[], ushort[]) GetData();
 
     private MeshHandle handle;
-
-    public void LoadData(Stream stream) {
-        
-    }
 }
