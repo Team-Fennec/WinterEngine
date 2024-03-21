@@ -25,9 +25,9 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="0.5946522"
-     inkscape:cx="582.69355"
-     inkscape:cy="251.40746"
+     inkscape:zoom="0.4204826"
+     inkscape:cx="725.357"
+     inkscape:cy="155.77339"
      inkscape:window-width="1360"
      inkscape:window-height="715"
      inkscape:window-x="-8"
@@ -64,7 +64,8 @@
        y1="81.80085"
        x2="283.15677"
        y2="140.94916"
-       gradientUnits="userSpaceOnUse" />
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-5.2916663)" />
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient7226"
@@ -109,7 +110,7 @@
      transform="translate(-31.461864,-52.855932)">
     <g
        id="svgg"
-       transform="matrix(0.21531395,0,0,0.21531395,50.638331,67.766735)"
+       transform="matrix(0.21531395,0,0,0.21531395,45.346664,67.766735)"
        style="fill:url(#linearGradient6370);fill-opacity:1;fill-rule:nonzero;stroke:url(#linearGradient10198);stroke-width:14;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:normal">
       <path
          id="path0"
@@ -122,12 +123,12 @@
     <text
        xml:space="preserve"
        style="font-size:42.3333px;line-height:0;font-family:'Jet Set';-inkscape-font-specification:'Jet Set, Normal';text-align:center;text-anchor:middle;fill:url(#linearGradient6360);fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:3;stroke-linejoin:round;paint-order:fill markers stroke"
-       x="283.69531"
+       x="278.40366"
        y="126.74486"
        id="text4212"><tspan
          sodipodi:role="line"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:42.3333px;line-height:0.4;font-family:'Readex Pro';-inkscape-font-specification:'Readex Pro';fill:url(#linearGradient6360);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:3;stroke-opacity:1"
-         x="283.69531"
+         x="278.40366"
          y="126.74486"
          id="tspan4264"><tspan
    id="tspan4266"
