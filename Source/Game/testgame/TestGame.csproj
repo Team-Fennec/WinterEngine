@@ -13,7 +13,12 @@
     <ProjectReference Include="../../MathLib/MathLib.csproj" />
     <ProjectReference Include="../../Engine/WinterEngine.csproj" />
     <ProjectReference Include="../../RenderSystem/WinterEngine.RenderSystem.csproj" />
+    <ProjectReference Include="../../SceneSystem/WinterEngine.SceneSystem.csproj" />
+    <ProjectReference Include="../../FileSystem/WinterEngine.FileSystem.csproj" />
+    <ProjectReference Include="../../PhysicsSystem/WinterEngine.PhysicsSystem.csproj" />
   </ItemGroup>
   
   <Import Project="../../build_tools/CopyToGameBin.props" />
+  <Import Project="../shared/game_shared.props" />
+  
 </Project>

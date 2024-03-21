@@ -2,11 +2,11 @@
     <Target AfterTargets="Build" Name="CopyDllToGameFolder">
         <Copy Condition="'$(Configuration)' == 'Debug'"
             SourceFiles="$(OutDir)/$(AssemblyName).pdb"
-            DestinationFolder="../Resources/$(GameDir)/bin/"
+            DestinationFolder="../../../Game/$(GameDir)/bin/"
         />
         <Copy
             SourceFiles="$(OutDir)/$(AssemblyName).dll"
-            DestinationFolder="../Resources/$(GameDir)/bin/"
+            DestinationFolder="../../../Game/$(GameDir)/bin/"
         />
     </Target>
 </Project>
