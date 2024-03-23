@@ -1,6 +1,7 @@
 using Veldrid;
 
-namespace WinterEngine.Rendering;
+namespace WinterEngine.RenderSystem;
+
 public class TextureHandle {
     private static readonly ILog log = LogManager.GetLogger(typeof(TextureHandle));
 

@@ -2,12 +2,13 @@ using System;
 using Veldrid.StartupUtilities;
 using Veldrid.Sdl2;
 
-namespace WinterEngine.Rendering;
+namespace WinterEngine.RenderSystem;
 
+// does this really count as rendering related?
 public static class Device {
     public static Sdl2Window Window => _window;
 
-    private static readonly ILog log = LogManager.GetLogger(typeof(Device));
+    private static readonly ILog log = LogManager.GetLogger("Device");
     private static Sdl2Window _window;
 
     public static void Init(string windowName) {

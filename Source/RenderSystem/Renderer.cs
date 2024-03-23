@@ -1,5 +1,3 @@
-#define RENDER_DEBUG
-
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.SPIRV;
@@ -14,78 +12,30 @@ public static class Renderer {
     public static GraphicsDevice GraphicsDevice => _graphicsDevice;
     public static ImGuiController ImGuiController => _imguiRend;
 
-    private static readonly ILog log = LogManager.GetLogger(typeof(Renderer));
+    private static readonly ILog log = LogManager.GetLogger("Renderer");
     
     private static GraphicsDevice _graphicsDevice;
     private static ImGuiController _imguiRend;
 
+    // HACK: this really shouldn't be public
+    public static DeviceBuffer ProjectionBuffer => _projectionBuffer;
+    public static DeviceBuffer ViewBuffer => _viewBuffer;
     private static DeviceBuffer _projectionBuffer;
     private static DeviceBuffer _viewBuffer;
     private static DeviceBuffer _worldBuffer;
-
-    // you shouldn't need more than 32 shaders, if that, in a frame.
-    // if you somehow do, God help you.
-    private const int MaxPipelines = 32;
-    private static Dictionary<string, Pipeline> _pipelines = new Dictionary<string, Pipeline>();
-    private static List<string> _pipelinesInUse = new List<string>();
-
-    // shared between pipelines
-    private static GraphicsPipelineDescription pipelineDescription;
-
-    private static ResourceSet _projViewSet;
-    private static ResourceSet _worldTextureSet;
     
     private static CommandList _cl;
     private static Vector3 _clearColor = new Vector3(0.45f, 0.55f, 0.6f);
+    
+    private static List<RenderObject> m_Renderables = new List<RenderObject>();
 
-    private static readonly VertexLayoutDescription vertexLayout = new VertexLayoutDescription(
+    public static readonly VertexLayoutDescription vertexLayout = new VertexLayoutDescription(
         new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
         new VertexElementDescription("Normal", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
         new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4),
         new VertexElementDescription("TexCoords", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2)
     );
 
-    public static void DrawMesh(MeshHandle mesh) {
-    #if RENDER_DEBUG
-        _cl.PushDebugGroup("RenderSystem_DrawMesh");
-    #endif
-        _cl.SetVertexBuffer(0, mesh.VertexBuffer);
-        _cl.SetIndexBuffer(mesh.IndexBuffer, IndexFormat.UInt16);
-        _cl.SetGraphicsResourceSet(0, _projViewSet);
-        _cl.SetGraphicsResourceSet(1, _worldTextureSet);
-        _cl.DrawIndexed(mesh.IndexCount, 1, 0, 0, 0);
-    #if RENDER_DEBUG
-        _cl.PopDebugGroup();
-    #endif
-    }
-
-    public static void UseShader(ShaderHandle shader) {
-        // don't recreate the pipeline if it already exists
-        if (!_pipelines.ContainsKey(shader.ShaderName)) {
-            pipelineDescription.ShaderSet = new ShaderSetDescription(
-                vertexLayouts: new VertexLayoutDescription[] { vertexLayout },
-                shaders: new[] { shader.VertexShader, shader.FragmentShader }
-            );
-
-            _pipelines.Add(shader.ShaderName, _graphicsDevice.ResourceFactory.CreateGraphicsPipeline(pipelineDescription));
-        }
-
-        // columbo here, uh. Pipebomb?
-        _pipelines.TryGetValue(shader.ShaderName, out var pipebomb);
-        _cl.SetPipeline(pipebomb);
-        // don't allow us to dispose of a pipeline we are in fact using
-        _pipelinesInUse.Add(shader.ShaderName);
-    }
-
-    public static void UseTexture(TextureHandle texture) {
-        _worldTextureSet = _graphicsDevice.ResourceFactory.CreateResourceSet(new ResourceSetDescription(
-            pipelineDescription.ResourceLayouts[1],
-            texture.TextureView,
-            _graphicsDevice.Aniso4xSampler
-            )
-        );
-    }
-    
     public static void Init() {
         log.Info("Initializing GraphicsDevice");
         GraphicsDeviceOptions options = new GraphicsDeviceOptions(
@@ -118,108 +68,67 @@ public static class Renderer {
         _projectionBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer));
         _viewBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer));
         _worldBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer));
-
-        pipelineDescription = new GraphicsPipelineDescription();
-        pipelineDescription.BlendState = BlendStateDescription.SingleOverrideBlend;
-
-        pipelineDescription.DepthStencilState = new DepthStencilStateDescription(
-            depthTestEnabled: true,
-            depthWriteEnabled: true,
-            comparisonKind: ComparisonKind.LessEqual
-        );
-
-        pipelineDescription.RasterizerState = new RasterizerStateDescription(
-            cullMode: FaceCullMode.Back,
-            fillMode: PolygonFillMode.Solid,
-            frontFace: FrontFace.Clockwise,
-            depthClipEnabled: true,
-            scissorTestEnabled: false
-        );
-
-        pipelineDescription.PrimitiveTopology = PrimitiveTopology.TriangleList;
-        pipelineDescription.ResourceLayouts = new ResourceLayout[] {
-            factory.CreateResourceLayout(
-                new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("ProjectionBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-                    new ResourceLayoutElementDescription("ViewBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-                    new ResourceLayoutElementDescription("WorldBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex)
-                )
-            ),
-            factory.CreateResourceLayout(
-                new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("SurfaceTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("SurfaceSampler", ResourceKind.Sampler, ShaderStages.Fragment)
-                )
-            )
-        };
-
-        pipelineDescription.Outputs = _graphicsDevice.SwapchainFramebuffer.OutputDescription;
-
+        
         _cl = factory.CreateCommandList();
     }
+    
+    public static void AddRenderObject()
 
     public static void Shutdown() {
         _graphicsDevice.WaitForIdle();
 
-        log.Info("Disposing Veldrid Resources...");
+        log.Info("Disposing Resources...");
 
-        foreach (Pipeline pipeline in _pipelines.Values) {
-            pipeline.Dispose();
+        foreach (RenderObject ro in m_Renderables)
+        {
+            // todo: should we clear resources whenever an RO is removed from the list?
+            ro.DisposeResources();
         }
-        log.Info("Disposed pipelines");
 
         _cl.Dispose();
         _graphicsDevice.Dispose();
         _imguiRend.Dispose();
     }
 
-    /// <summary>
-    /// This should only be called once in the main loop! this is what allows
-    /// the render commands to actually work and affect the command list.
-    /// </summary>
-    public static void BeginFrame() {
-        _cl.Begin();
-        // push our main framebuffer
-        _cl.SetFramebuffer(_graphicsDevice.MainSwapchain.Framebuffer);
-        _cl.ClearColorTarget(0, new RgbaFloat(_clearColor.X, _clearColor.Y, _clearColor.Z, 1f));
-        _cl.ClearDepthStencil(1f);
-    }
-    
-    /// <summary>
-    /// ONLY call this AFTER you've called RenderBegin.
-    /// After calling this NO render commands should be ran.
-    /// </summary>
-    public static void EndFrame() {
-        _imguiRend.Render(_graphicsDevice, _cl);
-
-        _cl.End();
-        _graphicsDevice.SubmitCommands(_cl);
-        _graphicsDevice.SwapBuffers(_graphicsDevice.MainSwapchain);
-        
-        // clear the in use pipelines, we aren't using them anymore
-        _pipelinesInUse.Clear();
-    }
-
     public static void Render() {
         _cl.Begin();
 
+#if DEBUG
+        _cl.PushDebugGroup("GlobalWorldMatrix");
+#endif
         _cl.UpdateBuffer(_projectionBuffer, 0, Matrix4x4.CreatePerspectiveFieldOfView(
             (float)Angles.Deg2Rad(90),
-            (float)960 / 540,
+            (float)Device.Window.Width / Device.Window.Height,
             0.5f,
             9999f));
-
         _cl.UpdateBuffer(_viewBuffer, 0, Matrix4x4.CreateLookAt(Vector3.UnitZ*4000, Vector3.UnitZ, Vector3.UnitY));
-
         Matrix4x4 rotation = Matrix4x4.CreateFromYawPitchRoll(0, 0, 0);
-
         _cl.UpdateBuffer(_worldBuffer, 0, ref rotation);
-
+#if DEBUG
+        _cl.PopDebugGroup();
+#endif
+        
         _cl.SetFramebuffer(_graphicsDevice.MainSwapchain.Framebuffer);
-
         _cl.ClearColorTarget(0, new RgbaFloat(_clearColor.X, _clearColor.Y, _clearColor.Z, 1f));
 
         // Send calls to renderer main to render everything
         _cl.ClearDepthStencil(1f);
+        
+#if DEBUG
+        _cl.PushDebugGroup("RenderScene");
+#endif
+        foreach (RenderObject ro in m_Renderables)
+        {
+            ro.Render(_graphicsDevice, _cl);
+        }
+        
+        _imguiRend.Render(_graphicsDevice, _cl);
+#if DEBUG
+        _cl.PopDebugGroup();
+#endif
+
+        _cl.End();
+        _graphicsDevice.SubmitCommands(_cl);
+        _graphicsDevice.SwapBuffers(_graphicsDevice.MainSwapchain);
     }
 }
