@@ -3,7 +3,7 @@ using System.Text;
 
 namespace WinterEngine.Localization;
 
-public record class Language {
+internal record class Language {
     public string langIdent;
     public Dictionary<string, string> tokens;
     

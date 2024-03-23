@@ -3,10 +3,9 @@ using Veldrid.ImageSharp;
 using ImGuiNET;
 using System.Diagnostics;
 using System.Numerics;
-using Hjson;
 using System.Reflection;
-using WinterEngine.Rendering;
-using WinterEngine.Actors;
+using WinterEngine.RenderSystem;
+using WinterEngine.SceneSystem;
 using WinterEngine.Resource;
 using WinterEngine.Gui;
 using WinterEngine.Gui.DevUI;
@@ -15,13 +14,11 @@ using Veldrid.Sdl2;
 using static WinterEngine.Localization.StringTools;
 
 namespace WinterEngine.Core;
+
 public class Engine
 {
 	// Logger
     private static readonly ILog log = LogManager.GetLogger(typeof(Engine));
-    
-	private static MeshHandle _snapMesh;
-	private static ShaderHandle _snapShader;
 
 	private static int _returnCode = 0;
 
@@ -38,10 +35,9 @@ public class Engine
     public static void PreInit() {
         log.Info("Adding engine resources");
         // adds the engine resources and starts up certain engine systems
-        ResourceManager.AddResourceProvider("engine", ResourceFormat.Folder);
-        
+        ResourceManager.AddProvider(new Providers.DirectoryProvider("engine"));
         // todo(engine): get system lang and load the corresponding translation (or try to)
-        TranslationManager.AddTranslation("engine_english.hjson");
+        TranslationManager.AddTranslation("engine_english.txt");
     }
 
 	public static void Init(string gameDir) {
@@ -81,33 +77,13 @@ public class Engine
 		gameInstance.Startup();
 
 		Device.Init(gameProperName.Qstr());
-
 		Renderer.Init();
 
 		// create gameconsole panel
 		imGuiPanels.Add(new UIGameConsole());
 		
 		IsRunning = true;
-
-        modelData = new Md3Model("snap");
-        imGuiPanels.Add(new ModelDataPanel(modelData));
-
-		// load the snap png data using the resource manager and dispense it to veldrid
-		UnlitTexturedMaterial snapMat = (UnlitTexturedMaterial)MaterialResource.Load("models/snap");
-
-		_snapModel.Shader = new ShaderHandle(
-			unlitTextured.ShaderName,
-			unlitTextured.VertexCode,
-			unlitTextured.FragmentCode
-		);
-		_snapModel.Texture = new TextureHandle(_missingTexData.CreateDeviceTexture(
-			Renderer.GraphicsDevice,
-			Renderer.GraphicsDevice.ResourceFactory
-		));
-		_snapModel.Mesh = new MeshHandle(GetModelVertices(), GetModelIndices());
 	}
-
-	static Md3Model modelData;
 
 	public static int Run()
 	{
@@ -123,18 +99,19 @@ public class Engine
 			if (!Device.Window.Exists) { break; }
 			Renderer.ImGuiController.Update(deltaTime, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
 
+#if HAS_PROFILING
+            Profiler.PushProfile("ImGuiUpdate");
+#endif
 			// imgui stuff
 			foreach (ImGuiPanel panel in imGuiPanels) {
 				panel.DoLayout();
 			}
-			DisplayModelData(modelData);
-
-
-			Renderer.BeginFrame();
-			
-			
-			
-			Renderer.EndFrame();
+#if HAS_PROFILING
+            Profiler.PopProfile();
+#endif
+            
+			SceneSystem.Update(deltaTime);
+			Renderer.Render(deltaTime);
 		}
 
 		Shutdown();
