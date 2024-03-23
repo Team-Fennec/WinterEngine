@@ -14,8 +14,8 @@ public sealed class KVTestRes : IResource
         var kv = KVSerializer.Create(KVSerializationFormat.KeyValues1Text);
         KVObject TestData = kv.Deserialize(stream);
 
-        Apple = TestData["apple"].Value;
-        Tomato = TestData["tomato"].Value;
+        Apple = TestData["apple"].ToString();
+        Tomato = TestData["tomato"].ToString();
         stream.Close();
     }
 }
