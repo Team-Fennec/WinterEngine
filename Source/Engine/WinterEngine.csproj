@@ -37,7 +37,6 @@ public static class EngineVersion {
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Hjson" Version="3.0.0" />
     <PackageReference Include="ImGui.NET" Version="1.90.1.1" />
     <PackageReference Include="log4net" Version="2.0.15" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
@@ -46,6 +45,12 @@ public static class EngineVersion {
     <ProjectReference Include="../../Veldrid.SDL2/Veldrid.SDL2.csproj" />
     <ProjectReference Include="../../Veldrid.ImGui/Veldrid.ImGui.csproj" />
     <ProjectReference Include="../../DatamodelLib/Datamodel.NET.csproj" />
+    <ProjectReference Include="..\..\ValveKeyValue\ValveKeyValue\ValveKeyValue\ValveKeyValue.csproj" />
+    <ProjectReference Include="..\FileSystem\WinterEngine.FileSystem.csproj" />
+    <ProjectReference Include="..\MaterialSystem\WinterEngine.MaterialSystem.csproj" />
+    <ProjectReference Include="..\PhysicsSystem\WinterEngine.PhysicsSystem.csproj" />
+    <ProjectReference Include="..\RenderSystem\WinterEngine.RenderSystem.csproj" />
+    <ProjectReference Include="..\SceneSystem\WinterEngine.SceneSystem.csproj" />
     <PackageReference Include="Veldrid" Version="4.9.0" />
     <PackageReference Include="Veldrid.SPIRV" Version="1.0.15" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="4.9.0" />
