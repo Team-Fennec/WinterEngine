@@ -1,6 +1,7 @@
 using System;
 using Veldrid.StartupUtilities;
 using Veldrid.Sdl2;
+using log4net;
 
 namespace WinterEngine.RenderSystem;
 
