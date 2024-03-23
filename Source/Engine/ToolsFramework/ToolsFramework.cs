@@ -12,6 +12,16 @@ public static class ToolsFramework
     EngineTool m_CurrentTool;
     bool m_ToolsActive = true; // default to true
 
+    internal static object GetCurrentTool()
+    {
+        throw new NotImplementedException();
+    }
+
+    internal static IEnumerable<EngineTool> GetToolList()
+    {
+        throw new NotImplementedException();
+    }
+
     public void Init()
     {
         log.Info("Initializing Engine Tools...");

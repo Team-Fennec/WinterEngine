@@ -1,17 +1,19 @@
 using ImGuiNET;
-using System;
-using System.Collections.Generic;
+using System.Numerics;
+using WinterEngine.Core;
+using WinterEngine.Gui;
 
 namespace WinterEngine.ToolsFramework.Gui;
 
 // there is no reason to inherit this class ever
 public sealed class ToolRootPanel : ImGuiPanel
 {
+
     public ToolRootPanel()
     {
         Title = "Engine Tools#engine_tools_root";
         Flags = ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoSavedSettings | ImGuiWindowFlags.NoBringToFrontOnFocus;
-        Size = ImGui.GetMainViewport().GetWorkSize();
+        Size = ImGui.GetMainViewport().WorkSize;
 
         SetResizable(false);
         SetTitlebarVisible(false);
@@ -24,17 +26,16 @@ public sealed class ToolRootPanel : ImGuiPanel
         {
             string toolItem = "";
             // list box
-            if (ImGui.)
 
-                if (ImGui.Button("Load") && toolItem != "")
-                {
-                    Engine.SendCommand($"tool_load {toolItem}");
-                    ImGui.ClosePopup();
-                }
+            if (ImGui.Button("Load") && toolItem != "")
+            {
+                //Engine.SendCommand($"tool_load {toolItem}");
+                ImGui.CloseCurrentPopup();
+            }
             ImGui.SameLine();
             if (ImGui.Button("Cancel"))
             {
-                ImGui.ClosePopup();
+                ImGui.CloseCurrentPopup();
             }
 
             ImGui.EndPopup();
@@ -43,8 +44,8 @@ public sealed class ToolRootPanel : ImGuiPanel
 
     protected override void OnLayout()
     {
-        ImGuiID DockSpaceID = ImGui.GetID("engine_tools_dockspace");
-        ImGui.DockSpace(DockSpaceID, new Vector2(0.0f, 0.0f), ImGuiDockspaceFlags.None);
+        uint DockSpaceID = ImGui.GetID("engine_tools_dockspace");
+        ImGui.DockSpace(DockSpaceID, new Vector2(0.0f, 0.0f), ImGuiDockNodeFlags.None);
 
         ModulePopup();
 
