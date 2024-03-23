@@ -12,17 +12,10 @@ public static class ToolsFramework
     EngineTool m_CurrentTool;
     bool m_ToolsActive = true; // default to true
 
-    internal static object GetCurrentTool()
-    {
-        throw new NotImplementedException();
-    }
+    public static EngineTool GetCurrentTool() => m_CurrentTool;
+    public static IEnumerable<EngineTool> GetToolList() => m_EngineTools;
 
-    internal static IEnumerable<EngineTool> GetToolList()
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Init()
+    public static void Init()
     {
         log.Info("Initializing Engine Tools...");
 
@@ -40,6 +33,25 @@ public static class ToolsFramework
         var kv = KVSerializer.Create(KVSerializationFormat.KeyValues1Text);
         KVObject engineToolsList = kv.Deserialize(File.OpenRead("enginetools.vdf"));
 
+        // go through the entries and add the tools
+
+        foreach (KVObject toolObj in (IEnumerable<KVObject>)engineToolsList.Value)
+        {
+            Engine.SendCommand($"tool_load {toolObj.Value.ToString()}");
+        }
+
     skipautoload:
+    }
+}
+
+internal sealed class LoadToolCommand : ConCmd<LoadToolCommand>
+{
+    public override string Command => "tool_load";
+    public override string Description => "Loads a tool from the provided name";
+    public override CmdFlags Flags => CmdFlags.None;
+
+    public override void Exec(string[] args)
+    {
+        // todo: load tool command
     }
 }
