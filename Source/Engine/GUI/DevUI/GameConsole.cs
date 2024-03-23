@@ -1,7 +1,5 @@
 using ImGuiNET;
-using log4net;
 using log4net.Core;
-using System.Diagnostics;
 using System.Numerics;
 using WinterEngine.Core;
 

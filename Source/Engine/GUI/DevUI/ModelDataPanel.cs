@@ -1,5 +1,6 @@
 using ImGuiNET;
 using WinterEngine.Resource;
+using System.Numerics;
 
 namespace WinterEngine.Gui.DevUI;
 
@@ -16,7 +17,7 @@ public class ModelDataPanel : ImGuiPanel
         data = mdata;
     }
 
-    public override void OnLayout()
+    protected override void OnLayout()
     {
         if (ImGui.Begin("Model Info"))
         {

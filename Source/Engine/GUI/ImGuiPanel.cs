@@ -1,6 +1,7 @@
 using ImGuiNET;
 using System.Numerics;
 using ValveKeyValue;
+using WinterEngine.Resource;
 
 namespace WinterEngine.Gui;
 
@@ -17,13 +18,13 @@ public class ImGuiPanel
 
     public void SetTitlebarVisible(bool visible)
     {
-        if (visible && Flags.HasFlag(ImGuiWindowFlags.NoTitlebar))
+        if (visible && Flags.HasFlag(ImGuiWindowFlags.NoTitleBar))
         {
-            Flags &= ~ImGuiWindowFlags.NoTitlebar;
+            Flags &= ~ImGuiWindowFlags.NoTitleBar;
         }
-        else if (!Flag.HasFlag(ImGuiWindowFlags.NoTitlebar))
+        else if (!Flags.HasFlag(ImGuiWindowFlags.NoTitleBar))
         {
-            Flags |= ImGuiWindowFlags.NoTitlebar;
+            Flags |= ImGuiWindowFlags.NoTitleBar;
         }
     }
 
@@ -33,15 +34,15 @@ public class ImGuiPanel
         {
             Flags &= ~ImGuiWindowFlags.NoResize;
         }
-        else if (!Flag.HasFlag(ImGuiWindowFlags.NoResize))
+        else if (!Flags.HasFlag(ImGuiWindowFlags.NoResize))
         {
             Flags |= ImGuiWindowFlags.NoResize;
         }
     }
 
-    void LoadSchemeFile(string filename)
+    protected void LoadSchemeFile(string filename)
     {
-        Stream fileData = ResourceManager.OpenFile($"resource/{filename}");
+        Stream fileData = ResourceManager.GetData($"resource/{filename}");
         m_StyleColors.Clear();
 
         // run scheme file through our kv interpreter
@@ -50,10 +51,10 @@ public class ImGuiPanel
 
         // make a list of the color vars we have
         Dictionary<string, Vector4> colorVars = new();
-        foreach (KVObject colorObj in schemeData["Colors"])
+        foreach (KVObject colorObj in (IEnumerable<KVObject>)schemeData["Colors"])
         {
             // Colors are stored in RGB888/RGBA8888 and must be converted
-            string[] sepColorStr = colorObj.Value.Split(" ");
+            string[] sepColorStr = colorObj.Value.ToString().Split(" ");
             float[] convColor = new float[4];
 
             convColor[0] = float.Parse(sepColorStr[0]) / 255;
@@ -68,7 +69,7 @@ public class ImGuiPanel
         }
 
         // parse out each style var we have in the styles block
-        foreach (KVObject styleObj in schemeData["Styles"])
+        foreach (KVObject styleObj in (IEnumerable<KVObject>)schemeData["Styles"])
         {
             // get our enum value
             ImGuiCol enumVal = Enum.Parse<ImGuiCol>($"ImGuiCol.{styleObj.Name}");
@@ -77,7 +78,7 @@ public class ImGuiPanel
             string colorVar = string.Empty;
             foreach (string varName in colorVars.Keys)
             {
-                if (styleObj.Value == varName)
+                if (styleObj.Value.ToString() == varName)
                 {
                     colorVar = varName;
                     break;
@@ -92,7 +93,7 @@ public class ImGuiPanel
             else
             {
                 // convert a presumably RGB888/RGBA8888
-                string[] sepColorStr = styleObj.Value.Split(" ");
+                string[] sepColorStr = styleObj.Value.ToString().Split(" ");
                 float[] convColor = new float[4];
 
                 convColor[0] = float.Parse(sepColorStr[0]) / 255;
@@ -110,7 +111,7 @@ public class ImGuiPanel
 
     public void DoLayout()
     {
-        if !(Visible) return;
+        if (!Visible) return;
         foreach (var styleStruct in m_StyleColors)
         {
             ImGui.PushStyleColor(styleStruct.style, styleStruct.color);
@@ -120,10 +121,12 @@ public class ImGuiPanel
         if (ImGui.Begin($"{Title}##{Guid}", ref Visible, Flags))
         {
 
+#if false
             foreach (GuiControl control in controls)
             {
                 control.DoLayout();
             }
+#endif
 
             // call all user defined commands after we do our own controls
             OnLayout();
@@ -132,8 +135,8 @@ public class ImGuiPanel
         }
 
         // don't try to pop anything if we didn't push anything :P
-        if (m_StyleColors.Length > 0)
-            ImGui.PopStyleColor(m_StyleColors.Length);
+        if (m_StyleColors.Count > 0)
+            ImGui.PopStyleColor(m_StyleColors.Count);
     }
 
     // This is what you override to do the panel layout with ImGui
