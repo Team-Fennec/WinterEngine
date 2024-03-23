@@ -1,6 +1,3 @@
-using System;
-using System.Text;
-
 namespace WinterEngine.Localization;
 
 internal record class Language
