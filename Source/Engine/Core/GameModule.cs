@@ -1,7 +1,4 @@
-﻿using log4net;
-using WinterEngine.Actors;
-
-namespace WinterEngine.Core;
+﻿namespace WinterEngine.Core;
 
 public abstract class GameModule
 {
