@@ -1,34 +1,34 @@
-using log4net;
-using System;
 using log4net.Appender;
 using log4net.Core;
+using WinterEngine.Core;
 
-namespace WinterEngine.Core;
-
-public class GameConsoleAppender : AppenderSkeleton
+namespace WinterEngine.Core
 {
-    protected override void Append(LoggingEvent loggingEvent)
+    public class GameConsoleAppender : AppenderSkeleton
     {
-        GameConsole.logMessages.Add(new LogInfo(loggingEvent.RenderedMessage, loggingEvent.Level));
-    }
-}
-
-public static class GameConsole
-{
-    public struct LogInfo
-    {
-        public string Text { get; private set; }
-        public Level Type { get; private set; }
-
-        public LogInfo(string msg, Level type)
+        protected override void Append(LoggingEvent loggingEvent)
         {
-            Type = type;
-            Text = msg;
+            GameConsole.logMessages.Add(new GameConsole.LogInfo(loggingEvent.RenderedMessage, loggingEvent.Level));
         }
     }
 
-    public static List<LogInfo> logMessages = new List<LogInfo>();
-    public static List<ConCmd> commands = new List<ConCmd>();
+    public static class GameConsole
+    {
+        public struct LogInfo
+        {
+            public string Text { get; private set; }
+            public Level Type { get; private set; }
+
+            public LogInfo(string msg, Level type)
+            {
+                Type = type;
+                Text = msg;
+            }
+        }
+
+        public static List<LogInfo> logMessages = new List<LogInfo>();
+        public static List<ConCmd> commands = new List<ConCmd>();
+    }
 }
 
 // baseline commands
