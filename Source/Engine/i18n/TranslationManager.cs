@@ -1,6 +1,5 @@
-using Hjson;
-using System;
-using System.Text;
+using ValveKeyValue;
+using WinterEngine.Resource;
 
 namespace WinterEngine.Localization;
 
@@ -10,24 +9,25 @@ public static class TranslationManager
     private static readonly ILog log = LogManager.GetLogger(typeof(TranslationManager));
 
     // default to english
-    public string CurrentLang = "english";
-    Dictionary<string, Language> languageData = new Dictionary<string, Language>();
+    public static string CurrentLang = "english";
+    static Dictionary<string, Language> languageData = new Dictionary<string, Language>();
 
     // adds a translation file using the resource manager
     public static void AddTranslation(string fileName)
     {
-        StreamReader translationFile = ResourceManager.OpenResource(Path.Combine("resource", fileName));
+        Stream translationFile = ResourceManager.GetData(Path.Combine("resource", fileName));
 
         // read hjson data now
-        JsonValue trnsFileData = HjsonValue.Load(translationFile.BaseStream);
+        var kv = KVSerializer.Create(KVSerializationFormat.KeyValues1Text);
+        KVObject trnsFileData = kv.Deserialize(translationFile);
 
         Dictionary<string, string> tokens = new Dictionary<string, string>();
-        foreach (var tokenObject in trnsFileData.Qo("tokens"))
+        foreach (KVObject tokenObject in (IEnumerable<KVObject>)trnsFileData["tokens"])
         {
-            tokens.TryAdd(tokenObject.Key, tokenObject.Value.Qstr());
+            tokens.TryAdd(tokenObject.Name, tokenObject.Value.ToString());
         }
 
-        languageData.Add(trnsFileData.Qstr("language"), new Language(trnsFileData.Qstr("language"), tokens));
+        languageData.Add(trnsFileData["language"].ToString(), new Language(trnsFileData["language"].ToString(), tokens));
         translationFile.Close();
 
         log.Info($"Added translation file {fileName}");
