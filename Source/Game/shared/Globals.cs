@@ -1,6 +1,2 @@
-global using WinterEngine;
-global using WinterEngine.Actors;
-global using WinterEngine.Attributes;
-global using WinterEngine.Rendering;
-global using WinterEngine.Interfaces;
+global using log4net;
 global using static WinterEngine.Translation.StringTools;
