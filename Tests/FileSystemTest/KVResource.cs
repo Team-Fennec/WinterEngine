@@ -8,7 +8,7 @@ public sealed class KVTestRes : IResource
     public string Apple;
     public string Tomato;
 
-    public KVTestRes(Stream stream)
+    public void LoadData(Stream stream)
     {
         // read KVData
         var kv = KVSerializer.Create(KVSerializationFormat.KeyValues1Text);

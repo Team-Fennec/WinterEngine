@@ -33,8 +33,8 @@ public class ResManTests
         KVObject TestData = kv.Deserialize(kvData);
         kvData.Close();
 
-        Assert.True(TestData["apple"].Value == "fruit");
-        Assert.True(TestData["tomato"].Value == "vegetable");
+        Assert.True(TestData["apple"].ToString() == "fruit");
+        Assert.True(TestData["tomato"].ToString() == "vegetable");
     }
 
     [Fact, TestPriority(1)]
