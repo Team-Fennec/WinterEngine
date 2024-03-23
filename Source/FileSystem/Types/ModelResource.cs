@@ -4,10 +4,9 @@ using WinterEngine.RenderSystem;
 
 namespace WinterEngine.Resource;
 
-public abstract class ModelResource : IResource
+public abstract class MeshResource : IResource
 {
-    public List<MaterialResource> Materials;
     public abstract (Vertex[], ushort[]) GetData();
 
-    private MeshHandle handle;
+    private MeshHandle m_Handle;
 }

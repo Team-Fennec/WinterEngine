@@ -5,5 +5,5 @@ namespace WinterEngine.Gui.DevUI;
 
 public class ProfilerPanel : ImGuiPanel
 {
-    
+
 }

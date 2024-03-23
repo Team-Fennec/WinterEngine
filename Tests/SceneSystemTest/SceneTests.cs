@@ -83,7 +83,7 @@ public class SceneTests : IClassFixture<SSFixt>
         #region Creating and Adding Entity
         //=================================================//
         //output.WriteLine("Creating and Adding Test Entity...");
-        
+
         fixture.testEnt = new TestEntA();
         fixture.testEnt.Name = "Testing Entity";
 
@@ -129,7 +129,7 @@ public class SceneTests : IClassFixture<SSFixt>
 
     [Fact, TestPriority(5)]
     public void GetNonexistFailTest()
-    {   
+    {
         //output.WriteLine("================================================");
         #region Get Nonexistent Entity Fail
         //=================================================//
@@ -145,15 +145,16 @@ public class SceneTests : IClassFixture<SSFixt>
         #region Scene Loop
         //=================================================//
         //output.WriteLine("Running scene loop...");
-        
+
         Stopwatch timer = new Stopwatch();
         timer.Start();
-        while(true)
+        while (true)
         {
             // todo: we should try deltatime probably?
             SceneManager.Update(0.0);
 
-            if (timer.Elapsed.Seconds > 9) break;
+            if (timer.Elapsed.Seconds > 9)
+                break;
         }
         timer.Stop();
 
@@ -180,12 +181,13 @@ public class SceneTests : IClassFixture<SSFixt>
 
         Stopwatch timer = new Stopwatch();
         timer.Start();
-        while(true)
+        while (true)
         {
             // todo: we should try deltatime probably?
             SceneManager.Update(0.0);
 
-            if (timer.Elapsed.Seconds > 2) break;
+            if (timer.Elapsed.Seconds > 2)
+                break;
         }
         timer.Stop();
 
@@ -212,12 +214,13 @@ public class SceneTests : IClassFixture<SSFixt>
 
         Stopwatch timer = new Stopwatch();
         timer.Start();
-        while(true)
+        while (true)
         {
             // todo: we should try deltatime probably?
             SceneManager.Update(0.0);
 
-            if (timer.Elapsed.Seconds > 2) break;
+            if (timer.Elapsed.Seconds > 2)
+                break;
         }
         timer.Stop();
 

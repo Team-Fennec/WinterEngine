@@ -3,12 +3,15 @@ using WinterEngine.Core;
 
 namespace TestGame;
 
-public class TestGameModule : GameModule {
-    public override void Startup() {
+public class TestGameModule : GameModule
+{
+    public override void Startup()
+    {
         Log.Info("Staring up game");
     }
 
-    public override void Shutdown() {
+    public override void Shutdown()
+    {
         Log.Info("Shutting down game");
     }
 }

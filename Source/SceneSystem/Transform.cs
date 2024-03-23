@@ -6,9 +6,9 @@ public class Transform
 {
     public Transform Parent => m_Parent;
     private Transform m_Parent;
-    
+
     public Vector3 Position
-    { 
+    {
         get
         {
             if (m_Parent != null)
@@ -18,7 +18,7 @@ public class Transform
         }
     }
     public Vector3 EulerRotation
-    { 
+    {
         get
         {
             if (m_Parent != null)
@@ -28,7 +28,7 @@ public class Transform
         }
     }
     public Quaternion Rotation
-    { 
+    {
         get
         {
             if (m_Parent != null)
@@ -38,7 +38,7 @@ public class Transform
         }
     }
     public Vector3 Scale
-    { 
+    {
         get
         {
             if (m_Parent != null)
@@ -47,18 +47,18 @@ public class Transform
                 return (LocalScale);
         }
     }
-    
+
     public Vector3 LocalPosition;
     public Vector3 LocalEulerRotation;
     public Quaternion LocalRotation;
     public Vector3 LocalScale;
-    
+
     public void SetParent(Transform parent)
     {
         m_Parent = parent;
     }
-    
-    public Transform() {}
+
+    public Transform() { }
     public Transform(Transform parent)
     {
         m_Parent = parent;

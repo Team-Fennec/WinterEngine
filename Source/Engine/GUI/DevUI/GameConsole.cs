@@ -7,37 +7,49 @@ using WinterEngine.Core;
 
 namespace WinterEngine.Gui.DevUI;
 
-public class UIGameConsole : ImGuiPanel {
+public class UIGameConsole : ImGuiPanel
+{
     string userInput = "";
 
     public const int MAX_LOG_COUNT = 200;
 
-    public UIGameConsole() {
+    public UIGameConsole()
+    {
         Title = "Console##game_console";
         Size = new Vector2(300, 300);
         Flags = ImGuiWindowFlags.NoSavedSettings;
-        
+
         LoadSchemeFile("ToolsScheme.res");
     }
 
-    protected override void OnLayout() {
+    protected override void OnLayout()
+    {
         // Draw the scroll view with the colored text
         ImGui.PushStyleColor(ImGuiCol.ChildBg, new Vector4(0.1f, 0.1f, 0.1f, 1.0f));
 
         Vector2 size = new Vector2(ImGui.GetContentRegionAvail().X, ImGui.GetWindowSize().Y - 60);
-        if (ImGui.BeginChild("##console_log", size)) {
+        if (ImGui.BeginChild("##console_log", size))
+        {
             ImGui.PushTextWrapPos(ImGui.GetContentRegionAvail().X);
 
-            foreach (GameConsole.LogInfo msg in GameConsole.logMessages) {
+            foreach (GameConsole.LogInfo msg in GameConsole.logMessages)
+            {
                 Vector4 typeColor = new Vector4(1, 1, 1, 1);
 
-                if (msg.Type == Level.Error) {
+                if (msg.Type == Level.Error)
+                {
                     typeColor = new Vector4(1, 0, 0, 1);
-                } else if (msg.Type == Level.Info) {
+                }
+                else if (msg.Type == Level.Info)
+                {
                     typeColor = new Vector4(0, 1, 1, 1);
-                } else if (msg.Type == Level.Warn) {
+                }
+                else if (msg.Type == Level.Warn)
+                {
                     typeColor = new Vector4(1, 1, 0, 1);
-                } else if (msg.Type == Level.Fatal) {
+                }
+                else if (msg.Type == Level.Fatal)
+                {
                     typeColor = new Vector4(1, 0, 0, 1);
                 }
 
@@ -56,10 +68,11 @@ public class UIGameConsole : ImGuiPanel {
         ImGui.SameLine();
         bool hitButton = ImGui.Button("Submit");
 
-        if (hitEnter || hitButton) {
+        if (hitEnter || hitButton)
+        {
             Console.WriteLine(userInput);
             //if (userInput != "")
-                //HandleUserInput(userInput);
+            //HandleUserInput(userInput);
             userInput = "";
         }
     }

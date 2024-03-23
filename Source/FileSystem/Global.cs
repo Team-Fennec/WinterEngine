@@ -1,1 +1,1 @@
-using global log4net;
+global using log4net;

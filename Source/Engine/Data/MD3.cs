@@ -21,24 +21,27 @@ namespace WinterEngine.Resource;
 public sealed class Md3ModelResource : ModelResource
 {
     private Md3Model innerData;
-    
+
     public Md3ModelResource(string modelName)
     {
         innerData = new Md3Model(modelName);
-        
+
         // gather shaders into our materials
     }
 }
 
 // fuck my ass dude why are null terminated Cstrings so fucking painful in C#
-public static class CConvert {
-    public static string CharToString(char[] arr) {
+public static class CConvert
+{
+    public static string CharToString(char[] arr)
+    {
         string s = new string(arr);
         return s.Substring(0, Math.Max(0, s.IndexOf('\0')));
     }
 }
 
-public class Md3Model {
+public class Md3Model
+{
     const int MagicIdent = 860898377; // IDP3
     const int Version = 15; // should not exceed this value
     const int MaxQPath = 64;
@@ -48,7 +51,8 @@ public class Md3Model {
     public List<Md3Tag> Tags;
     public List<Md3Surface> Surfaces;
 
-    public Md3Model(string fileName) {
+    public Md3Model(string fileName)
+    {
         Frames = new List<Md3Frame>();
         Tags = new List<Md3Tag>();
         Surfaces = new List<Md3Surface>();
@@ -58,18 +62,21 @@ public class Md3Model {
         fStream.BaseStream.CopyTo(mdlMem);
         fStream.Close();
 
-        using (BinaryReader mdlReader = new BinaryReader(mdlMem)) {
+        using (BinaryReader mdlReader = new BinaryReader(mdlMem))
+        {
             mdlReader.BaseStream.Position = 0;
             // read the header
             Header = new Md3FileHeader();
             Header.ident = mdlReader.ReadInt32();
             Header.version = mdlReader.ReadInt32();
-            
-            if (Header.ident != MagicIdent) {
+
+            if (Header.ident != MagicIdent)
+            {
                 throw new Exception("Invalid file ident, not an MD3 file.");
             }
 
-            if (Header.version > Version) {
+            if (Header.version > Version)
+            {
                 throw new Exception($"Invalid format version, max supported is 15 got {Header.version}.");
             }
 
@@ -81,7 +88,7 @@ public class Md3Model {
             Header.numTags = mdlReader.ReadInt32();
             Header.numSurfaces = mdlReader.ReadInt32();
             Header.numSkins = mdlReader.ReadInt32();
-            
+
             Header.ofsFrames = mdlReader.ReadInt32();
             Header.ofsTags = mdlReader.ReadInt32();
             Header.ofsSurfaces = mdlReader.ReadInt32();
@@ -91,7 +98,8 @@ public class Md3Model {
             mdlReader.BaseStream.Position = Header.ofsFrames;
 
             int frameCount = 0;
-            while (frameCount < Header.numFrames) {
+            while (frameCount < Header.numFrames)
+            {
                 Md3Frame frame = new Md3Frame();
 
                 frame.minBounds = new Vector3(
@@ -119,9 +127,10 @@ public class Md3Model {
             mdlReader.BaseStream.Position = Header.ofsTags;
 
             int tagCount = 0;
-            while (tagCount < Header.numTags) {
+            while (tagCount < Header.numTags)
+            {
                 Md3Tag tag = new Md3Tag();
-                
+
                 tag.name = CConvert.CharToString(mdlReader.ReadChars(MaxQPath));
                 tag.origin = new Vector3(
                     mdlReader.ReadSingle(),
@@ -151,11 +160,13 @@ public class Md3Model {
             mdlReader.BaseStream.Position = Header.ofsSurfaces;
 
             int surfCount = 0;
-            while (surfCount < Header.numSurfaces) {
+            while (surfCount < Header.numSurfaces)
+            {
                 Md3Surface surf = new Md3Surface();
-                
+
                 surf.ident = mdlReader.ReadInt32();
-                if (surf.ident != MagicIdent) {
+                if (surf.ident != MagicIdent)
+                {
                     throw new Exception("Found non MD3 surface data: Incorrect Ident");
                 }
 
@@ -177,7 +188,8 @@ public class Md3Model {
                 mdlReader.BaseStream.Position = Header.ofsSurfaces + surf.ofsTriangles;
                 {
                     int count = 0;
-                    while (count < surf.numTriangles) {
+                    while (count < surf.numTriangles)
+                    {
                         Md3Triangle trig = new Md3Triangle();
                         trig.indexes[0] = mdlReader.ReadInt32();
                         trig.indexes[1] = mdlReader.ReadInt32();
@@ -190,7 +202,8 @@ public class Md3Model {
                 mdlReader.BaseStream.Position = Header.ofsSurfaces + surf.ofsShaders;
                 {
                     int count = 0;
-                    while (count < surf.numShaders) {
+                    while (count < surf.numShaders)
+                    {
                         Md3Shader shd = new Md3Shader();
 
                         shd.name = CConvert.CharToString(mdlReader.ReadChars(MaxQPath));
@@ -204,7 +217,8 @@ public class Md3Model {
                 mdlReader.BaseStream.Position = Header.ofsSurfaces + surf.ofsST;
                 {
                     int count = 0;
-                    while (count < surf.numVerts) {
+                    while (count < surf.numVerts)
+                    {
                         surf.texCoords.Add(new Vector2(
                             mdlReader.ReadSingle(),
                             mdlReader.ReadSingle()
@@ -216,7 +230,8 @@ public class Md3Model {
                 mdlReader.BaseStream.Position = Header.ofsSurfaces + surf.ofsXYZNormal;
                 {
                     int count = 0;
-                    while (count < (surf.numVerts * surf.numFrames)) {
+                    while (count < (surf.numVerts * surf.numFrames))
+                    {
                         Md3Vertex vtx = new Md3Vertex();
 
                         vtx.x = mdlReader.ReadInt16();
@@ -236,12 +251,13 @@ public class Md3Model {
     }
 }
 
-public struct Md3FileHeader {
+public struct Md3FileHeader
+{
     public int ident; // note: magic number "IDP3"
     public int version; // note: latest known is 15
     public string name; // note: size is MAX_QPATH, which is 64
     public int flags; // note: ?????
-    
+
     public int numFrames;
     public int numTags;
     public int numSurfaces;
@@ -254,7 +270,8 @@ public struct Md3FileHeader {
     // note: no offset for skin objects
 }
 
-public struct Md3Frame {
+public struct Md3Frame
+{
     public Vector3 minBounds; // first corner of the bounding box
     public Vector3 maxBounds; // second corner of the bounding box
     public Vector3 localOrigin; // usually (0,0,0)
@@ -262,17 +279,20 @@ public struct Md3Frame {
     public string name; // U8 * 16
 }
 
-public struct Md3Tag {
+public struct Md3Tag
+{
     public string name; // name of tag object, MAX_QPATH (64) size
     public Vector3 origin; // coords of tag object
     public Vector3[] axis; // size of 3, orientation of tag object (???)
 
-    public Md3Tag() {
+    public Md3Tag()
+    {
         axis = new Vector3[3];
     }
 }
 
-public struct Md3Surface {
+public struct Md3Surface
+{
     // Surface Start : offset relative to the md3 object
     public int ident; // magic number. "IDP3"
     public string name; // MAX_QPATH , name of surface object
@@ -294,7 +314,8 @@ public struct Md3Surface {
     public List<Vector2> texCoords;
     public List<Md3Vertex> vertices;
 
-    public Md3Surface() {
+    public Md3Surface()
+    {
         shaders = new List<Md3Shader>();
         triangles = new List<Md3Triangle>();
         texCoords = new List<Vector2>();
@@ -303,24 +324,29 @@ public struct Md3Surface {
 }
 
 // we will ignore these for now to try and get a model displaying period
-public struct Md3Shader {
+public struct Md3Shader
+{
     public string name; // MAX_QPATH, pathname in files/pk3
     public int shaderIndex; // no idea how this is allocated
 }
 
-public struct Md3Triangle {
+public struct Md3Triangle
+{
     public int[] indexes; // 3, list of offset values into the list of vertex objects
-    
-    public Md3Triangle() {
+
+    public Md3Triangle()
+    {
         indexes = new int[3];
     }
 }
 
-public struct Md3TexCoord {
+public struct Md3TexCoord
+{
     public Vector2 UV; // UV
 }
 
-public struct Md3Vertex {
+public struct Md3Vertex
+{
     public short x;
     public short y;
     public short z;

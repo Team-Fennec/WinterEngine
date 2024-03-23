@@ -4,7 +4,8 @@ using Veldrid;
 
 namespace MathLib;
 
-public struct Vertex {
+public struct Vertex
+{
     public const uint SizeInBytes = 48;
 
     public Vector3 Position;
@@ -12,16 +13,17 @@ public struct Vertex {
     public RgbaFloat Color;
     public Vector2 UV;
 
-#region Constructors
-    public Vertex() : this(Vector3.Zero, Vector3.One, RgbaFloat.White, Vector2.Zero) {}
-    public Vertex(Vector3 pos) : this(pos, Vector3.One, RgbaFloat.White, Vector2.Zero) {}
-    public Vertex(Vector3 pos, Vector3 normal) : this(pos, normal, RgbaFloat.White, Vector2.Zero) {}
-    public Vertex(Vector3 pos, Vector3 normal, RgbaFloat color) : this(pos, normal, color, Vector2.Zero) {}
-    public Vertex(Vector3 pos, Vector3 normal, RgbaFloat color, Vector2 uv) {
+    #region Constructors
+    public Vertex() : this(Vector3.Zero, Vector3.One, RgbaFloat.White, Vector2.Zero) { }
+    public Vertex(Vector3 pos) : this(pos, Vector3.One, RgbaFloat.White, Vector2.Zero) { }
+    public Vertex(Vector3 pos, Vector3 normal) : this(pos, normal, RgbaFloat.White, Vector2.Zero) { }
+    public Vertex(Vector3 pos, Vector3 normal, RgbaFloat color) : this(pos, normal, color, Vector2.Zero) { }
+    public Vertex(Vector3 pos, Vector3 normal, RgbaFloat color, Vector2 uv)
+    {
         Position = pos;
         Color = color;
         Normal = normal;
         UV = uv;
     }
-#endregion
+    #endregion
 }
