@@ -1,19 +1,19 @@
-using Veldrid;
-using Veldrid.Sdl2;
-using Veldrid.SPIRV;
-using Veldrid.StartupUtilities;
 using ImGuiNET;
-using System.Numerics;
+using log4net;
 using MathLib;
+using System.Numerics;
+using Veldrid;
+using Veldrid.StartupUtilities;
 
 namespace WinterEngine.RenderSystem;
 
-public static class Renderer {
+public static class Renderer
+{
     public static GraphicsDevice GraphicsDevice => _graphicsDevice;
     public static ImGuiController ImGuiController => _imguiRend;
 
     private static readonly ILog log = LogManager.GetLogger("Renderer");
-    
+
     private static GraphicsDevice _graphicsDevice;
     private static ImGuiController _imguiRend;
 
@@ -23,10 +23,10 @@ public static class Renderer {
     private static DeviceBuffer _projectionBuffer;
     private static DeviceBuffer _viewBuffer;
     private static DeviceBuffer _worldBuffer;
-    
+
     private static CommandList _cl;
     private static Vector3 _clearColor = new Vector3(0.45f, 0.55f, 0.6f);
-    
+
     private static List<RenderObject> m_Renderables = new List<RenderObject>();
 
     public static readonly VertexLayoutDescription vertexLayout = new VertexLayoutDescription(
@@ -36,7 +36,8 @@ public static class Renderer {
         new VertexElementDescription("TexCoords", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2)
     );
 
-    public static void Init() {
+    public static void Init()
+    {
         log.Info("Initializing GraphicsDevice");
         GraphicsDeviceOptions options = new GraphicsDeviceOptions(
             true,
@@ -62,19 +63,24 @@ public static class Renderer {
         CreateResources();
     }
 
-    static void CreateResources() {
+    static void CreateResources()
+    {
         ResourceFactory factory = _graphicsDevice.ResourceFactory;
 
         _projectionBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer));
         _viewBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer));
         _worldBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer));
-        
+
         _cl = factory.CreateCommandList();
     }
-    
-    public static void AddRenderObject()
 
-    public static void Shutdown() {
+    public static void AddRenderObject()
+    {
+
+    }
+
+    public static void Shutdown()
+    {
         _graphicsDevice.WaitForIdle();
 
         log.Info("Disposing Resources...");
@@ -90,7 +96,8 @@ public static class Renderer {
         _imguiRend.Dispose();
     }
 
-    public static void Render() {
+    public static void Render()
+    {
         _cl.Begin();
 
 #if DEBUG
@@ -101,19 +108,19 @@ public static class Renderer {
             (float)Device.Window.Width / Device.Window.Height,
             0.5f,
             9999f));
-        _cl.UpdateBuffer(_viewBuffer, 0, Matrix4x4.CreateLookAt(Vector3.UnitZ*4000, Vector3.UnitZ, Vector3.UnitY));
+        _cl.UpdateBuffer(_viewBuffer, 0, Matrix4x4.CreateLookAt(Vector3.UnitZ * 4000, Vector3.UnitZ, Vector3.UnitY));
         Matrix4x4 rotation = Matrix4x4.CreateFromYawPitchRoll(0, 0, 0);
         _cl.UpdateBuffer(_worldBuffer, 0, ref rotation);
 #if DEBUG
         _cl.PopDebugGroup();
 #endif
-        
+
         _cl.SetFramebuffer(_graphicsDevice.MainSwapchain.Framebuffer);
         _cl.ClearColorTarget(0, new RgbaFloat(_clearColor.X, _clearColor.Y, _clearColor.Z, 1f));
 
         // Send calls to renderer main to render everything
         _cl.ClearDepthStencil(1f);
-        
+
 #if DEBUG
         _cl.PushDebugGroup("RenderScene");
 #endif
@@ -121,7 +128,7 @@ public static class Renderer {
         {
             ro.Render(_graphicsDevice, _cl);
         }
-        
+
         _imguiRend.Render(_graphicsDevice, _cl);
 #if DEBUG
         _cl.PopDebugGroup();

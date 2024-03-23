@@ -7,7 +7,7 @@ public class ShaderResource : IResource
     public string ShaderName { get; private set; }
     public string FragmentCode { get; private set; }
     public string VertexCode { get; private set; }
-    
+
     public CullMode CullMode;
     public bool DepthTest;
 
@@ -23,13 +23,14 @@ public class ShaderResource : IResource
 
         string vtxOut = "";
         string frgOut = "";
-        
+
         // load code into strings
         while (true)
         {
             string line = shaderFile.ReadLine();
-            if (line == null) break;
-            
+            if (line == null)
+                break;
+
             if (line == "VERTEX:")
             {
                 writerMode = 1;
@@ -57,7 +58,7 @@ public class ShaderResource : IResource
                 DepthTest = bool.Parse(line.Split(" ")[1]);
             }
 
-            switch ( writerMode )
+            switch (writerMode)
             {
                 case 0:
                     vtxOut += $"{line}\n";
@@ -96,7 +97,8 @@ public class ShaderResource : IResource
                     StreamReader inclFile = new StreamReader(inclFileData);
 
                     string inclLine = inclFile.ReadLine();
-                    while (inclLine != null) {
+                    while (inclLine != null)
+                    {
                         output += $"{inclLine}\n";
                         inclLine = inclFile.ReadLine();
                     }
