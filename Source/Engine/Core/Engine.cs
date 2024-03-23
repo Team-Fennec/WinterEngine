@@ -20,9 +20,6 @@ public class Engine
 
     private static int m_ReturnCode = 0;
 
-    private static bool m_ShowImGuiDemoWindow = true;
-    private static bool m_ShowAnotherWindow = false;
-
     private static Assembly m_GameAssembly;
     private static GameModule m_GameInstance;
 
