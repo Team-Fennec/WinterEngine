@@ -1,10 +1,8 @@
-using Veldrid.Sdl2;
 using log4net;
 using log4net.Config;
-using System.Reflection;
+using Veldrid.Sdl2;
 using WinterEngine;
-
-using static WinterEngine.Translation.StringTools;
+using static WinterEngine.Localization.StringTools;
 
 internal class Program
 {
@@ -59,12 +57,16 @@ internal class Program
         WinterEngine.Core.Engine.Init(gameName);
         WinterEngine.Core.Engine.Run();
 #else
-        try {
+        try
+        {
             WinterEngine.Core.Engine.Init(gameName);
             WinterEngine.Core.Engine.Run();
-        } catch(Exception e) {
+        }
+        catch (Exception e)
+        {
             // catch any unhanled exceptions
-            unsafe {
+            unsafe
+            {
                 Sdl2Native.SDL_ShowSimpleMessageBox(
                     SDL_MessageBoxFlags.Error,
                     "Winter Engine",
@@ -72,14 +74,15 @@ internal class Program
                     null
                 );
             }
-        
-            if (WinterEngine.Core.Engine.IsRunning) {
+
+            if (WinterEngine.Core.Engine.IsRunning)
+            {
                 // shut down the engine if we're still running
                 // WARNING: If we throw on shutdown we won't cleanly exit!
                 WinterEngine.Core.Engine.Shutdown();
             }
-            
-    	    return 1;
+
+            return 1;
         }
 #endif
 
