@@ -1,6 +1,6 @@
 #version 450
 
-#cull_mode FaceCullMode.None
+#cull_mode None
 #depth_clip false
 
 VERTEX:

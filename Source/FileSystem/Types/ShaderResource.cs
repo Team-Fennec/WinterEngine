@@ -1,5 +1,4 @@
-using System.Text;
-using Veldrid;
+using WinterEngine.RenderSystem;
 
 namespace WinterEngine.Resource;
 
@@ -9,9 +8,10 @@ public class ShaderResource : IResource
     public string FragmentCode { get; private set; }
     public string VertexCode { get; private set; }
     
-    public FaceCullMode CullMode;
-    public PolygonFillMode FillMode;
+    public CullMode CullMode;
     public bool DepthTest;
+
+    private ShaderHandle m_Handle;
 
     public ShaderResource(Stream stream)
     {
@@ -40,8 +40,24 @@ public class ShaderResource : IResource
                 writerMode = 2;
                 continue;
             }
+            else if (line.StartsWith("#cull_mode"))
+            {
+                string mode = line.Split(" ")[1];
+                // we aren't worried about performance here.
+                if (!Enum.TryParse($"CullMode.{mode}", out CullMode))
+                {
+                    throw new ArgumentException(
+                        $"Unexpected CullMode value in shader!\n" +
+                        $"Got {mode}, Expected Back, Front, or None."
+                    );
+                }
+            }
+            else if (line.StartsWith("#depth_test"))
+            {
+                DepthTest = bool.Parse(line.Split(" ")[1]);
+            }
 
-            switch (writerMode)
+            switch ( writerMode )
             {
                 case 0:
                     vtxOut += $"{line}\n";
@@ -59,6 +75,8 @@ public class ShaderResource : IResource
         FragmentCode = ParseShaderCode(frgOut);
 
         shaderFile.Close();
+
+        m_Handle = new ShaderHandle("no name oops", VertexCode, FragmentCode, DepthTest, CullMode);
     }
 
     string ParseShaderCode(string input)
@@ -74,23 +92,15 @@ public class ShaderResource : IResource
                 {
                     // parse out include and load it's code
                     string inclFilename = line.Split(" ")[1].Trim("\"".ToCharArray(0, 1));
-                    StreamReader inclFile = ResourceManager.OpenResource(Path.Combine("shaders", "include", inclFilename));
+                    Stream inclFileData = ResourceManager.GetData(Path.Combine("shaders", "include", inclFilename));
+                    StreamReader inclFile = new StreamReader(inclFileData);
+
                     string inclLine = inclFile.ReadLine();
                     while (inclLine != null) {
                         output += $"{inclLine}\n";
                         inclLine = inclFile.ReadLine();
                     }
                     inclFile.Close();
-                }
-                else if (line.StartsWith("#cull_mode"))
-                {
-                    string mode = line.Split(" ")[1];
-                    // we aren't worried about performance here.
-                    Enum.TryParse<FaceCullMode>(mode, out CullMode);
-                }
-                else if (line.StartsWith("#depth_test"))
-                {
-                    DepthTest = bool.Parse(line.Split(" ")[1]);
                 }
                 else
                 {
