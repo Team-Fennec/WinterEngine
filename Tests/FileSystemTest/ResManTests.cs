@@ -1,9 +1,13 @@
 using WinterEngine.Resource;
 using WinterEngine.Resource.Providers;
 using ValveKeyValue;
+using XUnit.Project.Attributes;
 
 namespace FileSystemTest;
 
+[TestCaseOrderer(
+    ordererTypeName: "XUnit.Project.Orderers.PriorityOrderer",
+    ordererAssemblyName: "FileSystemTest")]
 public class ResManTests
 {
     public ResManTests()
