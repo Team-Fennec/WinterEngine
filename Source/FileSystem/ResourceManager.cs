@@ -1,10 +1,8 @@
-using System.IO;
-
 namespace WinterEngine.Resource;
 
 public interface IResource
 {
-    public ResourceProvider(Stream stream) { }
+    public void LoadData(Stream stream);
 }
 
 public abstract class ResourceProvider
@@ -20,7 +18,6 @@ public class ResourceManager
     private static readonly ILog log = LogManager.GetLogger("ResourceManager");
 
     static List<ResourceProvider> resDirs = new List<ResourceProvider>();
-    static Dictionary<Type, IResource> registeredResources = new Dictionary<Type, IResource>();
 
     public static void AddProvider(ResourceProvider resProvide)
     {
@@ -29,6 +26,24 @@ public class ResourceManager
 
     public static Stream GetData(string path)
     {
+        foreach (ResourceProvider resProv in resDirs)
+        {
+            if (resProv.FileExists(path))
+            {
+                return resProv.OpenFile(path);
+            }
+        }
+
+        FileNotFoundException except = new FileNotFoundException();
+        log.Error($"Cannot find a resource by path {path}");
+        throw except;
+    }
+
+    public static IResource Load(Type type, string path)
+    {
+        if (!type.IsSubclassOf(typeof(IResource)))
+            throw new ArgumentException($"Invalid type ({type.Name}) provided, type must be subclass of IResource.");
+
         Stream resData;
 
         foreach (ResourceProvider resProv in resDirs)
@@ -36,20 +51,19 @@ public class ResourceManager
             if (resProv.FileExists(path))
             {
                 resData = resProv.OpenFile(path);
-                break;
+
+                var instObj = Activator.CreateInstance(type);
+                if (instObj == null)
+                    throw new Exception($"Unknown error occurred trying to load material of type {type.Name}!");
+                IResource retRes = (IResource)instObj;
+                retRes.LoadData(resData);
+                return retRes;
             }
         }
 
-        if (resData != null)
-        {
-            return resData;
-        }
-        else
-        {
-            FileNotFoundException except = new FileNotFoundException();
-            log.Error($"Cannot find a resource by path {path}");
-            throw except;
-        }
+        FileNotFoundException except = new FileNotFoundException();
+        log.Error($"Cannot find a resource by path {path}");
+        throw except;
     }
 
     public static T Load<T>(string path) where T : IResource, new()
@@ -61,20 +75,15 @@ public class ResourceManager
             if (resProv.FileExists(path))
             {
                 resData = resProv.OpenFile(path);
-                break;
+
+                T retRes = new T();
+                retRes.LoadData(resData);
+                return retRes;
             }
         }
 
-        if (resData != null)
-        {
-            T retRes = new T(resData);
-            return retRes;
-        }
-        else
-        {
-            FileNotFoundException except = new FileNotFoundException();
-            log.Error($"Cannot find a resource by path {path}");
-            throw except;
-        }
+        FileNotFoundException except = new FileNotFoundException();
+        log.Error($"Cannot find a resource by path {path}");
+        throw except;
     }
 }
