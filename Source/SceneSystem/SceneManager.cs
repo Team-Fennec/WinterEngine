@@ -1,5 +1,8 @@
 using System;
 using log4net;
+#if HAS_PROFILING
+using WinterEngine.Diagnostics;
+#endif
 
 namespace WinterEngine.SceneSystem;
 
@@ -16,13 +19,16 @@ public static class SceneManager
 
 	public static void Update(double deltaTime)
 	{
+#if HAS_PROFILING
+		Profiler.PushProfile("SceneUpdate");
+#endif
 		foreach (Scene scene in m_Scenes)
 		{
-		#if HAS_PROFILING
-			// todo(profile): add scene update profile entry
-		#endif
 			scene.Update(deltaTime);
 		}
+#if HAS_PROFILING
+	    Profiler.PopProfile();
+#endif
 	}
 
 #region Loading/Unloading Scenes
