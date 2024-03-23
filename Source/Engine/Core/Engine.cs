@@ -1,8 +1,6 @@
 using Veldrid;
-using Veldrid.ImageSharp;
 using ImGuiNET;
 using System.Diagnostics;
-using System.Numerics;
 using System.Reflection;
 using WinterEngine.RenderSystem;
 using WinterEngine.SceneSystem;
@@ -10,53 +8,60 @@ using WinterEngine.Resource;
 using WinterEngine.Gui;
 using WinterEngine.Gui.DevUI;
 using Veldrid.Sdl2;
-
 using static WinterEngine.Localization.StringTools;
+using WinterEngine.Localization;
+using ValveKeyValue;
+using System.IO;
 
 namespace WinterEngine.Core;
 
 public class Engine
 {
     // Logger
-    private static readonly ILog log = LogManager.GetLogger(typeof(Engine));
+    private static readonly ILog m_Log = LogManager.GetLogger(typeof(Engine));
 
-    private static int _returnCode = 0;
+    private static int m_ReturnCode = 0;
 
-    private static bool _showImGuiDemoWindow = true;
-    private static bool _showAnotherWindow = false;
+    private static bool m_ShowImGuiDemoWindow = true;
+    private static bool m_ShowAnotherWindow = false;
 
-    private static Assembly gameAssembly;
-    private static GameModule gameInstance;
+    private static Assembly m_GameAssembly;
+    private static GameModule m_GameInstance;
 
-    private static List<ImGuiPanel> imGuiPanels = new List<ImGuiPanel>();
+    private static List<ImGuiPanel> m_ImGuiPanels = new List<ImGuiPanel>();
 
     public static bool IsRunning = false;
 
     public static void PreInit()
     {
-        log.Info("Adding engine resources");
+        m_Log.Info("Adding engine resources");
         // adds the engine resources and starts up certain engine systems
-        ResourceManager.AddProvider(new Providers.DirectoryProvider("engine"));
+        ResourceManager.AddProvider(new Resource.Providers.DirectoryProvider("engine"));
         // todo(engine): get system lang and load the corresponding translation (or try to)
         TranslationManager.AddTranslation("engine_english.txt");
     }
 
     public static void Init(string gameDir)
     {
-        log.Info("Initializing Engine...");
+        m_Log.Info("Initializing Engine...");
 
-        log.Info("Reading Gameinfo...");
+        m_Log.Info("Reading Gameinfo...");
 
-        JsonValue gameInfoData = HjsonValue.Load(Path.Combine(gameDir, "gameinfo.hjson"));
+        var kv = KVSerializer.Create(KVSerializationFormat.KeyValues1Text);
+        KVObject gameInfoData = kv.Deserialize(File.Open(Path.Combine(gameDir, "gameinfo.txt"), FileMode.Open));
 
-        JsonValue gameProperName;
-        gameInfoData.Qo().TryGetValue("name", out gameProperName);
+        KVValue gameProperName = gameInfoData["name"];
 
-        JsonValue resDirs;
-        gameInfoData.Qo().TryGetValue("resourcePaths", out resDirs);
-        foreach (JsonValue jValue in resDirs.Qa())
+        foreach (KVObject dirItem in (IEnumerable<KVObject>)gameInfoData["ResourcePaths"])
         {
-            ResourceManager.AddResourceProvider(jValue.Qstr());
+            switch (dirItem.Name)
+            {
+                case "dir":
+                    ResourceManager.AddProvider(new Resource.Providers.DirectoryProvider(dirItem.Value.ToString()));
+                    break;
+                default:
+                    throw new ArgumentException($"Invalid resource provider type {dirItem.Name}.");
+            }
         }
 
         // search for bin dir
@@ -66,8 +71,8 @@ public class Engine
             // try and load client.dll
             if (File.Exists(Path.Combine(gameDir, "bin", "game.dll")))
             {
-                gameAssembly = Assembly.LoadFile(Path.Combine(execAssemPath, gameDir, "bin", "game.dll"));
-                log.Info("Loaded Game Dll");
+                m_GameAssembly = Assembly.LoadFile(Path.Combine(execAssemPath, gameDir, "bin", "game.dll"));
+                m_Log.Info("Loaded Game Dll");
             }
             else
             {
@@ -80,23 +85,23 @@ public class Engine
         }
 
         // spin up the first instance of a client class we find
-        gameInstance = (GameModule)gameAssembly.CreateInstance(
-            gameAssembly.GetTypes().Where(t => typeof(GameModule).IsAssignableFrom(t)).First().FullName
+        m_GameInstance = (GameModule)m_GameAssembly.CreateInstance(
+            m_GameAssembly.GetTypes().Where(t => typeof(GameModule).IsAssignableFrom(t)).First().FullName
         );
-        gameInstance.Startup();
+        m_GameInstance.Startup();
 
-        Device.Init(gameProperName.Qstr());
+        Device.Init(gameProperName.ToString());
         Renderer.Init();
 
         // create gameconsole panel
-        imGuiPanels.Add(new UIGameConsole());
+        m_ImGuiPanels.Add(new UIGameConsole());
 
         IsRunning = true;
     }
 
     public static int Run()
     {
-        log.Info("Starting Engine loop...");
+        m_Log.Info("Starting Engine loop...");
         var stopwatch = Stopwatch.StartNew();
         float deltaTime = 0f;
 
@@ -113,7 +118,7 @@ public class Engine
             Profiler.PushProfile("ImGuiUpdate");
 #endif
             // imgui stuff
-            foreach (ImGuiPanel panel in imGuiPanels)
+            foreach (ImGuiPanel panel in m_ImGuiPanels)
             {
                 panel.DoLayout();
             }
@@ -121,28 +126,28 @@ public class Engine
             Profiler.PopProfile();
 #endif
 
-            SceneSystem.Update(deltaTime);
+            SceneManager.Update(deltaTime);
             Renderer.Render(deltaTime);
         }
 
         Shutdown();
-        return _returnCode;
+        return m_ReturnCode;
     }
 
     public static void Shutdown()
     {
-        log.Info("Beginning Engine Shutdown");
+        m_Log.Info("Beginning Engine Shutdown");
         IsRunning = false;
 
-        gameInstance.Shutdown();
+        m_GameInstance.Shutdown();
         Renderer.Shutdown();
 
-        log.Info("Engine Shutdown Complete");
+        m_Log.Info("Engine Shutdown Complete");
     }
 
     public static void Error(string message)
     {
-        log.Error(message);
+        m_Log.Error(message);
         unsafe
         {
             Sdl2Native.SDL_ShowSimpleMessageBox(

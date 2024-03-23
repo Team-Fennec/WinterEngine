@@ -96,7 +96,7 @@ public static class Renderer
         _imguiRend.Dispose();
     }
 
-    public static void Render()
+    public static void Render(float deltaTime)
     {
         _cl.Begin();
 

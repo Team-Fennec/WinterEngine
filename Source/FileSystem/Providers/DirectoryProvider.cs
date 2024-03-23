@@ -21,6 +21,16 @@ public sealed class DirectoryProvider : ResourceProvider
         this.path = path;
     }
 
+    public override bool DirExists(string dirPath)
+    {
+        return Directory.Exists(Path.Combine(path, dirPath));
+    }
+
+    public override bool FileExists(string filePath)
+    {
+        return File.Exists(Path.Combine(path, filePath));
+    }
+
     public override Stream? OpenFile(string filePath)
     {
         // check if that file exists within our path
@@ -29,6 +39,6 @@ public sealed class DirectoryProvider : ResourceProvider
             return null;
         }
 
-        return File.Open(Path.Combine(path, filePath));
+        return File.Open(Path.Combine(path, filePath), FileMode.Open);
     }
 }
