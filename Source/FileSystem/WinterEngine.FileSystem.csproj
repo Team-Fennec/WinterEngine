@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -8,9 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="log4net" Version="2.0.15" />
     <PackageReference Include="Veldrid" Version="4.9.0" />
     <ProjectReference Include="../MathLib/MathLib.csproj" />
-    <ProjectReference Include="../RenderSystem/WinterEngine.RenderSystem.csproj" />
   </ItemGroup>
 
 </Project>
