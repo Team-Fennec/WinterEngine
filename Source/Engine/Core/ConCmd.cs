@@ -13,7 +13,7 @@ public enum CmdFlags
 
 public abstract class ConCmd<T> : ConCmd where T : ConCmd, new()
 {
-    public static ConCmd()
+    static ConCmd()
     {
         GameConsole.commands.Add(new T());
     }
