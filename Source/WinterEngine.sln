@@ -19,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinterEngine.MaterialSystem
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinterEngine.PhysicsSystem", "PhysicsSystem\WinterEngine.PhysicsSystem.csproj", "{9D437F62-A05B-46D4-9B5C-F061452CC590}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinterEngine.InputSystem", "InputSystem.WinterENgine.InputSystem.csproj", "{D1F6C3ED-F762-4E66-88E6-2061F4816BDB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinterEngine.InputSystem", "InputSystem\WinterEngine.InputSystem.csproj", "{D1F6C3ED-F762-4E66-88E6-2061F4816BDB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Veldrid.SDL2", "..\Veldrid.SDL2\Veldrid.SDL2.csproj", "{9476BFDC-1522-4504-80E5-5A9257715A8D}"
 EndProject
