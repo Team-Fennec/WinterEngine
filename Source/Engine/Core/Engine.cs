@@ -68,7 +68,7 @@ public class Engine
 
         Device.Init(gameProperName.ToString());
         Renderer.Init();
-        InputSystem.Init();
+        InputManager.Init();
 
         // load up the game now that we're initialized
         // search for bin dir
@@ -99,8 +99,7 @@ public class Engine
         // add close input
         InputAction exitAction = new InputAction("ExitGame");
         exitAction.AddBinding(Key.Escape);
-
-        InputSystem.RegisterAction()
+        InputManager.RegisterAction(exitAction);
 
         // create gameconsole panel
         m_ImGuiPanels.Add(new UIGameConsole());
@@ -122,10 +121,10 @@ public class Engine
             if (!Device.Window.Exists)
             { break; }
             Renderer.ImGuiController.Update(deltaTime, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
-            InputSystem.UpdateEvents(snapshot);
+            InputManager.UpdateEvents(snapshot);
 
             // when pressing escape, close the game
-            if (InputSystem.ActionCheckPressed("ExitGame"))
+            if (InputManager.ActionCheckPressed("ExitGame"))
             {
                 Device.Window.Close();
                 break; // always break even if threaded.

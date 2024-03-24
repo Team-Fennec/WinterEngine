@@ -2,7 +2,6 @@
 using WinterEngine.Diagnostics;
 #endif
 using Veldrid;
-using Veldrid.Sdl2;
 using log4net;
 
 namespace WinterEngine.InputSystem;
@@ -15,7 +14,7 @@ internal enum InputState
     Up
 }
 
-public static class InputSystem
+public static class InputManager
 {
     private static readonly ILog log = LogManager.GetLogger("InputSystem");
 
