@@ -3,8 +3,12 @@ using System.Reflection;
 using ValveKeyValue;
 using Veldrid;
 using Veldrid.Sdl2;
+#if HAS_PROFILING
+using WinterEngine.Diagnostics;
+#endif
 using WinterEngine.Gui;
 using WinterEngine.Gui.DevUI;
+using WinterEngine.InputSystem;
 using WinterEngine.Localization;
 using WinterEngine.RenderSystem;
 using WinterEngine.Resource;
@@ -62,6 +66,11 @@ public class Engine
             }
         }
 
+        Device.Init(gameProperName.ToString());
+        Renderer.Init();
+        InputSystem.Init();
+
+        // load up the game now that we're initialized
         // search for bin dir
         if (Directory.Exists(Path.Combine(gameDir, "bin")))
         {
@@ -82,14 +91,16 @@ public class Engine
             Error(TRS("engine.error.no_bin_folder"));
         }
 
-        // spin up the first instance of a client class we find
         m_GameInstance = (GameModule)m_GameAssembly.CreateInstance(
             m_GameAssembly.GetTypes().Where(t => typeof(GameModule).IsAssignableFrom(t)).First().FullName
         );
         m_GameInstance.Startup();
 
-        Device.Init(gameProperName.ToString());
-        Renderer.Init();
+        // add close input
+        InputAction exitAction = new InputAction("ExitGame");
+        exitAction.AddBinding(Key.Escape);
+
+        InputSystem.RegisterAction()
 
         // create gameconsole panel
         m_ImGuiPanels.Add(new UIGameConsole());
@@ -111,6 +122,14 @@ public class Engine
             if (!Device.Window.Exists)
             { break; }
             Renderer.ImGuiController.Update(deltaTime, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
+            InputSystem.UpdateEvents(snapshot);
+
+            // when pressing escape, close the game
+            if (InputSystem.ActionCheckPressed("ExitGame"))
+            {
+                Device.Window.Close();
+                break; // always break even if threaded.
+            }
 
 #if HAS_PROFILING
             Profiler.PushProfile("ImGuiUpdate");
