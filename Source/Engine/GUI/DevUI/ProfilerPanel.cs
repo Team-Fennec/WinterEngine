@@ -1,3 +1,4 @@
+#if HAS_PROFILING
 using ImGuiNET;
 using WinterEngine.Diagnostics;
 
@@ -7,3 +8,4 @@ public class ProfilerPanel : ImGuiPanel
 {
 
 }
+#endif

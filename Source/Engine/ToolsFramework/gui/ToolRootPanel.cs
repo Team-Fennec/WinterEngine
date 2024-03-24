@@ -51,8 +51,8 @@ public sealed class ToolRootPanel : ImGuiPanel
 
         if (ImGui.BeginMenuBar())
         {
-            if (ToolsFramework.GetCurrentTool() != null)
-                m_CurrentTool.LayoutMenuBar();
+            //if (ToolsFramework.GetCurrentTool() != null)
+                //ToolsFramework.GetCurrentTool().LayoutMenuBar();
 
             if (ImGui.BeginMenu("Tools"))
             {
@@ -60,22 +60,22 @@ public sealed class ToolRootPanel : ImGuiPanel
                 {
                     if (ImGui.MenuItem(tool.ToolName))
                     {
-                        SwitchTool(tool.ToolName);
+                        //SwitchTool(tool.ToolName);
                     }
                 }
                 ImGui.Separator();
                 if (ImGui.MenuItem("Load tool module"))
                 {
-                    ImGui.Popup("engine_tools_module_load");
+                    ImGui.OpenPopup("engine_tools_module_load");
                 }
                 ImGui.EndMenu();
             }
 
             // display tool name centered
-            ImGui.SetCursorPosX((ImGui.GetMainViewport().GetWorkSize().x / 2) - (ImGui.CalcTextSize(ToolsFramework.GetCurrentTool().ToolName).x / 2));
+            ImGui.SetCursorPosX((ImGui.GetMainViewport().WorkSize.X / 2) - (ImGui.CalcTextSize(ToolsFramework.GetCurrentTool().ToolName).X / 2));
             ImGui.Text(ToolsFramework.GetCurrentTool().ToolName);
 
-            ImGui.EndMenubar();
+            ImGui.EndMenuBar();
         }
     }
 }

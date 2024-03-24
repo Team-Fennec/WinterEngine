@@ -19,7 +19,7 @@ using System%3B
 namespace $(RootNamespace)%3B
 
 public static class EngineVersion {
-    public const Version Version = new Version("$(AssemblyVersion)")%3B
+    public static readonly Version Version = new Version("$(AssemblyVersion)")%3B
     public const string Build = "$([System.DateTime]::Now.ToString("yyyyMMddHHmmss"))"%3B
 }
     ]]>
