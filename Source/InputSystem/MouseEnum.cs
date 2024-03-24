@@ -8,5 +8,7 @@ public enum Mouse : uint
 	Mouse4,
 	Mouse5,
 	WheelUp,
-	WheelDown
+	WheelDown,
+
+	MouseMax
 }

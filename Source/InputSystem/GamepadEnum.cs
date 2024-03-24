@@ -15,7 +15,9 @@ public enum Gamepad : uint
 	RShoulder,
 	LShoulder,
 	RTrigger,
-	LTrigger
+	LTrigger,
+
+	PadMax
 }
 
 public enum GamepadAxis

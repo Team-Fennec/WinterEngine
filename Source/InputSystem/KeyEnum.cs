@@ -76,5 +76,7 @@ public enum Key : uint
 	Semicolon,
 	BracketL,
 	BracketR,
-	Tab
+	Tab,
+
+	KeyMax
 }
