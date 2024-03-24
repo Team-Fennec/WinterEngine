@@ -56,8 +56,4 @@ public static class EngineVersion {
     <PackageReference Include="Veldrid.SPIRV" Version="1.0.15" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="4.9.0" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="Attributes\" />
-  </ItemGroup>
 </Project>
