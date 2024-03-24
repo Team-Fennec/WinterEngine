@@ -19,7 +19,7 @@ public static class InputSystem
 {
 	private static readonly ILog log = LogManager.GetLogger("InputSystem");
 
-	private Dictionary<string, InputAction> m_Actions;
+	private Dictionary<string, InputAction> m_Actions = new Dictionary<string, InputAction>();
 	
 	private List<InputState> m_KeyState = new List<InputState>();
 	private List<InputState> m_PadState = new List<InputState>();
@@ -117,6 +117,139 @@ public static class InputSystem
 		Profiler.PopProfile();
 #endif
 	}
+
+#region Input Actions
+	public void RegisterAction(InputAction action)
+	{
+		if (m_Actions.ContainsKey(action.Name))
+		{
+			log.Error($"Name {action.Name} was already registered by another Action!");
+			return;
+		}
+
+		if (!m_Actions.TryAdd(action.Name, action))
+		{
+			log.Error($"An error occurred while trying to register Action {action.Name}!");
+			return;
+		}
+		log.Info($"Registered Action {action.Name}.");
+	}
+
+	public void RemoveAction(string name)
+	{
+		if (!m_Actions.ContainsKey(name))
+		{
+			log.Error($"No Action named {name} was found in the Action Registry!");
+			return;
+		}
+
+		m_Actions.Remove(name);
+	}
+
+	public InputAction? GetAction(string name)
+	{
+		if (!m_Actions.ContainsKey(name))
+		{
+			log.Error($"No Action named {name} was found in the Action Registry!");
+			return null;
+		}
+
+		m_Actions.TryGetValue(name, out InputAction action);
+		return action;
+	}
+
+#region Input Action state
+	public bool ActionCheckPressed(string name)
+	{
+		if (!m_Actions.ContainsKey(name))
+		{
+			log.Error($"No Action named {name} was found in the Action Registry!");
+			return false;
+		}
+
+		m_Actions.TryGetValue(name, out InputAction action);
+
+		foreach(InputBinding binding in action.Bindings)
+		{
+			switch (binding.Type)
+			{
+				case BindingType.Keyboard:
+					if (KeyCheckPressed((Key)binding.Value))
+						return true;
+					break;
+				case BindingType.Mouse:
+					if (MouseCheckPressed((MouseButton)binding.Value))
+						return true;
+					break;
+				case BindingType.Gamepad:
+					log.Error("Gamepad bindings are not currently supported!");
+					break;
+			}
+		}
+		return false;
+	}
+
+	public bool ActionCheckReleased(string name)
+	{
+		if (!m_Actions.ContainsKey(name))
+		{
+			log.Error($"No Action named {name} was found in the Action Registry!");
+			return false;
+		}
+
+		m_Actions.TryGetValue(name, out InputAction action);
+
+		foreach(InputBinding binding in action.Bindings)
+		{
+			switch (binding.Type)
+			{
+				case BindingType.Keyboard:
+					if (KeyCheckReleased((Key)binding.Value))
+						return true;
+					break;
+				case BindingType.Mouse:
+					if (MouseCheckReleased((MouseButton)binding.Value))
+						return true;
+					break;
+				case BindingType.Gamepad:
+					log.Error("Gamepad bindings are not currently supported!");
+					break;
+			}
+		}
+		return false;
+	}
+
+	public bool ActionCheck(string name)
+	{
+		if (!m_Actions.ContainsKey(name))
+		{
+			log.Error($"No Action named {name} was found in the Action Registry!");
+			return false;
+		}
+
+		m_Actions.TryGetValue(name, out InputAction action);
+
+		foreach(InputBinding binding in action.Bindings)
+		{
+			switch (binding.Type)
+			{
+				case BindingType.Keyboard:
+					if (KeyCheck((Key)binding.Value))
+						return true;
+					break;
+				case BindingType.Mouse:
+					if (MouseCheck((MouseButton)binding.Value))
+						return true;
+					break;
+				case BindingType.Gamepad:
+					log.Error("Gamepad bindings are not currently supported!");
+					break;
+			}
+		}
+		return false;
+	}
+#endregion
+#endregion
 
 #region Keyboard key state
 	public bool KeyCheckPressed(Key input)

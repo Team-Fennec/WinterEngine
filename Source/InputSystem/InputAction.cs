@@ -27,7 +27,15 @@ public class InputAction
 
 	private List<InputBinding> m_Bindings;
 
+	public InputAction(string name)
+	{
+		Name = name;
+
+		m_Bindings = new List<InputBinding>();
+	}
+
 #region Binding Operations
+	public IReadOnlyList<InputBinding> Bindings => m_Bindings;
 
 #region Mouse
 	/// <summary>Bind a Mouse input to this action</summary> 
