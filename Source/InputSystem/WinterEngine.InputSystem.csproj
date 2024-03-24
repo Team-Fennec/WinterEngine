@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<OutputType>Library</OutputType>
+		<ImplicitUsings>enable</ImplicitUsings>
+	    <Nullable>enable</Nullable>
+	    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	    <RootNamespace>WinterEngine.InputSystem</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+    <PackageReference Include="log4net" Version="2.0.15" />
+		<ProjectReference Include="../../Veldrid.SDL2/Veldrid.SDL2.csproj" />
+	</ItemGroup>
+</Project>
