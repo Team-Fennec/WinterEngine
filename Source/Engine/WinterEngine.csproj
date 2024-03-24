@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RootNamespace>WinterEngine</RootNamespace>
-    <AssemblyVersion>9.0</AssemblyVersion>
+    <AssemblyVersion>12.0</AssemblyVersion>
   </PropertyGroup>
 
   <Target Name="GenerateVersionClass" BeforeTargets="BeforeCompile;CoreCompile" Outputs="$(IntermediateOutputPath)GeneratedFile.cs">
@@ -19,7 +19,7 @@ using System%3B
 namespace $(RootNamespace)%3B
 
 public static class EngineVersion {
-    public const Version Version = new Version("$(AssemblyVersion)")%3B
+    public static readonly Version Version = new Version("$(AssemblyVersion)")%3B
     public const string Build = "$([System.DateTime]::Now.ToString("yyyyMMddHHmmss"))"%3B
 }
     ]]>

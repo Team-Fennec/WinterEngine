@@ -4,6 +4,6 @@
 
     // engine is loaded automatically
     "ResourcePaths" {
-        "folder" "testgame"
+        "dir" "testgame"
     }
 }

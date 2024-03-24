@@ -9,7 +9,7 @@ namespace WinterEngine.SceneSystem;
 public static class SceneManager
 {
     private static readonly ILog log = LogManager.GetLogger("SceneManager");
-    private static Camera m_ActiveCamera;
+    private static Camera m_ActiveCamera = new Camera(); // just for debugging purposes
     private static Scene m_CurrentScene;
     private static List<Scene> m_Scenes = new List<Scene>();
 

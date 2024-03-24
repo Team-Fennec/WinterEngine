@@ -1,4 +1,4 @@
-using System.Numerics;
+using WinterEngine.SceneSystem.Attributes;
 
 namespace WinterEngine.SceneSystem;
 
@@ -6,6 +6,8 @@ namespace WinterEngine.SceneSystem;
 public abstract class Entity
 {
     public Transform Transform;
+
+    [EntityProperty("globalName")]
     public string Name
     {
         get
@@ -50,6 +52,54 @@ public abstract class Entity
         this.Transform = new Transform(parent);
 
         Spawn();
+    }
+    #endregion
+
+    #region Component Operations
+    public void AddComponent(EntityComponent component)
+    {
+        
+        foreach (var comp in m_Components)
+        {
+            if (comp.GetType() == component.GetType())
+            {
+                // it already exists, no duplicate types
+                return;
+            }
+        }
+
+        m_Components.Add(component);
+    }
+
+    public T? GetComponent<T>() where T : EntityComponent
+    {
+        foreach (var component in m_Components)
+        {
+            if (component is T)
+            {
+                return (T)component;
+            }
+        }
+
+        return null;
+    }
+
+    public void RemoveComponent<T>() where T : EntityComponent
+    {
+        var component = m_Components.Find((EntityComponent component) =>
+        {
+            if (component is T)
+            {
+                return true;
+            }
+
+            return false;
+        });
+
+        if (component != null)
+        {
+            m_Components.Remove(component);
+        }
     }
     #endregion
 

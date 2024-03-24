@@ -18,7 +18,7 @@ public class TexturedMeshRO : RenderObject
 
     private Pipeline m_Pipeline;
     private DeviceBuffer m_LocalWorldBuffer;
-    private ResourceSet m_TextureSet;
+    private ResourceSet m_ShaderParams;
     private ResourceSet m_ProjViewSet;
 
     // CreateDeviceResources assigns a value to these.
@@ -57,7 +57,7 @@ public class TexturedMeshRO : RenderObject
     public override void DisposeResources()
     {
         m_Pipeline.Dispose();
-        m_TextureSet.Dispose();
+        m_ShaderParams.Dispose();
         m_ProjViewSet.Dispose();
         m_LocalWorldBuffer.Dispose();
     }
@@ -128,9 +128,15 @@ public class TexturedMeshRO : RenderObject
         );
 
         // go through and add all values
-        m_TextureSet = factory.CreateResourceSet(new ResourceSetDescription(
+        List<BindableResource> data = new List<BindableResource>();
+        foreach (ShaderParam param in m_Shader.Params)
+        {
+            data.Add(param.Value);
+        }
+
+        m_ShaderParams = factory.CreateResourceSet(new ResourceSetDescription(
                 pipelineDescription.ResourceLayouts[1],
-                
+                data.ToArray()
             )
         );
         #endregion
@@ -152,7 +158,7 @@ public class TexturedMeshRO : RenderObject
 
         cl.SetPipeline(m_Pipeline);
         cl.SetGraphicsResourceSet(0, m_ProjViewSet);
-        cl.SetGraphicsResourceSet(1, m_TextureSet);
+        cl.SetGraphicsResourceSet(1, m_ShaderParams);
         cl.SetVertexBuffer(0, m_Mesh.VertexBuffer);
         cl.SetIndexBuffer(m_Mesh.IndexBuffer, IndexFormat.UInt16);
         cl.DrawIndexed(m_Mesh.IndexCount, 1, 0, 0, 0);

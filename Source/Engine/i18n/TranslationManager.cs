@@ -6,7 +6,7 @@ namespace WinterEngine.Localization;
 public static class TranslationManager
 {
     // Logger
-    private static readonly ILog log = LogManager.GetLogger(typeof(TranslationManager));
+    private static readonly ILog log = LogManager.GetLogger("TranslationManager");
 
     // default to english
     public static string CurrentLang = "english";
@@ -27,7 +27,7 @@ public static class TranslationManager
             tokens.TryAdd(tokenObject.Name, tokenObject.Value.ToString());
         }
 
-        languageData.Add(trnsFileData["language"].ToString(), new Language(trnsFileData["language"].ToString(), tokens));
+        languageData.Add(trnsFileData["Language"].ToString(), new Language(trnsFileData["Language"].ToString(), tokens));
         translationFile.Close();
 
         log.Info($"Added translation file {fileName}");

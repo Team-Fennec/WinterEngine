@@ -1,3 +1,4 @@
+using ImGuiNET;
 using System.Diagnostics;
 using System.Reflection;
 using ValveKeyValue;
@@ -20,7 +21,7 @@ namespace WinterEngine.Core;
 public class Engine
 {
     // Logger
-    private static readonly ILog m_Log = LogManager.GetLogger(typeof(Engine));
+    private static readonly ILog m_Log = LogManager.GetLogger("Engine");
 
     private static int m_ReturnCode = 0;
 
@@ -69,6 +70,10 @@ public class Engine
         Device.Init(gameProperName.ToString());
         Renderer.Init();
         InputManager.Init();
+
+        // register our base commands now
+        GameConsole.RegisterCommand(new ConsoleCommands.HelpCommand());
+        GameConsole.RegisterCommand(new ConsoleCommands.QuitCommand());
 
         // load up the game now that we're initialized
         // search for bin dir
@@ -121,14 +126,15 @@ public class Engine
             if (!Device.Window.Exists)
             { break; }
             Renderer.ImGuiController.Update(deltaTime, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
-            InputManager.UpdateEvents(snapshot);
+            
+            if (!ImGui.GetIO().WantCaptureKeyboard && !ImGui.GetIO().WantCaptureMouse)
+            {
+                InputManager.UpdateEvents(snapshot);
+            }
 
             // when pressing escape, close the game
             if (InputManager.ActionCheckPressed("ExitGame"))
-            {
-                Device.Window.Close();
-                break; // always break even if threaded.
-            }
+            { ExecuteCommand("quit"); }
 
 #if HAS_PROFILING
             Profiler.PushProfile("ImGuiUpdate");
@@ -175,5 +181,18 @@ public class Engine
         }
         // Just fucking exit lol
         Environment.Exit(1);
+    }
+
+    public static void ExecuteCommand(string input)
+    {
+        string[] inpSplit = input.Split(" ");
+
+        if (GameConsole.cmdList.ContainsKey(inpSplit[0]))
+        {
+            GameConsole.cmdList.TryGetValue(inpSplit[0], out var command);
+            string[] args = inpSplit.Skip(1).ToArray();
+            // do command
+            command.Exec(args);
+        }
     }
 }

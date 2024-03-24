@@ -15,6 +15,7 @@ public class ImGuiPanel
     public bool Visible = true;
 
     List<(ImGuiCol style, Vector4 color)> m_StyleColors = new();
+    List<(ImGuiStyleVar var, float value)> m_StyleOptions = new();
 
     public void SetTitlebarVisible(bool visible)
     {
@@ -68,11 +69,11 @@ public class ImGuiPanel
             colorVars.TryAdd(colorObj.Name, new Vector4(convColor[0], convColor[1], convColor[2], convColor[3]));
         }
 
-        // parse out each style var we have in the styles block
+        // parse out each style color we have in the styles block
         foreach (KVObject styleObj in (IEnumerable<KVObject>)schemeData["Styles"])
         {
             // get our enum value
-            ImGuiCol enumVal = Enum.Parse<ImGuiCol>($"ImGuiCol.{styleObj.Name}");
+            ImGuiCol enumVal = Enum.Parse<ImGuiCol>($"{styleObj.Name}");
 
             // do we happen to read equal to a color var on value?
             string colorVar = string.Empty;
@@ -107,6 +108,15 @@ public class ImGuiPanel
                 m_StyleColors.Add((enumVal, new Vector4(convColor[0], convColor[1], convColor[2], convColor[3])));
             }
         }
+
+        // parse out each style var we have in the options block
+        foreach (KVObject optObj in (IEnumerable<KVObject>)schemeData["Options"])
+        {
+            // get our enum value
+            ImGuiStyleVar enumVal = Enum.Parse<ImGuiStyleVar>($"{optObj.Name}");
+
+            m_StyleOptions.Add((enumVal, float.Parse(optObj.Value.ToString())));
+        }
     }
 
     public void DoLayout()
@@ -115,6 +125,10 @@ public class ImGuiPanel
         foreach (var styleStruct in m_StyleColors)
         {
             ImGui.PushStyleColor(styleStruct.style, styleStruct.color);
+        }
+        foreach (var optStruct in m_StyleOptions)
+        {
+            ImGui.PushStyleVar(optStruct.var, optStruct.value);
         }
 
         ImGui.SetWindowSize(Size, ImGuiCond.Once);
@@ -137,6 +151,9 @@ public class ImGuiPanel
         // don't try to pop anything if we didn't push anything :P
         if (m_StyleColors.Count > 0)
             ImGui.PopStyleColor(m_StyleColors.Count);
+        // don't try to pop anything if we didn't push anything :P
+        if (m_StyleOptions.Count > 0)
+            ImGui.PopStyleVar(m_StyleOptions.Count);
     }
 
     // This is what you override to do the panel layout with ImGui
