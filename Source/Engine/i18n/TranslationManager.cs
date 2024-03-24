@@ -6,7 +6,7 @@ namespace WinterEngine.Localization;
 public static class TranslationManager
 {
     // Logger
-    private static readonly ILog log = LogManager.GetLogger(typeof(TranslationManager));
+    private static readonly ILog log = LogManager.GetLogger("TranslationManager");
 
     // default to english
     public static string CurrentLang = "english";

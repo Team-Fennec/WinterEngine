@@ -20,7 +20,7 @@ namespace WinterEngine.Core;
 public class Engine
 {
     // Logger
-    private static readonly ILog m_Log = LogManager.GetLogger(typeof(Engine));
+    private static readonly ILog m_Log = LogManager.GetLogger("Engine");
 
     private static int m_ReturnCode = 0;
 
