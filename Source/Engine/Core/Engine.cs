@@ -43,7 +43,7 @@ public class Engine
         m_Log.Info("Reading Gameinfo...");
 
         var kv = KVSerializer.Create(KVSerializationFormat.KeyValues1Text);
-        KVObject gameInfoData = kv.Deserialize(File.Open(Path.Combine(gameDir, "gameinfo.txt"), FileMode.Open));
+        KVObject gameInfoData = kv.Deserialize(File.Open(Path.Combine(gameDir, "gameinfo.gi"), FileMode.Open));
 
         KVValue gameProperName = gameInfoData["name"];
 
