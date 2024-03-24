@@ -1,5 +1,5 @@
 namespace WinterEngine.InputSystem;
-
+/*
 public enum Mouse : uint
 {
 	Mouse1,
@@ -12,3 +12,4 @@ public enum Mouse : uint
 
 	MouseMax
 }
+*/

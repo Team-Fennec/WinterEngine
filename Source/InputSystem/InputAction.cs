@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using log4net;
+using Veldrid;
 
 namespace WinterEngine.InputSystem;
 
@@ -30,44 +31,44 @@ public class InputAction
 
 #region Mouse
 	/// <summary>Bind a Mouse input to this action</summary> 
-	public void AddBinding(Mouse input)
+	public void AddBinding(MouseButton input)
 	{
 		if (HasBinding(input))
 		{return;} // don't bother, it's already there.
 
-		m_Bindings.Add(new InputBinding(BindingType.Mouse, input));
+		m_Bindings.Add(new InputBinding(BindingType.Mouse, (uint)input));
 	}
 
-	public bool HasBinding(Mouse input)
+	public bool HasBinding(MouseButton input)
 	{
 		foreach (InputBinding binding in m_Bindings)
 		{
 			if (binding.Type != BindingType.Mouse) 
 			{continue;}
 
-			if (binding.Value == input)
+			if (binding.Value == (uint)input)
 			{return true;}
 		}
 
 		return false;
 	}
-	
-	public void RemoveBinding(Mouse input)
+
+	public void RemoveBinding(MouseButton input)
 	{
 		for (int i = 0; i < m_Bindings.Count, i++)
 		{
 			if (m_Bindings[i].Type != BindingType.Mouse)
 			{continue;}
 
-			if (m_Bindings[i].Value == input)
+			if (m_Bindings[i].Value == (uint)input)
 			{
 				m_Bindings.RemoveAt(i);
-				log.Info($"Removed binding {Enum.GetName(typeof(Mouse), input)} from Action {name}");
+				log.Info($"Removed binding {Enum.GetName(typeof(MouseButton), input)} from Action {name}");
 				return;
 			}
 		}
 
-		log.Warn($"Binding for {Enum.GetName(typeof(Mouse), input)} doesn't exist on Action {name}!");
+		log.Warn($"Binding for {Enum.GetName(typeof(MouseButton), input)} doesn't exist on Action {name}!");
 	}
 #endregion
 
@@ -78,7 +79,7 @@ public class InputAction
 		if (HasBinding(input))
 		{return;} // don't bother, it's already there.
 
-		m_Bindings.Add(new InputBinding(BindingType.Keyboard, input));
+		m_Bindings.Add(new InputBinding(BindingType.Keyboard, (uint)input));
 	}
 
 	public bool HasBinding(Key input)
@@ -88,7 +89,7 @@ public class InputAction
 			if (binding.Type != BindingType.Keyboard) 
 			{continue;}
 
-			if (binding.Value == input)
+			if (binding.Value == (uint)input)
 			{return true;}
 		}
 
@@ -102,7 +103,7 @@ public class InputAction
 			if (m_Bindings[i].Type != BindingType.Keyboard)
 			{continue;}
 
-			if (m_Bindings[i].Value == input)
+			if (m_Bindings[i].Value == (uint)input)
 			{
 				m_Bindings.RemoveAt(i);
 				log.Info($"Removed binding {Enum.GetName(typeof(Key), input)} from Action {name}");

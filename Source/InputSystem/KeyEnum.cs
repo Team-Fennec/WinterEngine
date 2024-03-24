@@ -1,5 +1,6 @@
 namespace WinterEngine.InputSystem;
-
+// we are currently using veldrid for the key enum since they have more than we do.
+/*
 public enum Key : uint
 {
 	A,
@@ -80,3 +81,4 @@ public enum Key : uint
 
 	KeyMax
 }
+*/
