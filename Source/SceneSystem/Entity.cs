@@ -1,4 +1,4 @@
-using System.Numerics;
+using WinterEngine.SceneSystem.Attributes;
 
 namespace WinterEngine.SceneSystem;
 
@@ -6,6 +6,8 @@ namespace WinterEngine.SceneSystem;
 public abstract class Entity
 {
     public Transform Transform;
+
+    [EntityProperty("globalName")]
     public string Name
     {
         get
