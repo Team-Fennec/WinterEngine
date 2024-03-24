@@ -36,6 +36,8 @@ public class TestGameModule : GameModule
         InputManager.RegisterAction(lookLeftAction);
         InputManager.RegisterAction(lookRightAction);
 
+        //InputManager.SetMouseCapture(true);
+
         // Create test example scene
         m_TestScene = new Scene("Testing Scene");
         m_TestScene.AddEntity(new EntFreeCam() { Name = "Free Cam Player" });

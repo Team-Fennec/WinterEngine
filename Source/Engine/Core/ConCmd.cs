@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 
 namespace WinterEngine.Core;
 
@@ -9,14 +10,6 @@ public enum CmdFlags
     Cheat,
     Development,
     Debug
-}
-
-public abstract class ConCmd<T> : ConCmd where T : ConCmd, new()
-{
-    static ConCmd()
-    {
-        GameConsole.commands.Add(new T());
-    }
 }
 
 public abstract class ConCmd

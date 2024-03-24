@@ -69,8 +69,8 @@ public class UIGameConsole : ImGuiPanel
         if (hitEnter || hitButton)
         {
             Console.WriteLine(userInput);
-            //if (userInput != "")
-            //HandleUserInput(userInput);
+            if (userInput != "")
+                Engine.ExecuteCommand(userInput);
             userInput = "";
         }
     }

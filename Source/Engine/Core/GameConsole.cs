@@ -1,6 +1,8 @@
 using log4net.Appender;
 using log4net.Core;
+using System.Reflection;
 using WinterEngine.Core;
+using WinterEngine.RenderSystem;
 
 namespace WinterEngine.Core
 {
@@ -26,19 +28,26 @@ namespace WinterEngine.Core
             }
         }
 
+        public static void RegisterCommand(ConCmd command)
+        {
+            cmdList.TryAdd(command.Command, command);
+        }
+
         public static List<LogInfo> logMessages = new List<LogInfo>();
-        public static List<ConCmd> commands = new List<ConCmd>();
+        public static Dictionary<string, ConCmd> cmdList = new Dictionary<string, ConCmd>();
+        public static bool ShowConsole = true;
     }
 }
 
 // baseline commands
 namespace WinterEngine.ConsoleCommands
 {
-    public class HelpCommand : ConCmd<HelpCommand>
+    internal sealed class HelpCommand : ConCmd
     {
         public override string Command => "help";
-        public override string Description => "lists all commands or info on a single command";
+        public override string Description => "usage: <command>\nLists information on a command.";
         public override CmdFlags Flags => CmdFlags.None;
+
 
         public override void Exec(string[] args)
         {
@@ -46,7 +55,7 @@ namespace WinterEngine.ConsoleCommands
             {
                 LogManager.GetLogger("Command").Info("Available Commands:");
                 string cmdList = "";
-                foreach (ConCmd command in GameConsole.commands)
+                foreach (ConCmd command in GameConsole.cmdList.Values)
                 {
                     cmdList += $"{command.Command},";
                 }
@@ -54,15 +63,24 @@ namespace WinterEngine.ConsoleCommands
             }
             else
             {
-                foreach (ConCmd command in GameConsole.commands)
+                if (GameConsole.cmdList.ContainsKey(args[0]))
                 {
-                    if (command.Command == args[0])
-                    {
-                        LogManager.GetLogger("Command").Info($"{args[0]}: {command.Description}");
-                        break;
-                    }
+                    GameConsole.cmdList.TryGetValue(args[0], out var command);
+                    LogManager.GetLogger("Command").Info($"{args[0]}: {command.Description}");
                 }
             }
+        }
+    }
+
+    internal sealed class QuitCommand : ConCmd
+    {
+        public override string Command => "quit";
+        public override string Description => "Quit to desktop";
+        public override CmdFlags Flags => CmdFlags.None;
+
+        public override void Exec(string[] args)
+        {
+            Device.Window.Close();
         }
     }
 }

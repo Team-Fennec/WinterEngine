@@ -20,6 +20,8 @@ public static class ToolsFramework
     {
         log.Info("Initializing Engine Tools...");
 
+        GameConsole.RegisterCommand(new LoadToolCommand());
+
         // search for an enginetools.txt file around us
         if (!File.Exists("enginetools.vdf"))
         {
@@ -36,12 +38,12 @@ public static class ToolsFramework
 
         foreach (KVObject toolObj in (IEnumerable<KVObject>)engineToolsList.Value)
         {
-            //Engine.SendCommand($"tool_load {toolObj.Value.ToString()}");
+            Engine.ExecuteCommand($"tool_load {toolObj.Value}");
         }
     }
 }
 
-internal sealed class LoadToolCommand : ConCmd<LoadToolCommand>
+internal sealed class LoadToolCommand : ConCmd
 {
     public override string Command => "tool_load";
     public override string Description => "Loads a tool from the provided name";

@@ -70,6 +70,10 @@ public class Engine
         Renderer.Init();
         InputManager.Init();
 
+        // register our base commands now
+        GameConsole.RegisterCommand(new ConsoleCommands.HelpCommand());
+        GameConsole.RegisterCommand(new ConsoleCommands.QuitCommand());
+
         // load up the game now that we're initialized
         // search for bin dir
         if (Directory.Exists(Path.Combine(gameDir, "bin")))
@@ -125,10 +129,7 @@ public class Engine
 
             // when pressing escape, close the game
             if (InputManager.ActionCheckPressed("ExitGame"))
-            {
-                Device.Window.Close();
-                break; // always break even if threaded.
-            }
+            { ExecuteCommand("quit"); }
 
 #if HAS_PROFILING
             Profiler.PushProfile("ImGuiUpdate");
@@ -175,5 +176,18 @@ public class Engine
         }
         // Just fucking exit lol
         Environment.Exit(1);
+    }
+
+    public static void ExecuteCommand(string input)
+    {
+        string[] inpSplit = input.Split(" ");
+
+        if (GameConsole.cmdList.ContainsKey(inpSplit[0]))
+        {
+            GameConsole.cmdList.TryGetValue(inpSplit[0], out var command);
+            string[] args = inpSplit.Skip(1).ToArray();
+            // do command
+            command.Exec(args);
+        }
     }
 }
