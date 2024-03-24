@@ -1,5 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project>
     <ItemGroup>
         <Compile Include="../shared/**/*.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../../MathLib/MathLib.csproj" />
+        <ProjectReference Include="../../Engine/WinterEngine.csproj" />
+        <ProjectReference Include="../../RenderSystem/WinterEngine.RenderSystem.csproj" />
+        <ProjectReference Include="../../MaterialSystem/WinterEngine.MaterialSystem.csproj" />
+        <ProjectReference Include="../../SceneSystem/WinterEngine.SceneSystem.csproj" />
+        <ProjectReference Include="../../FileSystem/WinterEngine.FileSystem.csproj" />
+        <ProjectReference Include="../../PhysicsSystem/WinterEngine.PhysicsSystem.csproj" />
     </ItemGroup>
 </Project>
