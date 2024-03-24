@@ -17,7 +17,7 @@
         "ChildBg" "Dim"
         
         // Accented Items
-        "Checkbox" "Icy"
+        "CheckMark" "Icy"
         "ButtonActive" "Icy"
     }
 }
