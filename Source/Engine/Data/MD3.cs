@@ -1,7 +1,4 @@
-using System;
-using System.IO;
 using System.Numerics;
-using System.Runtime.InteropServices;
 
 namespace WinterEngine.Resource;
 
@@ -17,18 +14,6 @@ namespace WinterEngine.Resource;
     MD3_MAX_SURFACES: 32
     MD3_VERSION: 15
 */
-
-public sealed class Md3ModelResource : ModelResource
-{
-    private Md3Model innerData;
-
-    public Md3ModelResource(string modelName)
-    {
-        innerData = new Md3Model(modelName);
-
-        // gather shaders into our materials
-    }
-}
 
 // fuck my ass dude why are null terminated Cstrings so fucking painful in C#
 public static class CConvert
@@ -56,11 +41,7 @@ public class Md3Model
         Frames = new List<Md3Frame>();
         Tags = new List<Md3Tag>();
         Surfaces = new List<Md3Surface>();
-        StreamReader fStream = ResourceManager.OpenResource(Path.Combine("models", $"{fileName}.md3"));
-        // we need to binary this one
-        MemoryStream mdlMem = new MemoryStream();
-        fStream.BaseStream.CopyTo(mdlMem);
-        fStream.Close();
+        Stream mdlMem = ResourceManager.GetData(Path.Combine("models", $"{fileName}.md3"));
 
         using (BinaryReader mdlReader = new BinaryReader(mdlMem))
         {
