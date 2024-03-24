@@ -3,6 +3,7 @@ using WinterEngine.SceneSystem.Attributes;
 using WinterEngine.InputSystem;
 using System.Numerics;
 using MathLib;
+using ImGuiNET;
 
 namespace TestGame.Entities
 {
@@ -53,6 +54,18 @@ namespace TestGame.Entities
             // set the camera to our position
             SceneManager.ActiveCamera.Position = Transform.Position;
             SceneManager.ActiveCamera.Rotation = Transform.EulerRotation;
+
+            ImGui.SetNextWindowPos(Vector2.Zero, ImGuiCond.Always);
+            if (ImGui.Begin("freecam_transform", 
+                ImGuiWindowFlags.NoDecoration
+                |ImGuiWindowFlags.NoSavedSettings
+                |ImGuiWindowFlags.AlwaysAutoResize))
+            {
+                ImGui.Text($"Position: {Transform.Position}");
+                ImGui.Text($"Rotation: {Transform.EulerRotation}");
+
+                ImGui.End();
+            }
         }
     }
 }
