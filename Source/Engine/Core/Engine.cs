@@ -54,6 +54,9 @@ public class Engine
                 case "dir":
                     ResourceManager.AddProvider(new Resource.Providers.DirectoryProvider(dirItem.Value.ToString()));
                     break;
+                case "vpk":
+                    ResourceManager.AddProvider(new Resource.Providers.VpkProvider(dirItem.Value.ToString()));
+                    break;
                 default:
                     throw new ArgumentException($"Invalid resource provider type {dirItem.Name}.");
             }
