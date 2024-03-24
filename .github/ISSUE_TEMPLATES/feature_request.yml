@@ -3,10 +3,11 @@ description: Request a feature
 title: Feature Title Here
 labels: [enhancement]
 body:
-- type: dropdown
+- type: textarea
   attributes:
     label: Component to Improve
-    options: [Audio, Documentation, Render, "Core Engine", UI/UX, Other]
+    placeholder: |
+      UI/UX, Core, Audio, Shared Game, Render, Etc.
   validations:
     required: true
 - type: textarea
