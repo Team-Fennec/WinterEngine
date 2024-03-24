@@ -1,4 +1,4 @@
-using WinterEngine.Resource;
+using WinterEngine.MaterialSystem;
 
 namespace WinterEngine.Materials;
 

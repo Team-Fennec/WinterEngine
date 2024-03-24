@@ -1,8 +1,9 @@
-using System.Reflection;
-using System.Linq;
-using System.IO;
-using Datamodel;
 using WinterEngine.Resource;
+using Veldrid;
+using WinterEngine.RenderSystem;
+using Vortice.Direct3D11;
+using System.Reflection;
+using Veldrid.ImageSharp;
 
 namespace WinterEngine.MaterialSystem;
 
@@ -10,75 +11,76 @@ namespace WinterEngine.MaterialSystem;
 public class MatPropertyAttribute : Attribute
 {
     public string PropName { get; private set; }
+    public ShaderParamType PropType { get; private set; }
 
-    public MatPropertyAttribute(string propName)
+    public MatPropertyAttribute(string propName, ShaderParamType propType)
     {
         PropName = propName;
+        PropType = propType;
     }
 }
 
-public class MaterialResource
+public abstract class MaterialResource : IResource
 {
-    const int FormatVersion = 1;
+    public abstract string ShaderName { get; }
+    public ShaderHandle GetHandle() => m_Handle;
+    protected ShaderResource m_Shader;
+    protected ShaderHandle m_Handle;
 
-    public static MaterialResource Load(string matName)
+    public void LoadData(Stream stream)
     {
-        Stream fileStream = ResourceManager.GetData($"materials/{matname}.wmat");
-        return Deserialize(fileStream);
-    }
-
-    public static MaterialResource Deserialize(Stream stream)
-    {
-        Datamodel input = Datamodel.Load(stream);
+        Datamodel.Datamodel matData = Datamodel.Datamodel.Load(stream);
         stream.Close();
 
-        // check the shader value and try to instantiate that type
-        string shaderName = input.Root.Get<string>("shader");
-        var matObj = Assembly.GetExecutingAssembly().CreateInstance($"WinterEngine.Materials.{shaderName}Material");
-
         // go through it's properties and fill them out
-        PropertyInfo[] props = matObj.GetType().GetProperties()
+        PropertyInfo[] props = GetType().GetProperties()
             .Where(p=>p.GetCustomAttributes(typeof(MatPropertyAttribute), true).Length != 0)
             .ToArray();
         foreach (PropertyInfo prop in props)
         {
-            var attr = prop.GetCustomAttributes(typeof(MatPropertyAttribute))[0];
-            prop.SetValue(matObj, input.Root.Get<string>(attr.PropName));
+            var attr = (MatPropertyAttribute)prop.GetCustomAttributes(typeof(MatPropertyAttribute)).ToArray()[0];
+
+            // attr data
+            switch (attr.PropType)
+            {
+                case ShaderParamType.Int:
+                    prop.SetValue(this, matData.Root.Get<int>(attr.PropName));
+                    break;
+                case ShaderParamType.Float:
+                    prop.SetValue(this, matData.Root.Get<float>(attr.PropName));
+                    break;
+                case ShaderParamType.Texture2D:
+                    string texPath = matData.Root.Get<string>(attr.PropName);
+
+                    // load texture from resources
+                    ImageSharpTexture texture = new ImageSharpTexture(ResourceManager.GetData($"materials/{texPath}"));
+                    prop.SetValue(this,
+                        new TextureHandle(
+                            texture.CreateDeviceTexture(
+                                Renderer.GraphicsDevice,
+                                Renderer.GraphicsDevice.ResourceFactory
+                            )
+                        )
+                    );
+
+                    break;
+                default:
+                    prop.SetValue(this, matData.Root.Get<string>(attr.PropName));
+                    break;
+            }
         }
 
-        return (MaterialResource)matObj;
+        SetShaderParameters();
+
+        m_Shader = ResourceManager.Load<ShaderResource>(ShaderName);
+        m_Handle = new ShaderHandle(
+            ShaderName,
+            m_Shader.VertexCode,
+            m_Shader.FragmentCode,
+            m_Shader.DepthTest,
+            m_Shader.CullMode
+        );
     }
 
-    public static string Serialize(MaterialResource material)
-    {
-        Datamodel output = new Datamodel("material", FormatVersion);
-        output.Root = new Element(output, "DmeMaterial");
-        output.Root["shader"] = material.ShaderName;
-
-        // run through our custom properties now
-        PropertyInfo[] props = material.GetType().GetProperties()
-            .Where(p=>p.GetCustomAttributes(typeof(MatPropertyAttribute), true).Length != 0)
-            .ToArray();
-        foreach (PropertyInfo prop in props)
-        {
-            var attr = prop.GetCustomAttributes(typeof(MatPropertyAttribute))[0];
-            output.Root[attr.PropName] = prop.GetValue(material);
-        }
-
-        MemoryStream outMem = new MemoryStream();
-        output.Save(outMem, "keyvalues2", 1);
-        // convert stream to string
-        StreamReader reader = new StreamReader(outMem);
-        string text = reader.ReadToEnd();
-        reader.Close();
-        return text;
-    }
-
-    public MaterialResource()
-    {
-        shader = new ShaderResource(ShaderName);
-    }
-
-    public abstract string ShaderName { get; }
-    private ShaderResource shader;
+    protected abstract void SetShaderParameters();
 }

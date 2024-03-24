@@ -84,19 +84,25 @@ public class TexturedMeshRO : RenderObject
             scissorTestEnabled: false
         );
 
+        List<ResourceLayoutElementDescription> elementDescriptions = new List<ResourceLayoutElementDescription>();
+        foreach (ShaderParam param in m_Shader.Params)
+        {
+            elementDescriptions.Add(new ResourceLayoutElementDescription(param.Name, param.Kind, param.Stage));
+        }
+
         pipelineDescription.PrimitiveTopology = PrimitiveTopology.TriangleList;
         pipelineDescription.ResourceLayouts = new ResourceLayout[] {
             factory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("ProjectionBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex),
                     new ResourceLayoutElementDescription("ViewBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-                    new ResourceLayoutElementDescription("WorldBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex)
+                    new ResourceLayoutElementDescription("WorldBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex),
+                    new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment)
                 )
             ),
             factory.CreateResourceLayout(
                 new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("SurfaceTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("SurfaceSampler", ResourceKind.Sampler, ShaderStages.Fragment)
+                    elementDescriptions.ToArray()
                 )
             )
         };
@@ -116,13 +122,15 @@ public class TexturedMeshRO : RenderObject
                 pipelineDescription.ResourceLayouts[0],
                 Renderer.ProjectionBuffer,
                 Renderer.ViewBuffer,
-                m_LocalWorldBuffer
+                m_LocalWorldBuffer,
+                Renderer.GraphicsDevice.Aniso4xSampler
             )
         );
+
+        // go through and add all values
         m_TextureSet = factory.CreateResourceSet(new ResourceSetDescription(
                 pipelineDescription.ResourceLayouts[1],
-                m_Texture.TextureView,
-                Renderer.GraphicsDevice.Aniso4xSampler
+                
             )
         );
         #endregion
