@@ -21,7 +21,6 @@ void main()
 
 FRAGMENT:
 SHADER_PARAM(0, SurfaceTexture, PARAM_TEXTURE2D);
-SHADER_PARAM(1, SurfaceSampler, PARAM_SAMPLER);
 
 void main()
 {
