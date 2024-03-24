@@ -2,7 +2,9 @@
 using WinterEngine.Diagnostics;
 #endif
 using Veldrid;
+using Veldrid.Sdl2;
 using log4net;
+using System.Numerics;
 
 namespace WinterEngine.InputSystem;
 
@@ -23,6 +25,8 @@ public static class InputManager
     private static InputState[] m_KeyState;
     private static InputState[] m_PadState;
     private static InputState[] m_MouseState;
+
+    private static bool m_MouseCaptured;
 
     public static void Init()
     {
@@ -300,4 +304,12 @@ public static class InputManager
         return (m_MouseState[(int)input] == InputState.Down);
     }
     #endregion
+
+    public static bool GetMouseCaptured() => m_MouseCaptured;
+    public static void SetMouseCapture(bool capture)
+    {
+        m_MouseCaptured = capture;
+        Sdl2Native.SDL_SetRelativeMouseMode(capture);
+        Sdl2Native.SDL_CaptureMouse(capture);
+    }
 }
