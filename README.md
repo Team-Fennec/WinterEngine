@@ -64,6 +64,9 @@ This engine is composed of a lot of code and many different modules, this struct
 - ImGuiNET
 - Veldrid
 - SDL2
+- ValveKeyValue
+- Datamodel.NET
+- LibVPKEdit
 
 # Disclaimer
 Team Fennec is not affiliated with, nor endorsed by, Valve Software. Source:tm: Engine and Source 2:tm: Engine are property of Valve Software. Team Fennec is not affiliated with, nor endorsed by, Unity Technologies. Unity:tm: Engine is property of Unity Technologies.
