@@ -17,6 +17,9 @@ public static class Renderer
     private static GraphicsDevice _graphicsDevice;
     private static ImGuiController _imguiRend;
 
+    private static Vector3 m_CamPos;
+    private static Vector3 m_CamAng;
+
     // HACK: this really shouldn't be public
     public static DeviceBuffer ProjectionBuffer => _projectionBuffer;
     public static DeviceBuffer ViewBuffer => _viewBuffer;
@@ -59,6 +62,9 @@ public static class Renderer
             Device.Window.Height
         );
 
+        m_CamPos = new Vector3(0, 0, 0);
+        m_CamAng = new Vector3(0, 0, 0);
+
         log.Info("Creating Veldrid Resources");
         CreateResources();
     }
@@ -74,9 +80,30 @@ public static class Renderer
         _cl = factory.CreateCommandList();
     }
 
-    public static void AddRenderObject()
+    public static void AddRenderObject(RenderObject ro)
     {
+        if (m_Renderables.Contains(ro))
+        {
+            log.Warn("Attempted to add duplicate RenderObject to list!");
+            return;
+        }
+        m_Renderables.Add(ro);
+    }
 
+    public static void RemoveRenderObject(RenderObject ro)
+    {
+        if (!m_Renderables.Contains(ro))
+        {
+            log.Error("Attempted to remove RenderObject not in the list!");
+            return;
+        }
+        m_Renderables.Remove(ro);
+    }
+
+    public static void SetCamera(Vector3 pos, Vector3 rot)
+    {
+        m_CamPos = pos;
+        m_CamAng = rot;
     }
 
     public static void Shutdown()
@@ -108,8 +135,15 @@ public static class Renderer
             (float)Device.Window.Width / Device.Window.Height,
             0.5f,
             9999f));
-        _cl.UpdateBuffer(_viewBuffer, 0, Matrix4x4.CreateLookAt(Vector3.UnitZ * 4000, Vector3.UnitZ, Vector3.UnitY));
-        Matrix4x4 rotation = Matrix4x4.CreateFromYawPitchRoll(0, 0, 0);
+
+        Vector3 lookAt = new Vector3(
+            m_CamPos.X + (float)Math.Cos(Angles.Deg2Rad(m_CamAng.Z)),
+            m_CamPos.Y - (float)Math.Sin(Angles.Deg2Rad(m_CamAng.Z)),
+            m_CamPos.Z - (float)Math.Sin(Angles.Deg2Rad(m_CamAng.X))
+        );
+
+        _cl.UpdateBuffer(_viewBuffer, 0, Matrix4x4.CreateLookAt(m_CamPos, lookAt, Vector3.UnitZ));
+        Matrix4x4 rotation = Matrix4x4.CreateFromYawPitchRoll(m_CamAng.Z, m_CamAng.X, m_CamAng.Y);
         _cl.UpdateBuffer(_worldBuffer, 0, ref rotation);
 #if DEBUG
         _cl.PopDebugGroup();
