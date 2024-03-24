@@ -1,14 +1,16 @@
+> [!NOTE]
+> This is still extremely work in progress and extremely experimental! As more things are completed we will polish the code up, but right now there is one programmer on the project and the focus is making the engine work over everything else.
+
 ![](Branding/LogoB.svg)
-The modular source-like inhouse C# game engine used by Team Fennec. Forever open source, MIT Licensed.
+The modular source-like C# game engine used by Team Fennec.
 
 Features Include:
-- Familiar file formats for Source:tm: developers (KeyValues and DataModel)
+- Familiar file formats for Source developers (KeyValues and DataModel)
 - Modular design with (relatively) interchangeable components
-- Entity Component System inspired by Unity:tm: and Source 2:tm:
+- Entity Component System inspired by Unity
 - Game as a module system
-- Physics Engine inspired by VPhysics:tm:
-- In Engine tooling system inspired by Source 2:tm:
-- Complete Level Editor inspired by Source 2:tm: Hammer
+- Jolt Physics
+- In Engine tooling system inspired by Source 2
 
 ## Building
 In order to build WinterEngine you'll need the following:
@@ -22,23 +24,11 @@ In order to build WinterEngine you'll need the following:
 
 In order to work with the Engine code effecively, the following setups are recommended for the specified platforms:
 > [!NOTE]
-> On no platform is Mono supported at this time. While it may build, it has not been tested at all.
+> Neither macOS nor Linux are building at this time due to missing libvpkedit libraries
 
 ### Windows:
 - Visual Studio 2022 or newer
 - Windows 10 or newer
-
-### Linux:
-- JetBrains Rider
-- DotNET Core
-- EditorConfig plugin
-- Arch Linux
-
-## macOS:
-- JetBrains Rider
-- DotNET Core
-- EditorConfig plugin
-- macOS 11+
 
 ## Contribution
 > [!NOTE]
@@ -50,7 +40,6 @@ This engine is composed of a lot of code and many different modules, this struct
 - Broad PRs should be split up into several more specific PRs if possible
 - Pull using rebase, avoid having merge commits in your history
 - All code should be formatted according to the editorconfig file inside the repository
-- All code sources should be legally sourced, Leaked code will result in a ban from contributing
 
 # Acknowledgements
 **Sources for logo:**
@@ -69,6 +58,4 @@ This engine is composed of a lot of code and many different modules, this struct
 - LibVPKEdit
 
 # Disclaimer
-Team Fennec is not affiliated with, nor endorsed by, Valve Software. Source:tm: Engine and Source 2:tm: Engine are property of Valve Software. Team Fennec is not affiliated with, nor endorsed by, Unity Technologies. Unity:tm: Engine is property of Unity Technologies.
-
-Team Fennec is not responsible for any losses, damages, or other inconvenienes you may encounter while using this engine.
+Team Fennec is not affiliated with, nor endorsed by, Valve Software. Source Engine and Source 2 Engine are property of Valve Software. Team Fennec is not affiliated with, nor endorsed by, Unity Technologies. Unity Engine is property of Unity Technologies.
