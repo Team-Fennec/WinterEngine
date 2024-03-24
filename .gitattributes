@@ -1,0 +1,5 @@
+# fix linguist weirdness
+*.res linguist-vendored
+*.gi linguist-vendored
+*.vdf linguist-vendored
+*.dmx linguist-vendored
