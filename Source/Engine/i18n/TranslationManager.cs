@@ -27,7 +27,7 @@ public static class TranslationManager
             tokens.TryAdd(tokenObject.Name, tokenObject.Value.ToString());
         }
 
-        languageData.Add(trnsFileData["language"].ToString(), new Language(trnsFileData["language"].ToString(), tokens));
+        languageData.Add(trnsFileData["Language"].ToString(), new Language(trnsFileData["Language"].ToString(), tokens));
         translationFile.Close();
 
         log.Info($"Added translation file {fileName}");

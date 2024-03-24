@@ -20,28 +20,28 @@ public static class InputManager
 
     private static Dictionary<string, InputAction> m_Actions = new Dictionary<string, InputAction>();
 
-    private static List<InputState> m_KeyState = new List<InputState>();
-    private static List<InputState> m_PadState = new List<InputState>();
-    private static List<InputState> m_MouseState = new List<InputState>();
+    private static InputState[] m_KeyState;
+    private static InputState[] m_PadState;
+    private static InputState[] m_MouseState;
 
     public static void Init()
     {
         log.Info("Initializing InputSystem...");
 
         // initialize every input to Up state
-        m_KeyState.EnsureCapacity((int)Key.LastKey - 1);
+        m_KeyState = new InputState[(int)Key.LastKey];
         for (int i = 0; i < (int)Key.LastKey; i++)
         {
             m_KeyState[i] = InputState.Up;
         }
 
-        m_MouseState.EnsureCapacity((int)MouseButton.LastButton - 1);
+        m_MouseState = new InputState[(int)MouseButton.LastButton];
         for (int i = 0; i < (int)MouseButton.LastButton; i++)
         {
             m_MouseState[i] = InputState.Up;
         }
 
-        m_PadState.EnsureCapacity((int)Gamepad.PadMax - 1);
+        m_PadState = new InputState[(int)Gamepad.PadMax];
         for (int i = 0; i < (int)Gamepad.PadMax; i++)
         {
             m_PadState[i] = InputState.Up;

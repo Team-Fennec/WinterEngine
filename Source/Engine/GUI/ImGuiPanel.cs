@@ -72,7 +72,7 @@ public class ImGuiPanel
         foreach (KVObject styleObj in (IEnumerable<KVObject>)schemeData["Styles"])
         {
             // get our enum value
-            ImGuiCol enumVal = Enum.Parse<ImGuiCol>($"ImGuiCol.{styleObj.Name}");
+            ImGuiCol enumVal = Enum.Parse<ImGuiCol>($"{styleObj.Name}");
 
             // do we happen to read equal to a color var on value?
             string colorVar = string.Empty;
