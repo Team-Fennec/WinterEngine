@@ -16,6 +16,12 @@ public record struct InputBinding
 {
 	public BindingType Type;
 	public uint Value;
+
+    public InputBinding(BindingType type, uint value)
+    {
+        Type = type;
+        Value = value;
+    }
 }
 
 public class InputAction
@@ -63,7 +69,7 @@ public class InputAction
 
 	public void RemoveBinding(MouseButton input)
 	{
-		for (int i = 0; i < m_Bindings.Count, i++)
+		for (int i = 0; i < m_Bindings.Count; i++)
 		{
 			if (m_Bindings[i].Type != BindingType.Mouse)
 			{continue;}
@@ -71,12 +77,12 @@ public class InputAction
 			if (m_Bindings[i].Value == (uint)input)
 			{
 				m_Bindings.RemoveAt(i);
-				log.Info($"Removed binding {Enum.GetName(typeof(MouseButton), input)} from Action {name}");
+				log.Info($"Removed binding {Enum.GetName(typeof(MouseButton), input)} from Action {Name}");
 				return;
 			}
 		}
 
-		log.Warn($"Binding for {Enum.GetName(typeof(MouseButton), input)} doesn't exist on Action {name}!");
+		log.Warn($"Binding for {Enum.GetName(typeof(MouseButton), input)} doesn't exist on Action {Name}!");
 	}
 #endregion
 
@@ -106,7 +112,7 @@ public class InputAction
 
 	public void RemoveBinding(Key input)
 	{
-		for (int i = 0; i < m_Bindings.Count, i++)
+		for (int i = 0; i < m_Bindings.Count; i++)
 		{
 			if (m_Bindings[i].Type != BindingType.Keyboard)
 			{continue;}
@@ -114,12 +120,12 @@ public class InputAction
 			if (m_Bindings[i].Value == (uint)input)
 			{
 				m_Bindings.RemoveAt(i);
-				log.Info($"Removed binding {Enum.GetName(typeof(Key), input)} from Action {name}");
+				log.Info($"Removed binding {Enum.GetName(typeof(Key), input)} from Action {Name}");
 				return;
 			}
 		}
 
-		log.Warn($"Binding for {Enum.GetName(typeof(Key), input)} doesn't exist on Action {name}!");
+		log.Warn($"Binding for {Enum.GetName(typeof(Key), input)} doesn't exist on Action {Name}!");
 	}
 #endregion
 
@@ -130,7 +136,7 @@ public class InputAction
 		if (HasBinding(input))
 		{return;} // don't bother, it's already there.
 
-		m_Bindings.Add(new InputBinding(BindingType.Gamepad, input));
+		m_Bindings.Add(new InputBinding(BindingType.Gamepad, (uint)input));
 	}
 
 	public bool HasBinding(Gamepad input)
@@ -140,7 +146,7 @@ public class InputAction
 			if (binding.Type != BindingType.Gamepad) 
 			{continue;}
 
-			if (binding.Value == input)
+			if (binding.Value == (uint)input)
 			{return true;}
 		}
 
@@ -149,20 +155,20 @@ public class InputAction
 
 	public void RemoveBinding(Gamepad input)
 	{
-		for (int i = 0; i < m_Bindings.Count, i++)
+		for (int i = 0; i < m_Bindings.Count; i++)
 		{
 			if (m_Bindings[i].Type != BindingType.Gamepad)
 			{continue;}
 
-			if (m_Bindings[i].Value == input)
+			if (m_Bindings[i].Value == (uint)input)
 			{
 				m_Bindings.RemoveAt(i);
-				log.Info($"Removed binding {Enum.GetName(typeof(Gamepad), input)} from Action {name}");
+				log.Info($"Removed binding {Enum.GetName(typeof(Gamepad), input)} from Action {Name}");
 				return;
 			}
 		}
 
-		log.Warn($"Binding for {Enum.GetName(typeof(Gamepad), input)} doesn't exist on Action {name}!");
+		log.Warn($"Binding for {Enum.GetName(typeof(Gamepad), input)} doesn't exist on Action {Name}!");
 	}
 #endregion
 
