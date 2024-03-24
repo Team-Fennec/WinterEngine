@@ -4,7 +4,6 @@ using WinterEngine.Diagnostics;
 using Veldrid;
 using Veldrid.Sdl2;
 using log4net;
-using System.Numerics;
 
 namespace WinterEngine.InputSystem;
 

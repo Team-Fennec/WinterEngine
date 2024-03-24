@@ -1,3 +1,4 @@
+using ImGuiNET;
 using System.Diagnostics;
 using System.Reflection;
 using ValveKeyValue;
@@ -125,7 +126,11 @@ public class Engine
             if (!Device.Window.Exists)
             { break; }
             Renderer.ImGuiController.Update(deltaTime, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
-            InputManager.UpdateEvents(snapshot);
+            
+            if (!ImGui.GetIO().WantCaptureKeyboard && !ImGui.GetIO().WantCaptureMouse)
+            {
+                InputManager.UpdateEvents(snapshot);
+            }
 
             // when pressing escape, close the game
             if (InputManager.ActionCheckPressed("ExitGame"))
