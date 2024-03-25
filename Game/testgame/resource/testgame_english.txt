@@ -1,6 +1,9 @@
-"Lang" {
+"Lang"
+{
 	"Language" "english"
-	"tokens" {
-		// none: for now
+	"tokens"
+	{
+		"GameMenu_StartTest" "Start Test Scene"
+		"GameMenu_Quit" "Quit"
 	}
 }
