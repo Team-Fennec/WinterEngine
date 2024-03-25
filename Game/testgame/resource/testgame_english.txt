@@ -1,0 +1,9 @@
+"Lang"
+{
+	"Language" "english"
+	"tokens"
+	{
+		"GameMenu_StartTest" "Start Test Scene"
+		"GameMenu_Quit" "Quit"
+	}
+}

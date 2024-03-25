@@ -1,0 +1,12 @@
+<Project>
+    <Target AfterTargets="Build" Name="CopyDllToEngineBin">
+        <Copy Condition="'$(Configuration)' == 'Debug'"
+            SourceFiles="$(OutDir)/$(AssemblyName).pdb"
+            DestinationFolder="../../../Game/bin/$(BinDir)"
+        />
+        <Copy
+            SourceFiles="$(OutDir)/$(AssemblyName).dll"
+            DestinationFolder="../../../Game/bin/$(BinDir)"
+        />
+    </Target>
+</Project>
