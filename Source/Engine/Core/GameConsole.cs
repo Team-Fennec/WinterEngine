@@ -10,7 +10,7 @@ namespace WinterEngine.Core
     {
         protected override void Append(LoggingEvent loggingEvent)
         {
-            GameConsole.logMessages.Add(new GameConsole.LogInfo(loggingEvent.RenderedMessage, loggingEvent.Level));
+            GameConsole.logMessages.Add(new GameConsole.LogInfo(RenderLoggingEvent(loggingEvent), loggingEvent.Level));
         }
     }
 

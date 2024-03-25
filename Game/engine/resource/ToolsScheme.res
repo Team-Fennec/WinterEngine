@@ -71,7 +71,7 @@
         "TabUnfocused" "Black"
         "TabUnfocusedActive" "Dim"
 
-        "SliderGrab" "Icy"
+        "SliderGrab" "IcyTrans"
         "SliderGrabActive" "Icy"
     }
 }

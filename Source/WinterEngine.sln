@@ -45,6 +45,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileSystemTest", "..\Tests\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibVPK", "..\LibVpk\LibVPK.csproj", "{F8479952-5F1B-4088-88BC-A91037CE73A5}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinterEngine.Diagnostics", "DebugProf\WinterEngine.Diagnostics.csproj", "{06BC0063-50DC-4E86-B149-FA5155746CB7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -119,6 +121,10 @@ Global
 		{F8479952-5F1B-4088-88BC-A91037CE73A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8479952-5F1B-4088-88BC-A91037CE73A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F8479952-5F1B-4088-88BC-A91037CE73A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06BC0063-50DC-4E86-B149-FA5155746CB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06BC0063-50DC-4E86-B149-FA5155746CB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06BC0063-50DC-4E86-B149-FA5155746CB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06BC0063-50DC-4E86-B149-FA5155746CB7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -139,6 +145,7 @@ Global
 		{872315BA-1D21-4EF5-9183-14D09573BF73} = {B1E982FC-CB1B-49DD-B03B-2DB3268DD370}
 		{184B3A6C-C7A7-46F1-A1EA-7179BE7FD786} = {B1E982FC-CB1B-49DD-B03B-2DB3268DD370}
 		{F8479952-5F1B-4088-88BC-A91037CE73A5} = {BF52F2E6-56A0-429A-A8D7-FF42EA988F00}
+		{06BC0063-50DC-4E86-B149-FA5155746CB7} = {35313B0C-BF00-49B4-98F8-9668D9BF544E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FEA2BFC7-274D-450B-A381-3755801E6E1A}

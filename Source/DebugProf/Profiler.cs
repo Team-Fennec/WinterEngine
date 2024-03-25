@@ -1,27 +1,29 @@
-using System;
+using System.Diagnostics;
 
 namespace WinterEngine.Diagnostics;
 
+
 public static class Profiler
 {
-    private Dictionary<string, List<double>> m_Profs = new Dictionary<string, List<double>>();
-    private Stack<(string name, Stopwatch timer)> m_RunningProfs = new();
-    
+    private static Dictionary<string, float[]> m_Profs = new Dictionary<string, float[]>();
+    private static Stack<(string name, Stopwatch timer)> m_RunningProfs = new();
+    public static Dictionary<string, float[]> Profs => m_Profs; // todo(prof): make this readonly
+
     const int MAX_SAMPLES = 100;
     
-    public void PushProfile(string name)
+    public static void PushProfile(string name)
     {
         Stopwatch timer = new Stopwatch();
         timer.Start();
-        m_RunningProfs.Push({name, timer});
+        m_RunningProfs.Push((name, timer));
     }
     
-    public void PopProfile()
+    public static void PopProfile()
     {
         if (m_RunningProfs.Count > 0)
         {
             m_RunningProfs.Last().timer.Stop();
-            PushTime(m_RunningProfs.Last.name, m_RunningProfs.Last.timer.ElapsedTics);
+            PushTime(m_RunningProfs.Last().name, m_RunningProfs.Last().timer.ElapsedTicks);
             m_RunningProfs.Pop();
         }
         else
@@ -30,25 +32,23 @@ public static class Profiler
         }
     }
     
-    public void PushTime(string profile, double time)
+    public static void PushTime(string profile, float time)
     {
         if (m_Profs.ContainsKey(profile))
         {
             m_Profs.TryGetValue(profile, out var prof);
             
-            if (prof.Count == MAX_SAMPLES)
+            for (int i = 1; i < prof.Length; i++)
             {
-                prof.RemoveAt(0);
-                prof.Add(time);
+                prof[i - 1] = prof[i];
             }
+            prof[prof.Length - 1] = time;
         }
         else
         {
-            var newList = new List<double>();
-            // ImGui will throw a fit if we don't do this
-            newList.EnsureCapacity(MAX_SAMPLES);
-            newList.Add(time);
-            m_Profs.AddValue(profile, newList);
+            var newList = new float[100];
+            newList[99] = time;
+            m_Profs.TryAdd(profile, newList);
         }
     }
 }

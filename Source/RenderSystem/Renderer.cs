@@ -4,6 +4,9 @@ using MathLib;
 using System.Numerics;
 using Veldrid;
 using Veldrid.StartupUtilities;
+#if HAS_PROFILING
+using WinterEngine.Diagnostics;
+#endif
 
 namespace WinterEngine.RenderSystem;
 
@@ -125,6 +128,9 @@ public static class Renderer
 
     public static void Render(float deltaTime)
     {
+#if HAS_PROFILING
+        Profiler.PushProfile("RenderWorld");
+#endif
         _cl.Begin();
 
 #if DEBUG
@@ -171,5 +177,8 @@ public static class Renderer
         _cl.End();
         _graphicsDevice.SubmitCommands(_cl);
         _graphicsDevice.SwapBuffers(_graphicsDevice.MainSwapchain);
+#if HAS_PROFILING
+        Profiler.PopProfile();
+#endif
     }
 }

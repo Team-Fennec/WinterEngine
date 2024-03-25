@@ -14,7 +14,7 @@ public class UIGameConsole : ImGuiPanel
     public UIGameConsole()
     {
         Title = "Console##game_console";
-        Size = new Vector2(300, 300);
+        Size = new Vector2(500, 400);
         Flags = ImGuiWindowFlags.NoSavedSettings;
 
         LoadSchemeFile("ToolsScheme.res");

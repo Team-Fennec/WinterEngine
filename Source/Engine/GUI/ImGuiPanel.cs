@@ -131,7 +131,7 @@ public class ImGuiPanel
             ImGui.PushStyleVar(optStruct.var, optStruct.value);
         }
 
-        ImGui.SetWindowSize(Size, ImGuiCond.Once);
+        ImGui.SetNextWindowSize(Size, ImGuiCond.Once);
         if (ImGui.Begin($"{Title}##{Guid}", ref Visible, Flags))
         {
 

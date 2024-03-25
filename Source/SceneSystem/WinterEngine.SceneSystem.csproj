@@ -9,9 +9,18 @@
     <RootNamespace>WinterEngine.SceneSystem</RootNamespace>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants);HAS_PROFILING</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>$(DefineConstants);HAS_PROFILING</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="../MathLib/MathLib.csproj" />
     <ProjectReference Include="../../DatamodelLib/Datamodel.NET.csproj" />
+    <ProjectReference Include="..\DebugProf\WinterEngine.Diagnostics.csproj" />
     <PackageReference Include="Veldrid" Version="4.9.0" />
     <PackageReference Include="log4net" Version="2.0.15" />
   </ItemGroup>

@@ -9,12 +9,21 @@
     <RootNamespace>WinterEngine.RenderSystem</RootNamespace>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants);HAS_PROFILING</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>$(DefineConstants);HAS_PROFILING</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Veldrid.ImageSharp" Version="4.9.0" />
     <ProjectReference Include="../MathLib/MathLib.csproj" />
     <ProjectReference Include="../../Veldrid.SDL2/Veldrid.SDL2.csproj" />
     <ProjectReference Include="../../Veldrid.ImGui/Veldrid.ImGui.csproj" />
     <ProjectReference Include="../../DatamodelLib/Datamodel.NET.csproj" />
+    <ProjectReference Include="..\DebugProf\WinterEngine.Diagnostics.csproj" />
     <PackageReference Include="Veldrid" Version="4.9.0" />
     <PackageReference Include="Veldrid.SPIRV" Version="1.0.15" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="4.9.0" />

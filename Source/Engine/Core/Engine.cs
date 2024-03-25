@@ -101,13 +101,15 @@ public class Engine
         );
         m_GameInstance.Startup();
 
-        // add close input
-        InputAction exitAction = new InputAction("ExitGame");
-        exitAction.AddBinding(Key.Escape);
-        InputManager.RegisterAction(exitAction);
+        InputAction conAction = new InputAction("Console");
+        conAction.AddBinding(Key.Tilde);
+        InputManager.RegisterAction(conAction);
 
         // create gameconsole panel
         m_ImGuiPanels.Add(new UIGameConsole());
+#if HAS_PROFILING
+        m_ImGuiPanels.Add(new ProfilerPanel());
+#endif
 
         IsRunning = true;
     }
@@ -125,16 +127,16 @@ public class Engine
             InputSnapshot snapshot = Device.Window.PumpEvents();
             if (!Device.Window.Exists)
             { break; }
-            Renderer.ImGuiController.Update(deltaTime, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
             
             if (!ImGui.GetIO().WantCaptureKeyboard && !ImGui.GetIO().WantCaptureMouse)
             {
                 InputManager.UpdateEvents(snapshot);
             }
 
-            // when pressing escape, close the game
-            if (InputManager.ActionCheckPressed("ExitGame"))
-            { ExecuteCommand("quit"); }
+            Renderer.ImGuiController.Update(deltaTime, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
+
+            if (InputManager.ActionCheckPressed("Console"))
+            { SetPanelVisible<UIGameConsole>(true); }
 
 #if HAS_PROFILING
             Profiler.PushProfile("ImGuiUpdate");
@@ -154,6 +156,18 @@ public class Engine
 
         Shutdown();
         return m_ReturnCode;
+    }
+
+    public static void SetPanelVisible<T>(bool v) where T : ImGuiPanel
+    {
+        foreach (ImGuiPanel panel in m_ImGuiPanels)
+        {
+            if (panel is T)
+            {
+                panel.Visible = v;
+                break;
+            }
+        }
     }
 
     public static void Shutdown()

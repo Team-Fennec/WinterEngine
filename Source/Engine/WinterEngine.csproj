@@ -10,6 +10,14 @@
     <AssemblyVersion>12.0</AssemblyVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants);HAS_PROFILING</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>$(DefineConstants);HAS_PROFILING</DefineConstants>
+  </PropertyGroup>
+
   <Target Name="GenerateVersionClass" BeforeTargets="BeforeCompile;CoreCompile" Outputs="$(IntermediateOutputPath)GeneratedFile.cs">
     <PropertyGroup>
       <GeneratedText>
@@ -46,6 +54,7 @@ public static class EngineVersion {
     <ProjectReference Include="../../Veldrid.ImGui/Veldrid.ImGui.csproj" />
     <ProjectReference Include="../../DatamodelLib/Datamodel.NET.csproj" />
     <ProjectReference Include="..\..\ValveKeyValue\ValveKeyValue\ValveKeyValue\ValveKeyValue.csproj" />
+    <ProjectReference Include="..\DebugProf\WinterEngine.Diagnostics.csproj" />
     <ProjectReference Include="..\FileSystem\WinterEngine.FileSystem.csproj" />
     <ProjectReference Include="..\MaterialSystem\WinterEngine.MaterialSystem.csproj" />
     <ProjectReference Include="..\PhysicsSystem\WinterEngine.PhysicsSystem.csproj" />
