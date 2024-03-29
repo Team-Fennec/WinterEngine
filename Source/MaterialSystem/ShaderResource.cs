@@ -1,4 +1,3 @@
-using Vortice.Direct3D11;
 using WinterEngine.RenderSystem;
 
 namespace WinterEngine.Resource;
