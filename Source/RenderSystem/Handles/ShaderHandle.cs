@@ -16,7 +16,7 @@ public enum ShaderParamType
     Vector4,
 }
 
-internal struct ShaderParam
+public struct ShaderParam
 {
     public string Name;
     public ResourceKind Kind;
@@ -27,12 +27,12 @@ internal struct ShaderParam
 public class ShaderHandle {
     private static readonly ILog log = LogManager.GetLogger("RenderSystem");
 
-    internal string ShaderName { get; private set; }
-    internal Shader VertexShader { get; private set; }
-    internal Shader FragmentShader { get; private set; }
-    internal FaceCullMode CullMode { get; private set; }
-    internal bool DepthTest { get; private set; }
-    internal List<ShaderParam> Params = new List<ShaderParam>();
+    public string ShaderName { get; private set; }
+    public Shader VertexShader { get; private set; }
+    public Shader FragmentShader { get; private set; }
+    public FaceCullMode CullMode { get; private set; }
+    public bool DepthTest { get; private set; }
+    public List<ShaderParam> Params = new List<ShaderParam>();
 
     public ShaderHandle(string shaderName, string vtxCode, string frgCode, bool depthTest, CullMode cullMode) {
         ShaderName = shaderName;

@@ -9,8 +9,8 @@ public static class Device
 {
     private static readonly ILog log = LogManager.GetLogger("Device");
     
-    public readonly Sdl2Window Window => m_Window;
-    private Sdl2Window m_Window;
+    public static Sdl2Window Window => m_Window;
+    private static Sdl2Window m_Window;
 
     public static void Init(string windowName)
     {
@@ -19,9 +19,9 @@ public static class Device
         {
             X = 100,
             Y = 100,
-            WindowWidth = size.X,
-            WindowHeight = size.Y,
-            WindowTitle = title
+            WindowWidth = 960,
+            WindowHeight = 540,
+            WindowTitle = windowName
         };
         m_Window = VeldridStartup.CreateWindow(ref windowCI);
     }
