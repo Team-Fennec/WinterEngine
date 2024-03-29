@@ -120,12 +120,4 @@ public abstract class Entity
             comp.Update(deltaTime);
         }
     }
-
-    public virtual void Render(double deltaTime)
-    {
-        foreach (EntityComponent comp in m_Components)
-        {
-            comp.Render(deltaTime);
-        }
-    }
 }

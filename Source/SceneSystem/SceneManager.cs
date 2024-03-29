@@ -14,7 +14,7 @@ public static class SceneManager
     private static List<Scene> m_Scenes = new List<Scene>();
 
     public static Camera ActiveCamera => m_ActiveCamera;
-    public static Scene[] SceneList => m_Scenes.ToArray();
+    public static IReadOnlyList<Scene> SceneList => m_Scenes;
     public static Scene CurrentScene => m_CurrentScene;
 
     public static void Update(double deltaTime)

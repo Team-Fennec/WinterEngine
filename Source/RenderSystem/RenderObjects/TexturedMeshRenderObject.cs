@@ -7,9 +7,8 @@ namespace WinterEngine.RenderSystem;
 public class TexturedMeshRO : RenderObject
 {
     // we hold onto our handle objects since some can be updated
-    private ShaderHandle m_Shader;
-    private MeshHandle m_Mesh;
-    private TextureHandle m_Texture;
+    public ShaderHandle Shader;
+    public MeshHandle Mesh;
 
     private Vector3 m_LocalOrigin;
     private Vector3 m_Position;
@@ -23,13 +22,12 @@ public class TexturedMeshRO : RenderObject
 
     // CreateDeviceResources assigns a value to these.
 #pragma warning disable CS8618
-    public TexturedMeshRO(string name, ShaderHandle Shader, MeshHandle Mesh, TextureHandle Texture)
+    public TexturedMeshRO(string name, ShaderHandle Shader, MeshHandle Mesh)
     {
         Name = name;
         // Assign our data
-        m_Shader = Shader;
-        m_Mesh = Mesh;
-        m_Texture = Texture;
+        this.Shader = Shader;
+        this.Mesh = Mesh;
 
         m_LocalOrigin = Vector3.Zero;
         m_Position = Vector3.Zero;
@@ -71,13 +69,13 @@ public class TexturedMeshRO : RenderObject
         pipelineDescription.BlendState = BlendStateDescription.SingleOverrideBlend;
 
         pipelineDescription.DepthStencilState = new DepthStencilStateDescription(
-            depthTestEnabled: m_Shader.DepthTest,
-            depthWriteEnabled: m_Shader.DepthTest,
+            depthTestEnabled: Shader.DepthTest,
+            depthWriteEnabled: Shader.DepthTest,
             comparisonKind: ComparisonKind.LessEqual
         );
 
         pipelineDescription.RasterizerState = new RasterizerStateDescription(
-            cullMode: m_Shader.CullMode,
+            cullMode: Shader.CullMode,
             fillMode: PolygonFillMode.Solid,
             frontFace: FrontFace.Clockwise,
             depthClipEnabled: true,
@@ -85,7 +83,7 @@ public class TexturedMeshRO : RenderObject
         );
 
         List<ResourceLayoutElementDescription> elementDescriptions = new List<ResourceLayoutElementDescription>();
-        foreach (ShaderParam param in m_Shader.Params)
+        foreach (ShaderParam param in Shader.Params)
         {
             elementDescriptions.Add(new ResourceLayoutElementDescription(param.Name, param.Kind, param.Stage));
         }
@@ -109,7 +107,7 @@ public class TexturedMeshRO : RenderObject
 
         pipelineDescription.ShaderSet = new ShaderSetDescription(
             vertexLayouts: new VertexLayoutDescription[] { Renderer.vertexLayout },
-            shaders: new[] { m_Shader.VertexShader, m_Shader.FragmentShader }
+            shaders: new[] { Shader.VertexShader, Shader.FragmentShader }
         );
 
         pipelineDescription.Outputs = Renderer.GraphicsDevice.SwapchainFramebuffer.OutputDescription;
@@ -129,7 +127,7 @@ public class TexturedMeshRO : RenderObject
 
         // go through and add all values
         List<BindableResource> data = new List<BindableResource>();
-        foreach (ShaderParam param in m_Shader.Params)
+        foreach (ShaderParam param in Shader.Params)
         {
             data.Add(param.Value);
         }
@@ -159,9 +157,9 @@ public class TexturedMeshRO : RenderObject
         cl.SetPipeline(m_Pipeline);
         cl.SetGraphicsResourceSet(0, m_ProjViewSet);
         cl.SetGraphicsResourceSet(1, m_ShaderParams);
-        cl.SetVertexBuffer(0, m_Mesh.VertexBuffer);
-        cl.SetIndexBuffer(m_Mesh.IndexBuffer, IndexFormat.UInt16);
-        cl.DrawIndexed(m_Mesh.IndexCount, 1, 0, 0, 0);
+        cl.SetVertexBuffer(0, Mesh.VertexBuffer);
+        cl.SetIndexBuffer(Mesh.IndexBuffer, IndexFormat.UInt16);
+        cl.DrawIndexed(Mesh.IndexCount, 1, 0, 0, 0);
 #if DEBUG
         cl.PopDebugGroup();
 #endif

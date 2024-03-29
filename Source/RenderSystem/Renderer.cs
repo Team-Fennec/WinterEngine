@@ -4,6 +4,7 @@ using MathLib;
 using System.Numerics;
 using Veldrid;
 using Veldrid.StartupUtilities;
+using WinterEngine.SceneSystem;
 #if HAS_PROFILING
 using WinterEngine.Diagnostics;
 #endif
@@ -164,6 +165,15 @@ public static class Renderer
 #if DEBUG
         _cl.PushDebugGroup("RenderScene");
 #endif
+        foreach (var entity in SceneManager.CurrentScene.Entities)
+        {
+            IRenderable rendEnt = entity as IRenderable;
+            if (rendEnt != null)
+            {
+                rendEnt.Render(_graphicsDevice, _cl);
+            }
+        }
+
         foreach (RenderObject ro in m_Renderables)
         {
             ro.Render(_graphicsDevice, _cl);
