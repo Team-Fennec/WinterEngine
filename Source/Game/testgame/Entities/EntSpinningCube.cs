@@ -1,6 +1,7 @@
 using MathLib;
 using System.Numerics;
 using Veldrid;
+using Veldrid.Utilities;
 using WinterEngine.MaterialSystem;
 using WinterEngine.RenderSystem;
 using WinterEngine.SceneSystem;
@@ -9,18 +10,24 @@ namespace TestGame.Entities;
 
 public class EntSpinningCube : Entity, IRenderable
 {
+#pragma warning disable CS8618
     private MeshHandle m_CubeMesh;
     private MaterialResource m_Material;
 
     private Pipeline m_Pipeline;
     private DeviceBuffer m_LocalWorldBuffer;
+    private ResourceSet m_ShaderParams;
     private ResourceSet m_ProjViewSet;
 
-    public void CreateDeviceResources(ResourceFactory factory)
+    public DisposeCollectorResourceFactory m_Factory { get; set; }
+#pragma warning restore
+
+    public void CreateDeviceResources()
     {
+        m_Factory = new(Renderer.GraphicsDevice.ResourceFactory);
         ShaderHandle shader = m_Material.GetHandle();
 
-        m_LocalWorldBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer));
+        m_LocalWorldBuffer = m_Factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer));
 
         // todo: find a better way to handle this, lmfao
         #region Create Pipeline   
@@ -41,14 +48,25 @@ public class EntSpinningCube : Entity, IRenderable
             scissorTestEnabled: false
         );
 
+        List<ResourceLayoutElementDescription> elementDescriptions = new List<ResourceLayoutElementDescription>();
+        foreach (ShaderParam param in shader.Params)
+        {
+            elementDescriptions.Add(new ResourceLayoutElementDescription(param.Name, param.Kind, param.Stage));
+        }
+
         pipelineDescription.PrimitiveTopology = PrimitiveTopology.TriangleList;
         pipelineDescription.ResourceLayouts = new ResourceLayout[] {
-            factory.CreateResourceLayout(
+            m_Factory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("ProjectionBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex),
                     new ResourceLayoutElementDescription("ViewBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex),
                     new ResourceLayoutElementDescription("WorldBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex),
                     new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment)
+                )
+            ),
+            m_Factory.CreateResourceLayout(
+                new ResourceLayoutDescription(
+                    elementDescriptions.ToArray()
                 )
             )
         };
@@ -60,16 +78,29 @@ public class EntSpinningCube : Entity, IRenderable
 
         pipelineDescription.Outputs = Renderer.GraphicsDevice.SwapchainFramebuffer.OutputDescription;
 
-        m_Pipeline = factory.CreateGraphicsPipeline(pipelineDescription);
+        m_Pipeline = m_Factory.CreateGraphicsPipeline(pipelineDescription);
         #endregion
 
         #region Create Resource Sets
-        m_ProjViewSet = Renderer.GraphicsDevice.ResourceFactory.CreateResourceSet(new ResourceSetDescription(
+        m_ProjViewSet = m_Factory.CreateResourceSet(new ResourceSetDescription(
                 pipelineDescription.ResourceLayouts[0],
                 Renderer.ProjectionBuffer,
                 Renderer.ViewBuffer,
                 m_LocalWorldBuffer,
                 Renderer.GraphicsDevice.Aniso4xSampler
+            )
+        );
+
+        // go through and add all values
+        List<BindableResource> data = new List<BindableResource>();
+        foreach (ShaderParam param in shader.Params)
+        {
+            data.Add(param.Value);
+        }
+
+        m_ShaderParams = m_Factory.CreateResourceSet(new ResourceSetDescription(
+                pipelineDescription.ResourceLayouts[1],
+                data.ToArray()
             )
         );
         #endregion
@@ -92,6 +123,7 @@ public class EntSpinningCube : Entity, IRenderable
 
         cl.SetPipeline(m_Pipeline);
         cl.SetGraphicsResourceSet(0, m_ProjViewSet);
+        cl.SetGraphicsResourceSet(1, m_ShaderParams);
         cl.SetVertexBuffer(0, m_CubeMesh.VertexBuffer);
         cl.SetIndexBuffer(m_CubeMesh.IndexBuffer, IndexFormat.UInt16);
         cl.DrawIndexed(m_CubeMesh.IndexCount, 1, 0, 0, 0);
@@ -108,40 +140,40 @@ public class EntSpinningCube : Entity, IRenderable
             new Vertex[]
             {
                 // front
-                new (new (-2.0f,  2.0f, -2.0f), Vector3.One, RgbaFloat.Blue),
-                new (new ( 2.0f,  2.0f, -2.0f), Vector3.One, RgbaFloat.Blue),
-                new (new ( 2.0f,  2.0f,  2.0f), Vector3.One, RgbaFloat.Blue),
-                new (new (-2.0f,  2.0f,  2.0f), Vector3.One, RgbaFloat.Blue),
+                new (new (-2.0f,  2.0f, -2.0f), Vector3.One, RgbaFloat.White, new Vector2(0, 0)),
+                new (new ( 2.0f,  2.0f, -2.0f), Vector3.One, RgbaFloat.White, new Vector2(1, 0)),
+                new (new ( 2.0f,  2.0f,  2.0f), Vector3.One, RgbaFloat.White, new Vector2(1, 1)),
+                new (new (-2.0f,  2.0f,  2.0f), Vector3.One, RgbaFloat.White, new Vector2(0, 1)),
 
                 // right
-                new (new ( 2.0f,  2.0f, -2.0f), Vector3.One, RgbaFloat.Cyan),
-                new (new ( 2.0f, -2.0f, -2.0f), Vector3.One, RgbaFloat.Cyan),
-                new (new ( 2.0f, -2.0f,  2.0f), Vector3.One, RgbaFloat.Cyan),
-                new (new ( 2.0f,  2.0f,  2.0f), Vector3.One, RgbaFloat.Cyan),
+                new (new ( 2.0f,  2.0f, -2.0f), Vector3.One, RgbaFloat.White, new Vector2(0, 0)),
+                new (new ( 2.0f, -2.0f, -2.0f), Vector3.One, RgbaFloat.White, new Vector2(1, 0)),
+                new (new ( 2.0f, -2.0f,  2.0f), Vector3.One, RgbaFloat.White, new Vector2(1, 1)),
+                new (new ( 2.0f,  2.0f,  2.0f), Vector3.One, RgbaFloat.White, new Vector2(0, 1)),
 
                 // back
-                new (new ( 2.0f, -2.0f, -2.0f), Vector3.One, RgbaFloat.Green),
-                new (new (-2.0f, -2.0f, -2.0f), Vector3.One, RgbaFloat.Green),
-                new (new (-2.0f, -2.0f,  2.0f), Vector3.One, RgbaFloat.Green),
-                new (new ( 2.0f, -2.0f,  2.0f), Vector3.One, RgbaFloat.Green),
+                new (new ( 2.0f, -2.0f, -2.0f), Vector3.One, RgbaFloat.White, new Vector2(0, 0)),
+                new (new (-2.0f, -2.0f, -2.0f), Vector3.One, RgbaFloat.White, new Vector2(1, 0)),
+                new (new (-2.0f, -2.0f,  2.0f), Vector3.One, RgbaFloat.White, new Vector2(1, 1)),
+                new (new ( 2.0f, -2.0f,  2.0f), Vector3.One, RgbaFloat.White, new Vector2(0, 1)),
 
                 // left
-                new (new (-2.0f, -2.0f, -2.0f), Vector3.One, RgbaFloat.Orange),
-                new (new (-2.0f,  2.0f, -2.0f), Vector3.One, RgbaFloat.Orange),
-                new (new (-2.0f,  2.0f,  2.0f), Vector3.One, RgbaFloat.Orange),
-                new (new (-2.0f, -2.0f,  2.0f), Vector3.One, RgbaFloat.Orange),
+                new (new (-2.0f, -2.0f, -2.0f), Vector3.One, RgbaFloat.White, new Vector2(0, 0)),
+                new (new (-2.0f,  2.0f, -2.0f), Vector3.One, RgbaFloat.White, new Vector2(1, 0)),
+                new (new (-2.0f,  2.0f,  2.0f), Vector3.One, RgbaFloat.White, new Vector2(1, 1)),
+                new (new (-2.0f, -2.0f,  2.0f), Vector3.One, RgbaFloat.White, new Vector2(0, 1)),
                 
                 // top
-                new (new (-2.0f, -2.0f, -2.0f), Vector3.One, RgbaFloat.Pink),
-                new (new ( 2.0f, -2.0f, -2.0f), Vector3.One, RgbaFloat.Pink),
-                new (new ( 2.0f,  2.0f, -2.0f), Vector3.One, RgbaFloat.Pink),
-                new (new (-2.0f,  2.0f, -2.0f), Vector3.One, RgbaFloat.Pink),
+                new (new (-2.0f, -2.0f, -2.0f), Vector3.One, RgbaFloat.White, new Vector2(0, 0)),
+                new (new ( 2.0f, -2.0f, -2.0f), Vector3.One, RgbaFloat.White, new Vector2(1, 0)),
+                new (new ( 2.0f,  2.0f, -2.0f), Vector3.One, RgbaFloat.White, new Vector2(1, 1)),
+                new (new (-2.0f,  2.0f, -2.0f), Vector3.One, RgbaFloat.White, new Vector2(0, 1)),
 
                 // bottom
-                new (new ( 2.0f, -2.0f,  2.0f), Vector3.One, RgbaFloat.Yellow),
-                new (new (-2.0f, -2.0f,  2.0f), Vector3.One, RgbaFloat.Yellow),
-                new (new (-2.0f,  2.0f,  2.0f), Vector3.One, RgbaFloat.Yellow),
-                new (new ( 2.0f,  2.0f,  2.0f), Vector3.One, RgbaFloat.Yellow)
+                new (new ( 2.0f, -2.0f,  2.0f), Vector3.One, RgbaFloat.White, new Vector2(0, 0)),
+                new (new (-2.0f, -2.0f,  2.0f), Vector3.One, RgbaFloat.White, new Vector2(1, 0)),
+                new (new (-2.0f,  2.0f,  2.0f), Vector3.One, RgbaFloat.White, new Vector2(1, 1)),
+                new (new ( 2.0f,  2.0f,  2.0f), Vector3.One, RgbaFloat.White, new Vector2(0, 1))
             },
             new ushort[] {
                 0, 1, 2,
@@ -164,10 +196,16 @@ public class EntSpinningCube : Entity, IRenderable
             }
         );
 
-        CreateDeviceResources(Renderer.GraphicsDevice.ResourceFactory);
+        CreateDeviceResources();
 
         Transform.LocalScale = new Vector3(2.0f);
         Transform.LocalPosition.X = 20;
+    }
+
+    public override void Death()
+    {
+        base.Death();
+        m_Factory.DisposeCollector.DisposeAll();
     }
 
     public override void Think(double deltaTime)

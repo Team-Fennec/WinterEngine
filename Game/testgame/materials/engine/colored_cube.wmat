@@ -3,5 +3,6 @@
 {
     "id" "elementid" "86666735-7e63-4406-beba-da78f999fc60"
     "name" "string" "material"
-    "shader" "string" "UnlitVertexColored"
+    "shader" "string" "UnlitTextured"
+    "basetexture" "string" "engine/missing.png"
 }

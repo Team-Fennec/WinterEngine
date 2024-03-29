@@ -70,8 +70,6 @@ public abstract class MaterialResource : IResource
             }
         }
 
-        SetShaderParameters();
-
         m_Shader = ResourceManager.Load<ShaderResource>($"shaders/{ShaderName}.glsl");
         m_Handle = new ShaderHandle(
             ShaderName,
@@ -80,6 +78,8 @@ public abstract class MaterialResource : IResource
             m_Shader.DepthTest,
             m_Shader.CullMode
         );
+
+        SetShaderParameters();
     }
 
     protected abstract void SetShaderParameters();
