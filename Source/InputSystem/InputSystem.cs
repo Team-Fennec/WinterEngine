@@ -5,6 +5,7 @@ using Veldrid;
 using Veldrid.Sdl2;
 using log4net;
 using System.Numerics;
+using System.Text.RegularExpressions;
 
 namespace WinterEngine.InputSystem;
 
@@ -83,6 +84,13 @@ public static class InputManager
             {
                 m_PadState[i] = InputState.Up;
             }
+            Sdl2Native.SDL_SetRelativeMouseMode(false);
+            Sdl2Native.SDL_CaptureMouse(false);
+        }
+        else
+        {
+            Sdl2Native.SDL_SetRelativeMouseMode(m_MouseCaptured);
+            Sdl2Native.SDL_CaptureMouse(m_MouseCaptured);
         }
 
         // update the status of current events that were pressed or released last frame
@@ -342,8 +350,6 @@ public static class InputManager
     public static void SetMouseCapture(bool capture)
     {
         m_MouseCaptured = capture;
-        Sdl2Native.SDL_SetRelativeMouseMode(capture);
-        Sdl2Native.SDL_CaptureMouse(capture);
     }
 
     /// <summary>

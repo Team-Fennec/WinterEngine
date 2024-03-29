@@ -19,10 +19,6 @@ public class TestGameModule : GameModule
         InputAction moveDownAction = new InputAction("MoveDown");
         InputAction moveLeftAction = new InputAction("MoveLeft");
         InputAction moveRightAction = new InputAction("MoveRight");
-        InputAction lookLeftAction = new InputAction("LookLeft");
-        InputAction lookRightAction = new InputAction("LookRight");
-        InputAction lookUpAction = new InputAction("LookUp");
-        InputAction lookDownAction = new InputAction("LookDown");
         InputAction moveUpVAction = new InputAction("MoveUpV");
         InputAction moveDownVAction = new InputAction("MoveDownV");
 
@@ -33,24 +29,16 @@ public class TestGameModule : GameModule
         moveUpVAction.AddBinding(Veldrid.Key.Space);
         moveDownVAction.AddBinding(Veldrid.Key.ShiftLeft);
         moveDownVAction.AddBinding(Veldrid.Key.ShiftRight);
-        lookLeftAction.AddBinding(Veldrid.Key.Left);
-        lookRightAction.AddBinding(Veldrid.Key.Right);
-        lookUpAction.AddBinding(Veldrid.Key.Up);
-        lookDownAction.AddBinding(Veldrid.Key.Down);
 
         InputManager.RegisterAction(moveUpAction);
         InputManager.RegisterAction(moveDownAction);
         InputManager.RegisterAction(moveLeftAction);
         InputManager.RegisterAction(moveRightAction);
-        InputManager.RegisterAction(lookLeftAction);
-        InputManager.RegisterAction(lookRightAction);
-        InputManager.RegisterAction(lookUpAction);
-        InputManager.RegisterAction(lookDownAction);
         InputManager.RegisterAction(moveUpVAction);
         InputManager.RegisterAction(moveDownVAction);
 
-        //InputManager.SetMouseCapture(true);
-
+        InputManager.SetMouseCapture(true);
+        
         // Create test example scene
         m_TestScene = new Scene("Testing Scene");
         m_TestScene.AddEntity(new EntFreeCam() { Name = "Free Cam Player" });
