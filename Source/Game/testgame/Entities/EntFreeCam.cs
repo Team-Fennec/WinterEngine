@@ -72,18 +72,6 @@ namespace TestGame.Entities
             // set the camera to our position
             SceneManager.ActiveCamera.Position = Transform.Position;
             SceneManager.ActiveCamera.Rotation = Transform.EulerRotation;
-
-            ImGui.SetNextWindowPos(Vector2.Zero, ImGuiCond.Always);
-            if (ImGui.Begin("freecam_transform", 
-                ImGuiWindowFlags.NoDecoration
-                |ImGuiWindowFlags.NoSavedSettings
-                |ImGuiWindowFlags.AlwaysAutoResize))
-            {
-                ImGui.Text($"Position: {Transform.Position}");
-                ImGui.Text($"Rotation: {Transform.EulerRotation}");
-
-                ImGui.End();
-            }
         }
     }
 }
