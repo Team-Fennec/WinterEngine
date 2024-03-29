@@ -21,9 +21,6 @@ public static class Renderer
     private static GraphicsDevice _graphicsDevice;
     private static ImGuiController _imguiRend;
 
-    private static Vector3 m_CamPos;
-    private static Vector3 m_CamAng;
-
     // HACK: this really shouldn't be public
     public static DeviceBuffer ProjectionBuffer => _projectionBuffer;
     public static DeviceBuffer ViewBuffer => _viewBuffer;
@@ -66,9 +63,6 @@ public static class Renderer
             Device.Window.Height
         );
 
-        m_CamPos = new Vector3(0, 0, 0);
-        m_CamAng = new Vector3(0, 0, 0);
-
         log.Info("Creating Veldrid Resources");
         CreateResources();
     }
@@ -104,12 +98,6 @@ public static class Renderer
         m_Renderables.Remove(ro);
     }
 
-    public static void SetCamera(Vector3 pos, Vector3 rot)
-    {
-        m_CamPos = pos;
-        m_CamAng = rot;
-    }
-
     public static void Shutdown()
     {
         _graphicsDevice.WaitForIdle();
@@ -142,6 +130,9 @@ public static class Renderer
             (float)Device.Window.Width / Device.Window.Height,
             0.5f,
             9999f));
+
+        Vector3 m_CamPos = SceneManager.ActiveCamera.Position;
+        Vector3 m_CamAng = SceneManager.ActiveCamera.Rotation;
 
         Vector3 lookAt = new Vector3(
             m_CamPos.X + (float)Math.Cos(Angles.Deg2Rad(m_CamAng.Z)),
