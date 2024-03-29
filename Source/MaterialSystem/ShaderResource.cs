@@ -21,8 +21,8 @@ public class ShaderResource : IResource
         FragmentCode = "";
         VertexCode = "";
 
-        string vtxOut = "#define VERTEX_SHADER\n";
-        string frgOut = "#define FRAGMENT_SHADER\n";
+        string vtxOut = "#define VERTEX_SHADER 1\n";
+        string frgOut = "#define FRAGMENT_SHADER 1\n";
 
         // load code into strings
 #pragma warning disable
