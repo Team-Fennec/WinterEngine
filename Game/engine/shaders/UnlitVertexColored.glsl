@@ -21,5 +21,5 @@ FRAGMENT:
 
 void main()
 {
-    fsout_color =  fsin_Color;
+    fsout_color = fsin_Color;
 }
