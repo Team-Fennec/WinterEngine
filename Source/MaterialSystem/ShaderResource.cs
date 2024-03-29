@@ -21,8 +21,8 @@ public class ShaderResource : IResource
         FragmentCode = "";
         VertexCode = "";
 
-        string vtxOut = "#define VERTEX_SHADER\n";
-        string frgOut = "#define FRAGMENT_SHADER\n";
+        string vtxOut = "#define VERTEX_SHADER 1\n";
+        string frgOut = "#define FRAGMENT_SHADER 1\n";
 
         // load code into strings
 #pragma warning disable
@@ -42,11 +42,23 @@ public class ShaderResource : IResource
                 writerMode = 2;
                 continue;
             }
+            else if (line.StartsWith("#version"))
+            {
+                if (writerMode == 0 || writerMode == 1)
+                {
+                    vtxOut = $"{line}\n{vtxOut}";
+                }
+                if (writerMode == 0 || writerMode == 2)
+                {
+                    frgOut = $"{line}\n{frgOut}";
+                }
+                continue;
+            }
             else if (line.StartsWith("#cull_mode"))
             {
                 string mode = line.Split(" ")[1];
                 // we aren't worried about performance here.
-                if (!Enum.TryParse($"CullMode.{mode}", out CullMode))
+                if (!Enum.TryParse($"{mode}", out CullMode))
                 {
                     throw new ArgumentException(
                         $"Unexpected CullMode value in shader!\n" +
@@ -55,7 +67,7 @@ public class ShaderResource : IResource
                 }
                 continue;
             }
-            else if (line.StartsWith("#depth_test"))
+            else if (line.StartsWith("#depth_clip") || line.StartsWith("#depth_test"))
             {
                 DepthTest = bool.Parse(line.Split(" ")[1]);
                 continue;

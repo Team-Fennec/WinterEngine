@@ -21,13 +21,22 @@ public class TestGameModule : GameModule
         InputAction moveRightAction = new InputAction("MoveRight");
         InputAction lookLeftAction = new InputAction("LookLeft");
         InputAction lookRightAction = new InputAction("LookRight");
+        InputAction lookUpAction = new InputAction("LookUp");
+        InputAction lookDownAction = new InputAction("LookDown");
+        InputAction moveUpVAction = new InputAction("MoveUpV");
+        InputAction moveDownVAction = new InputAction("MoveDownV");
 
         moveUpAction.AddBinding(Veldrid.Key.W);
         moveDownAction.AddBinding(Veldrid.Key.S);
         moveLeftAction.AddBinding(Veldrid.Key.A);
         moveRightAction.AddBinding(Veldrid.Key.D);
+        moveUpVAction.AddBinding(Veldrid.Key.Space);
+        moveDownVAction.AddBinding(Veldrid.Key.ShiftLeft);
+        moveDownVAction.AddBinding(Veldrid.Key.ShiftRight);
         lookLeftAction.AddBinding(Veldrid.Key.Left);
         lookRightAction.AddBinding(Veldrid.Key.Right);
+        lookUpAction.AddBinding(Veldrid.Key.Up);
+        lookDownAction.AddBinding(Veldrid.Key.Down);
 
         InputManager.RegisterAction(moveUpAction);
         InputManager.RegisterAction(moveDownAction);
@@ -35,12 +44,17 @@ public class TestGameModule : GameModule
         InputManager.RegisterAction(moveRightAction);
         InputManager.RegisterAction(lookLeftAction);
         InputManager.RegisterAction(lookRightAction);
+        InputManager.RegisterAction(lookUpAction);
+        InputManager.RegisterAction(lookDownAction);
+        InputManager.RegisterAction(moveUpVAction);
+        InputManager.RegisterAction(moveDownVAction);
 
         //InputManager.SetMouseCapture(true);
 
         // Create test example scene
         m_TestScene = new Scene("Testing Scene");
         m_TestScene.AddEntity(new EntFreeCam() { Name = "Free Cam Player" });
+        m_TestScene.AddEntity(new EntSpinningCube() { Name = "Spinning Cube" });
         SceneManager.LoadScene(m_TestScene);
     }
 

@@ -9,13 +9,26 @@ namespace WinterEngine.SceneSystem;
 public static class SceneManager
 {
     private static readonly ILog log = LogManager.GetLogger("SceneManager");
-    private static Camera m_ActiveCamera = new Camera(); // just for debugging purposes
-    private static Scene m_CurrentScene;
+    private static Camera? m_ActiveCamera = new Camera(); // just for debugging purposes
+    private static Scene? m_CurrentScene;
     private static List<Scene> m_Scenes = new List<Scene>();
 
-    public static Camera ActiveCamera => m_ActiveCamera;
-    public static Scene[] SceneList => m_Scenes.ToArray();
-    public static Scene CurrentScene => m_CurrentScene;
+    public static Camera? ActiveCamera => m_ActiveCamera;
+    public static IReadOnlyList<Scene> SceneList => m_Scenes;
+    public static Scene? CurrentScene => m_CurrentScene;
+
+    public static void Shutdown()
+    {
+        // dispose of all scenes
+        log.Info("Disposing all scenes");
+        m_ActiveCamera = null;
+        m_CurrentScene = null;
+        m_Scenes.Clear();
+
+        // Immediately garbage collect on shutdown.
+        // make sure everything is freed before proceeding.
+        GC.Collect();
+    }
 
     public static void Update(double deltaTime)
     {

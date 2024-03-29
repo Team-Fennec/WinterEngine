@@ -8,15 +8,8 @@ namespace WinterEngine.Components;
 
 public class MeshRenderComponent : EntityComponent
 {
-    private TexturedMeshRO m_RenderModel;
-
     public override void Awake()
     {
         // load md3 resource, grab material
-    }
-
-    public override void OnEnable()
-    {
-        Renderer.AddRenderObject(m_RenderModel);
     }
 }

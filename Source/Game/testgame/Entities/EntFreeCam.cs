@@ -16,39 +16,57 @@ namespace TestGame.Entities
             base.Think(deltaTime);
 
             Vector2 delta2D = new Vector2(
-                (float)Math.Cos(Angles.Deg2Rad(Transform.LocalEulerRotation.Z)),
-                (float)Math.Sin(Angles.Deg2Rad(Transform.LocalEulerRotation.Z))
+                (float)Math.Cos(Angles.Deg2Rad(Transform.LocalEulerRotation.Z)) * 6,
+                (float)Math.Sin(Angles.Deg2Rad(Transform.LocalEulerRotation.Z)) * 6
             );
             // input
             if (InputManager.ActionCheck("MoveUp"))
             {
-                Transform.LocalPosition.X += delta2D.X;
-                Transform.LocalPosition.Y -= delta2D.Y;
+                Transform.LocalPosition.X += (float)(delta2D.X * deltaTime);
+                Transform.LocalPosition.Y -= (float)(delta2D.Y * deltaTime);
             }
             if (InputManager.ActionCheck("MoveDown"))
             {
-                Transform.LocalPosition.X -= delta2D.X;
-                Transform.LocalPosition.Y += delta2D.Y;
+                Transform.LocalPosition.X -= (float)(delta2D.X * deltaTime);
+                Transform.LocalPosition.Y += (float)(delta2D.Y * deltaTime);
             }
             if (InputManager.ActionCheck("MoveLeft"))
             {
-                Transform.LocalPosition.X -= delta2D.X;
-                Transform.LocalPosition.Y -= delta2D.Y;
+                Transform.LocalPosition.X += (float)(delta2D.Y * deltaTime);
+                Transform.LocalPosition.Y += (float)(delta2D.X * deltaTime);
             }
             if (InputManager.ActionCheck("MoveRight"))
             {
-                Transform.LocalPosition.X += delta2D.X;
-                Transform.LocalPosition.Y += delta2D.Y;
+                Transform.LocalPosition.X -= (float)(delta2D.Y * deltaTime);
+                Transform.LocalPosition.Y -= (float)(delta2D.X * deltaTime);
+            }
+            if (InputManager.ActionCheck("MoveUpV"))
+            {
+                Transform.LocalPosition.Z += (float)(6 * deltaTime);
+            }
+            if (InputManager.ActionCheck("MoveDownV"))
+            {
+                Transform.LocalPosition.Z -= (float)(6 * deltaTime);
             }
 
             if (InputManager.ActionCheck("LookLeft"))
             {
-                Transform.LocalEulerRotation.Z += 5;
+                Transform.LocalEulerRotation.Z -= (float)(50 * deltaTime);
             }
 
             if (InputManager.ActionCheck("LookRight"))
             {
-                Transform.LocalEulerRotation.Z -= 5;
+                Transform.LocalEulerRotation.Z += (float)(50 * deltaTime);
+            }
+
+            if (InputManager.ActionCheck("LookUp"))
+            {
+                Transform.LocalEulerRotation.X -= (float)(50 * deltaTime);
+            }
+
+            if (InputManager.ActionCheck("LookDown"))
+            {
+                Transform.LocalEulerRotation.X += (float)(50 * deltaTime);
             }
 
             // set the camera to our position

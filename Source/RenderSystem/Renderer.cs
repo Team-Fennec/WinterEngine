@@ -4,6 +4,7 @@ using MathLib;
 using System.Numerics;
 using Veldrid;
 using Veldrid.StartupUtilities;
+using WinterEngine.SceneSystem;
 #if HAS_PROFILING
 using WinterEngine.Diagnostics;
 #endif
@@ -20,9 +21,6 @@ public static class Renderer
     private static GraphicsDevice _graphicsDevice;
     private static ImGuiController _imguiRend;
 
-    private static Vector3 m_CamPos;
-    private static Vector3 m_CamAng;
-
     // HACK: this really shouldn't be public
     public static DeviceBuffer ProjectionBuffer => _projectionBuffer;
     public static DeviceBuffer ViewBuffer => _viewBuffer;
@@ -32,8 +30,6 @@ public static class Renderer
 
     private static CommandList _cl;
     private static Vector3 _clearColor = new Vector3(0.45f, 0.55f, 0.6f);
-
-    private static List<RenderObject> m_Renderables = new List<RenderObject>();
 
     public static readonly VertexLayoutDescription vertexLayout = new VertexLayoutDescription(
         new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
@@ -65,9 +61,6 @@ public static class Renderer
             Device.Window.Height
         );
 
-        m_CamPos = new Vector3(0, 0, 0);
-        m_CamAng = new Vector3(0, 0, 0);
-
         log.Info("Creating Veldrid Resources");
         CreateResources();
     }
@@ -83,43 +76,11 @@ public static class Renderer
         _cl = factory.CreateCommandList();
     }
 
-    public static void AddRenderObject(RenderObject ro)
-    {
-        if (m_Renderables.Contains(ro))
-        {
-            log.Warn("Attempted to add duplicate RenderObject to list!");
-            return;
-        }
-        m_Renderables.Add(ro);
-    }
-
-    public static void RemoveRenderObject(RenderObject ro)
-    {
-        if (!m_Renderables.Contains(ro))
-        {
-            log.Error("Attempted to remove RenderObject not in the list!");
-            return;
-        }
-        m_Renderables.Remove(ro);
-    }
-
-    public static void SetCamera(Vector3 pos, Vector3 rot)
-    {
-        m_CamPos = pos;
-        m_CamAng = rot;
-    }
-
     public static void Shutdown()
     {
         _graphicsDevice.WaitForIdle();
 
         log.Info("Disposing Resources...");
-
-        foreach (RenderObject ro in m_Renderables)
-        {
-            // todo: should we clear resources whenever an RO is removed from the list?
-            ro.DisposeResources();
-        }
 
         _cl.Dispose();
         _graphicsDevice.Dispose();
@@ -141,6 +102,9 @@ public static class Renderer
             (float)Device.Window.Width / Device.Window.Height,
             0.5f,
             9999f));
+
+        Vector3 m_CamPos = SceneManager.ActiveCamera.Position;
+        Vector3 m_CamAng = SceneManager.ActiveCamera.Rotation;
 
         Vector3 lookAt = new Vector3(
             m_CamPos.X + (float)Math.Cos(Angles.Deg2Rad(m_CamAng.Z)),
@@ -164,9 +128,16 @@ public static class Renderer
 #if DEBUG
         _cl.PushDebugGroup("RenderScene");
 #endif
-        foreach (RenderObject ro in m_Renderables)
+        if (SceneManager.CurrentScene != null)
         {
-            ro.Render(_graphicsDevice, _cl);
+            foreach (var entity in SceneManager.CurrentScene.Entities)
+            {
+                IRenderable rendEnt = entity as IRenderable;
+                if (rendEnt != null)
+                {
+                    rendEnt.Render(_graphicsDevice, _cl);
+                }
+            }
         }
 
         _imguiRend.Render(_graphicsDevice, _cl);

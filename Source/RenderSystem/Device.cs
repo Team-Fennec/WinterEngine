@@ -5,13 +5,12 @@ using log4net;
 
 namespace WinterEngine.RenderSystem;
 
-// does this really count as rendering related?
 public static class Device
 {
-    public static Sdl2Window Window => _window;
-
     private static readonly ILog log = LogManager.GetLogger("Device");
-    private static Sdl2Window _window;
+    
+    public static Sdl2Window Window => m_Window;
+    private static Sdl2Window m_Window;
 
     public static void Init(string windowName)
     {
@@ -24,6 +23,6 @@ public static class Device
             WindowHeight = 540,
             WindowTitle = windowName
         };
-        _window = VeldridStartup.CreateWindow(ref windowCI);
+        m_Window = VeldridStartup.CreateWindow(ref windowCI);
     }
 }

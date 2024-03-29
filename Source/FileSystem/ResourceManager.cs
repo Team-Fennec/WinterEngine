@@ -41,7 +41,7 @@ public class ResourceManager
 
     public static IResource Load(Type type, string path)
     {
-        if (!type.IsSubclassOf(typeof(IResource)))
+        if (!type.IsAssignableTo(typeof(IResource)))
             throw new ArgumentException($"Invalid type ({type.Name}) provided, type must be subclass of IResource.");
 
         Stream resData;

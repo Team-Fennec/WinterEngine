@@ -8,12 +8,11 @@ public static class MaterialSystem
 {
     const int FormatVersion = 1;
 
+    // jank as fuck but until I figure out the IResource nonsense it's the best we got.
     public static MaterialResource Load(string matName)
     {
         Stream stream = ResourceManager.GetData($"materials/{matName}.wmat");
-
         Datamodel.Datamodel input = Datamodel.Datamodel.Load(stream);
-        stream.Close();
 
         // check the shader value and try to instantiate that type
         string shaderName = input.Root.Get<string>("shader");
@@ -23,7 +22,16 @@ public static class MaterialSystem
             throw new ArgumentException($"No material of type {shaderName} exists.");
         }
 
-        return (MaterialResource)ResourceManager.Load(matType, $"materials/{matName}.wmat");
+        input.Dispose();
+
+        MaterialResource matRes = Assembly.GetExecutingAssembly().CreateInstance(matType.FullName) as MaterialResource;
+        if (matRes == null)
+        {
+            throw new Exception("Failed to create material resource!");
+        }
+        matRes.LoadData(stream);
+
+        return matRes;
     }
 
     public static string Serialize(MaterialResource material)

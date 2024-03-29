@@ -13,9 +13,12 @@ public class UIGameConsole : ImGuiPanel
 
     public UIGameConsole()
     {
-        Title = "Console##game_console";
+        Title = "Console";
         Size = new Vector2(500, 400);
+        Pos = new Vector2(100, 100);
         Flags = ImGuiWindowFlags.NoSavedSettings;
+        Visible = false; // start invisible
+        ID = "game_console";
 
         LoadSchemeFile("ToolsScheme.res");
     }

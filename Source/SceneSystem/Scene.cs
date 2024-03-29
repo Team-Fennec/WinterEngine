@@ -12,6 +12,8 @@ public class Scene
     public string Name;
     public bool Paused;
     public Transform RootTransform => m_Root;
+    // you can iterate, but you can't modify this list
+    public IReadOnlyList<Entity> Entities => m_Entities;
 
     private List<Entity> m_Entities;
     private Transform m_Root;

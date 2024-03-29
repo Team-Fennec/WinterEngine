@@ -48,10 +48,10 @@ public class Transform
         }
     }
 
-    public Vector3 LocalPosition;
-    public Vector3 LocalEulerRotation;
+    public Vector3 LocalPosition = Vector3.Zero;
+    public Vector3 LocalEulerRotation = Vector3.Zero;
     public Quaternion LocalRotation;
-    public Vector3 LocalScale;
+    public Vector3 LocalScale = Vector3.One;
 
     public void SetParent(Transform parent)
     {

@@ -103,6 +103,11 @@ public abstract class Entity
     }
     #endregion
 
+    ~Entity()
+    {
+        Death();
+    }
+
     public virtual void Spawn()
     {
 
@@ -118,14 +123,6 @@ public abstract class Entity
         foreach (EntityComponent comp in m_Components)
         {
             comp.Update(deltaTime);
-        }
-    }
-
-    public virtual void Render(double deltaTime)
-    {
-        foreach (EntityComponent comp in m_Components)
-        {
-            comp.Render(deltaTime);
         }
     }
 }
