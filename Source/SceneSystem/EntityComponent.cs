@@ -10,7 +10,7 @@ public abstract class EntityComponent
     
     internal void SetParented(Entity entity)
     {
-        m_Entity = ent;
+        m_Entity = entity;
     }
 
     public virtual void Awake() { }
