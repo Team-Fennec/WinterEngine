@@ -1,18 +1,16 @@
-using WinterEngine.SceneSystem;
-using WinterEngine.RenderSystem;
-using Veldrid;
 using MathLib;
-using WinterEngine.MaterialSystem;
 using System.Numerics;
-using WinterEngine.Materials;
-using WinterEngine.Resource;
+using Veldrid;
+using WinterEngine.MaterialSystem;
+using WinterEngine.RenderSystem;
+using WinterEngine.SceneSystem;
 
 namespace TestGame.Entities;
 
 public class EntSpinningCube : Entity, IRenderable
 {
     private MeshHandle m_CubeMesh;
-    private UnlitVertexColoredMaterial m_Material;
+    private MaterialResource m_Material;
 
     private Pipeline m_Pipeline;
     private DeviceBuffer m_LocalWorldBuffer;
@@ -104,7 +102,7 @@ public class EntSpinningCube : Entity, IRenderable
 
     public override void Spawn()
     {
-        m_Material = ResourceManager.Load<UnlitVertexColoredMaterial>("materials/engine/colored_cube.wmat");
+        m_Material = MaterialSystem.Load("engine/colored_cube");
 
         m_CubeMesh = new MeshHandle(
             new Vertex[]
