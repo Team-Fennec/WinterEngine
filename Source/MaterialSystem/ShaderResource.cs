@@ -1,3 +1,4 @@
+using Vortice.Direct3D11;
 using WinterEngine.RenderSystem;
 
 namespace WinterEngine.Resource;
@@ -42,11 +43,22 @@ public class ShaderResource : IResource
                 writerMode = 2;
                 continue;
             }
+            else if (line.StartsWith("#version"))
+            {
+                if (writerMode == 0 || writerMode == 1)
+                {
+                    vtxOut = $"{line}\n{vtxOut}";
+                }
+                if (writerMode == 0 || writerMode == 2)
+                {
+                    frgOut = $"{line}\n{frgOut}";
+                }
+            }
             else if (line.StartsWith("#cull_mode"))
             {
                 string mode = line.Split(" ")[1];
                 // we aren't worried about performance here.
-                if (!Enum.TryParse($"CullMode.{mode}", out CullMode))
+                if (!Enum.TryParse($"{mode}", out CullMode))
                 {
                     throw new ArgumentException(
                         $"Unexpected CullMode value in shader!\n" +
