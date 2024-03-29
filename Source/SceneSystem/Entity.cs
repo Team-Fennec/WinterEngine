@@ -103,6 +103,11 @@ public abstract class Entity
     }
     #endregion
 
+    ~Entity()
+    {
+        Death();
+    }
+
     public virtual void Spawn()
     {
 

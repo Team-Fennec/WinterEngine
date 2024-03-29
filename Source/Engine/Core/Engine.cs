@@ -176,6 +176,7 @@ public class Engine
         IsRunning = false;
 
         m_GameInstance.Shutdown();
+        SceneManager.Shutdown();
         Renderer.Shutdown();
 
         m_Log.Info("Engine Shutdown Complete");
