@@ -40,6 +40,14 @@ namespace TestGame.Entities
                 Transform.LocalPosition.X -= (float)(delta2D.Y * deltaTime);
                 Transform.LocalPosition.Y -= (float)(delta2D.X * deltaTime);
             }
+            if (InputManager.ActionCheck("MoveUpV"))
+            {
+                Transform.LocalPosition.Z += (float)(6 * deltaTime);
+            }
+            if (InputManager.ActionCheck("MoveDownV"))
+            {
+                Transform.LocalPosition.Z -= (float)(6 * deltaTime);
+            }
 
             if (InputManager.ActionCheck("LookLeft"))
             {
@@ -49,6 +57,16 @@ namespace TestGame.Entities
             if (InputManager.ActionCheck("LookRight"))
             {
                 Transform.LocalEulerRotation.Z += (float)(50 * deltaTime);
+            }
+
+            if (InputManager.ActionCheck("LookUp"))
+            {
+                Transform.LocalEulerRotation.X -= (float)(50 * deltaTime);
+            }
+
+            if (InputManager.ActionCheck("LookDown"))
+            {
+                Transform.LocalEulerRotation.X += (float)(50 * deltaTime);
             }
 
             // set the camera to our position
