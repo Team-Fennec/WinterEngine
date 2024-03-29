@@ -30,7 +30,10 @@ public class ProfilerPanel : ImGuiPanel
             | ImGuiWindowFlags.NoMove
             | ImGuiWindowFlags.NoDocking
             | ImGuiWindowFlags.NoBringToFrontOnFocus
-            | ImGuiWindowFlags.AlwaysAutoResize;
+            | ImGuiWindowFlags.AlwaysAutoResize
+            | ImGuiWindowFlags.NoInputs
+            | ImGuiWindowFlags.NoFocusOnAppearing
+            | ImGuiWindowFlags.NoBackground;
 
         LoadSchemeFile("ToolsScheme.res");
     }
@@ -40,7 +43,6 @@ public class ProfilerPanel : ImGuiPanel
         int index = 0;
         foreach (string name in Profiler.Profs.Keys)
         {
-            
             ImGui.PushStyleColor(ImGuiCol.PlotLines, ImGui.ColorConvertFloat4ToU32(lineColors[index]));
             float[] numbers = Profiler.Profs[name];
             ImGui.PlotLines($"##{name}", ref numbers[0], 100, 0, name, float.MaxValue, float.MaxValue, new Vector2(300, 30));

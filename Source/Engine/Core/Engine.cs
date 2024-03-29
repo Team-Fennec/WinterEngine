@@ -1,6 +1,7 @@
 using ImGuiNET;
 using System.Diagnostics;
 using System.Reflection;
+using System.Numerics;
 using ValveKeyValue;
 using Veldrid;
 using Veldrid.Sdl2;
@@ -14,6 +15,7 @@ using WinterEngine.Localization;
 using WinterEngine.RenderSystem;
 using WinterEngine.Resource;
 using WinterEngine.SceneSystem;
+using WinterEngine.Utilities;
 using static WinterEngine.Localization.StringTools;
 
 namespace WinterEngine.Core;
@@ -27,10 +29,19 @@ public class Engine
 
     private static Assembly m_GameAssembly;
     private static GameModule m_GameInstance;
+    private static FrameTimeAverager m_FTA = new FrameTimeAverager(0.666);
 
     private static List<ImGuiPanel> m_ImGuiPanels = new List<ImGuiPanel>();
 
     public static bool IsRunning = false;
+    public static bool LimitFrameRate = true;
+    public static double FrameLimit = 60.0;
+
+#if DEBUG
+    public static bool ShowFpsMeter = true;
+#else
+    public static bool ShowFpsMeter = false;
+#endif
 
     public static void PreInit()
     {
@@ -123,20 +134,31 @@ public class Engine
     {
         m_Log.Info("Starting Engine loop...");
         var stopwatch = Stopwatch.StartNew();
-        float deltaTime = 0f;
+        long previousFrameTicks = 0;
 
         while (Device.Window.Exists)
         {
-            deltaTime = stopwatch.ElapsedTicks / (float)Stopwatch.Frequency;
-            stopwatch.Restart();
+            long currentFrameTicks = stopwatch.ElapsedTicks;
+            double deltaTime = (currentFrameTicks - previousFrameTicks) / (double)Stopwatch.Frequency;
+
+            while (LimitFrameRate && deltaTime < (1.0 / FrameLimit))
+            {
+                currentFrameTicks = stopwatch.ElapsedTicks;
+                deltaTime = (currentFrameTicks - previousFrameTicks) / (double)Stopwatch.Frequency;
+            }
+
+            previousFrameTicks = currentFrameTicks;
+
             InputSnapshot snapshot = Device.Window.PumpEvents();
             if (!Device.Window.Exists)
             { break; }
 
+            m_FTA.AddTime(deltaTime);
+
             InputManager.ProcessInputs = (!ImGui.GetIO().WantCaptureKeyboard && !ImGui.GetIO().WantCaptureMouse);
             InputManager.UpdateEvents(snapshot);
 
-            Renderer.ImGuiController.Update(deltaTime, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
+            Renderer.ImGuiController.Update((float)deltaTime, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
 
             if (InputManager.ActionCheckPressed("Console"))
             { SetPanelVisible("game_console", true); }
@@ -147,6 +169,36 @@ public class Engine
 
             Profiler.PushProfile("ImGuiUpdate");
 #endif
+
+            if (ShowFpsMeter)
+            {
+                // pain
+                ImGui.SetNextWindowPos(new Vector2(0, Device.Window.Height - 20), ImGuiCond.Always);
+                if (ImGui.Begin("##fps_counter", 
+                    ImGuiWindowFlags.NoSavedSettings
+                    | ImGuiWindowFlags.NoDecoration
+                    | ImGuiWindowFlags.NoMove
+                    | ImGuiWindowFlags.NoDocking
+                    | ImGuiWindowFlags.NoBringToFrontOnFocus
+                    | ImGuiWindowFlags.AlwaysAutoResize
+                    | ImGuiWindowFlags.NoInputs
+                    | ImGuiWindowFlags.NoFocusOnAppearing
+                    | ImGuiWindowFlags.NoBackground))
+                {
+                    Vector4 color = Vector4.One;
+
+                    if (m_FTA.CurrentAverageFramesPerSecond > 50)
+                        color = new Vector4(0.0f, 1.0f, 0.0f, 1.0f);
+                    else if (m_FTA.CurrentAverageFramesPerSecond > 30)
+                        color = new Vector4(1.0f, 1.0f, 0.0f, 1.0f);
+                    else
+                        color = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+
+                    ImGui.TextColored(color, $"FPS: {Math.Round(m_FTA.CurrentAverageFramesPerSecond, 2)}");
+                    ImGui.End();
+                }
+            }
+
             // imgui stuff
             foreach (ImGuiPanel panel in m_ImGuiPanels)
             {
@@ -157,7 +209,7 @@ public class Engine
 #endif
 
             SceneManager.Update(deltaTime);
-            Renderer.Render(deltaTime);
+            Renderer.Render((float)deltaTime);
         }
 
         Shutdown();

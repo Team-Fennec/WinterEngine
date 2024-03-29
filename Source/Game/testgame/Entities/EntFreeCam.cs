@@ -15,9 +15,9 @@ namespace TestGame.Entities
             base.Think(deltaTime);
 
             Vector3 delta2D = new Vector3(
-                (float)Math.Cos(Angles.Deg2Rad(Transform.LocalEulerRotation.Z)) * 6,
-                (float)Math.Sin(Angles.Deg2Rad(Transform.LocalEulerRotation.Z)) * 6,
-                (float)Math.Sin(Angles.Deg2Rad(Transform.LocalEulerRotation.X)) * 6
+                (float)Math.Cos(Angles.Deg2Rad(Transform.LocalEulerRotation.Z)) * 12,
+                (float)Math.Sin(Angles.Deg2Rad(Transform.LocalEulerRotation.Z)) * 12,
+                (float)Math.Sin(Angles.Deg2Rad(Transform.LocalEulerRotation.X)) * 16
             );
 
             // input
@@ -52,8 +52,9 @@ namespace TestGame.Entities
                 Transform.LocalPosition.Z -= (float)(6 * deltaTime);
             }
 
-            Transform.LocalEulerRotation.X -= (float)((InputManager.GetMouseDelta().Y * 50.0) * deltaTime);
-            Transform.LocalEulerRotation.Z -= (float)((InputManager.GetMouseDelta().X * 50.0) * deltaTime);
+            Transform.LocalEulerRotation.X -= (float)((InputManager.GetMouseDelta().Y * 30.0) * deltaTime);
+            Transform.LocalEulerRotation.Z -= (float)((InputManager.GetMouseDelta().X * 30.0) * deltaTime);
+            Transform.LocalEulerRotation.X = Math.Clamp(Transform.LocalEulerRotation.X, -90.0f, 90.0f);
 
             // set the camera to our position
             SceneManager.ActiveCamera.Position = Transform.Position;
