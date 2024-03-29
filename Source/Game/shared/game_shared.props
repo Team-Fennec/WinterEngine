@@ -3,7 +3,19 @@
         <Compile Include="../shared/**/*.cs" />
     </ItemGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants);HAS_PROFILING</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>$(DefineConstants);HAS_PROFILING</DefineConstants>
+  </PropertyGroup>
+
     <ItemGroup>
+        <PackageReference Include="Veldrid" Version="4.9.0" />
+        <PackageReference Include="ImGui.NET" Version="1.90.1.1" />
+        <ProjectReference Include="..\DebugProf\WinterEngine.Diagnostics.csproj" />
+        <ProjectReference Include="../../DatamodelLib/Datamodel.NET.csproj" />
         <ProjectReference Include="../../MathLib/MathLib.csproj" />
         <ProjectReference Include="../../Engine/WinterEngine.csproj" />
         <ProjectReference Include="../../RenderSystem/WinterEngine.RenderSystem.csproj" />
