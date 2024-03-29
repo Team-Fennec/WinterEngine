@@ -4,6 +4,7 @@ using WinterEngine.Diagnostics;
 using Veldrid;
 using Veldrid.Sdl2;
 using log4net;
+using System.Numerics;
 
 namespace WinterEngine.InputSystem;
 
@@ -26,6 +27,15 @@ public static class InputManager
     private static InputState[] m_MouseState;
 
     private static bool m_MouseCaptured;
+    private static Vector2 m_MousePosition;
+    private static Vector2 m_MouseDelta;
+
+    /// <summary>
+    /// Determines whether or not inputs will be processed. Useful for global input locking.
+    /// 
+    /// NOTE: This will release all pressed inputs when set to false!
+    /// </summary>
+    public static bool ProcessInputs = true;
 
     public static void Init()
     {
@@ -57,6 +67,24 @@ public static class InputManager
 #if HAS_PROFILING
 		Profiler.PushProfile("InputSystem_UpdateEvents");
 #endif
+        if (!ProcessInputs)
+        {
+            for (int i = 0; i < (int)Key.LastKey; i++)
+            {
+                m_KeyState[i] = InputState.Up;
+            }
+
+            for (int i = 0; i < (int)MouseButton.LastButton; i++)
+            {
+                m_MouseState[i] = InputState.Up;
+            }
+
+            for (int i = 0; i < (int)Gamepad.PadMax; i++)
+            {
+                m_PadState[i] = InputState.Up;
+            }
+        }
+
         // update the status of current events that were pressed or released last frame
         for (int i = 0; i < (int)Key.LastKey; i++)
         {
@@ -82,38 +110,44 @@ public static class InputManager
                 m_PadState[i] = InputState.Down;
         }
 
-        // Set event data based on snapshot
-        foreach (KeyEvent kEvent in snapshot.KeyEvents)
+        if (ProcessInputs)
         {
-            if (kEvent.Down)
+            // Set event data based on snapshot
+            foreach (KeyEvent kEvent in snapshot.KeyEvents)
             {
-                if (m_KeyState[(int)kEvent.Key] == InputState.Up
-                    || m_KeyState[(int)kEvent.Key] == InputState.Released)
-                    m_KeyState[(int)kEvent.Key] = InputState.Pressed;
+                if (kEvent.Down)
+                {
+                    if (m_KeyState[(int)kEvent.Key] == InputState.Up
+                        || m_KeyState[(int)kEvent.Key] == InputState.Released)
+                        m_KeyState[(int)kEvent.Key] = InputState.Pressed;
+                }
+                else
+                {
+                    if (m_KeyState[(int)kEvent.Key] == InputState.Down
+                        || m_KeyState[(int)kEvent.Key] == InputState.Pressed)
+                        m_KeyState[(int)kEvent.Key] = InputState.Released;
+                }
             }
-            else
+
+            foreach (MouseEvent mEvent in snapshot.MouseEvents)
             {
-                if (m_KeyState[(int)kEvent.Key] == InputState.Down
-                    || m_KeyState[(int)kEvent.Key] == InputState.Pressed)
-                    m_KeyState[(int)kEvent.Key] = InputState.Released;
+                if (mEvent.Down)
+                {
+                    if (m_MouseState[(int)mEvent.MouseButton] == InputState.Up
+                        || m_MouseState[(int)mEvent.MouseButton] == InputState.Released)
+                        m_MouseState[(int)mEvent.MouseButton] = InputState.Pressed;
+                }
+                else
+                {
+                    if (m_MouseState[(int)mEvent.MouseButton] == InputState.Down
+                        || m_MouseState[(int)mEvent.MouseButton] == InputState.Pressed)
+                        m_MouseState[(int)mEvent.MouseButton] = InputState.Released;
+                }
             }
         }
 
-        foreach (MouseEvent mEvent in snapshot.MouseEvents)
-        {
-            if (mEvent.Down)
-            {
-                if (m_MouseState[(int)mEvent.MouseButton] == InputState.Up
-                    || m_MouseState[(int)mEvent.MouseButton] == InputState.Released)
-                    m_MouseState[(int)mEvent.MouseButton] = InputState.Pressed;
-            }
-            else
-            {
-                if (m_MouseState[(int)mEvent.MouseButton] == InputState.Down
-                    || m_MouseState[(int)mEvent.MouseButton] == InputState.Pressed)
-                    m_MouseState[(int)mEvent.MouseButton] = InputState.Released;
-            }
-        }
+        m_MouseDelta = m_MousePosition - snapshot.MousePosition;
+        m_MousePosition = snapshot.MousePosition;
 
 #if HAS_PROFILING
 		Profiler.PopProfile();
@@ -311,4 +345,16 @@ public static class InputManager
         Sdl2Native.SDL_SetRelativeMouseMode(capture);
         Sdl2Native.SDL_CaptureMouse(capture);
     }
+
+    /// <summary>
+    /// Returns the current position of the mouse.
+    /// </summary>
+    /// <returns></returns>
+    public static Vector2 GetMousePosition() => m_MousePosition;
+
+    /// <summary>
+    /// Returns the difference between last frame's mouse position and current frame's mouse position.
+    /// </summary>
+    /// <returns></returns>
+    public static Vector2 GetMouseDelta() => m_MouseDelta;
 }
