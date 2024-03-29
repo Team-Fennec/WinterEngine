@@ -10,12 +10,15 @@ public class ImGuiPanel
     protected static Guid Guid = Guid.NewGuid();
 
     public string Title = "";
+    public string ID { get; protected set; }
     public Vector2 Size = Vector2.Zero;
+    public Vector2 Pos = Vector2.Zero;
     public ImGuiWindowFlags Flags = ImGuiWindowFlags.None;
     public bool Visible = true;
 
     List<(ImGuiCol style, Vector4 color)> m_StyleColors = new();
     List<(ImGuiStyleVar var, float value)> m_StyleOptions = new();
+    string m_ID = "";
 
     public void SetTitlebarVisible(bool visible)
     {
@@ -132,7 +135,8 @@ public class ImGuiPanel
         }
 
         ImGui.SetNextWindowSize(Size, ImGuiCond.Once);
-        if (ImGui.Begin($"{Title}##{Guid}", ref Visible, Flags))
+        ImGui.SetNextWindowPos(Pos, ImGuiCond.Once);
+        if (ImGui.Begin($"{Title}##{ID}", ref Visible, Flags))
         {
 
 #if false

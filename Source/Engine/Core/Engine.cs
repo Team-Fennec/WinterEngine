@@ -71,7 +71,10 @@ public class Engine
         Renderer.Init();
         InputManager.Init();
 
-        // register our base commands now
+        // Setup game console
+        InputAction conAction = new InputAction("Console");
+        conAction.AddBinding(Key.Tilde);
+        InputManager.RegisterAction(conAction);
         GameConsole.RegisterCommand(new ConsoleCommands.HelpCommand());
         GameConsole.RegisterCommand(new ConsoleCommands.QuitCommand());
 
@@ -101,13 +104,15 @@ public class Engine
         );
         m_GameInstance.Startup();
 
-        InputAction conAction = new InputAction("Console");
-        conAction.AddBinding(Key.Tilde);
-        InputManager.RegisterAction(conAction);
-
-        // create gameconsole panel
+        
+        // Add gui game console
         m_ImGuiPanels.Add(new UIGameConsole());
+
 #if HAS_PROFILING
+        InputAction profAction = new InputAction("Profiler");
+        profAction.AddBinding(Key.F1);
+        InputManager.RegisterAction(profAction);
+
         m_ImGuiPanels.Add(new ProfilerPanel());
 #endif
 
@@ -136,9 +141,12 @@ public class Engine
             Renderer.ImGuiController.Update(deltaTime, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
 
             if (InputManager.ActionCheckPressed("Console"))
-            { SetPanelVisible<UIGameConsole>(true); }
+            { SetPanelVisible("game_console", true); }
 
 #if HAS_PROFILING
+            if (InputManager.ActionCheckPressed("Profiler"))
+            { SetPanelVisible("engine_profiler", !GetPanelVisible("engine_profiler")); }
+
             Profiler.PushProfile("ImGuiUpdate");
 #endif
             // imgui stuff
@@ -158,16 +166,30 @@ public class Engine
         return m_ReturnCode;
     }
 
-    public static void SetPanelVisible<T>(bool v) where T : ImGuiPanel
+    public static void SetPanelVisible(string ID, bool v)
     {
         foreach (ImGuiPanel panel in m_ImGuiPanels)
         {
-            if (panel is T)
+            if (panel.ID == ID)
             {
                 panel.Visible = v;
-                break;
+                return;
             }
         }
+        m_Log.Error($"No panel was found with ID {ID}");
+    }
+
+    public static bool GetPanelVisible(string ID)
+    {
+        foreach (ImGuiPanel panel in m_ImGuiPanels)
+        {
+            if (panel.ID == ID)
+            {
+                return panel.Visible;
+            }
+        }
+        m_Log.Warn($"No panel was found with ID {ID}");
+        return false;
     }
 
     public static void Shutdown()

@@ -21,8 +21,10 @@ public class ProfilerPanel : ImGuiPanel
 
     public ProfilerPanel()
     {
-        Title = "Profiling##engine_profiler";
+        Title = "Profiling";
+        ID = "engine_profiler";
         Size = new Vector2(400, 320);
+        Pos = new Vector2(0, 0);
         Flags = ImGuiWindowFlags.NoSavedSettings
             | ImGuiWindowFlags.NoDecoration
             | ImGuiWindowFlags.NoMove
@@ -35,7 +37,6 @@ public class ProfilerPanel : ImGuiPanel
 
     protected override void OnLayout()
     {
-        ImGui.SetWindowPos(new Vector2(0, 0));
         int index = 0;
         foreach (string name in Profiler.Profs.Keys)
         {
