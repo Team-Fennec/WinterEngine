@@ -52,6 +52,7 @@ public class ShaderResource : IResource
                 {
                     frgOut = $"{line}\n{frgOut}";
                 }
+                continue;
             }
             else if (line.StartsWith("#cull_mode"))
             {
@@ -66,7 +67,7 @@ public class ShaderResource : IResource
                 }
                 continue;
             }
-            else if (line.StartsWith("#depth_test"))
+            else if (line.StartsWith("#depth_clip") || line.StartsWith("#depth_test"))
             {
                 DepthTest = bool.Parse(line.Split(" ")[1]);
                 continue;
