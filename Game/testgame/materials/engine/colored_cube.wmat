@@ -1,0 +1,7 @@
+<!-- dmx encoding keyvalues2 1 format material 1 -->
+"DmeMaterial"
+{
+    "id" "elementid" "86666735-7e63-4406-beba-da78f999fc60"
+    "name" "string" "material"
+    "shader" "string" "UnlitVertexColored"
+}
