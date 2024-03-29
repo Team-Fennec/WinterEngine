@@ -31,8 +31,6 @@ public static class Renderer
     private static CommandList _cl;
     private static Vector3 _clearColor = new Vector3(0.45f, 0.55f, 0.6f);
 
-    private static List<RenderObject> m_Renderables = new List<RenderObject>();
-
     public static readonly VertexLayoutDescription vertexLayout = new VertexLayoutDescription(
         new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
         new VertexElementDescription("Normal", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
@@ -78,37 +76,11 @@ public static class Renderer
         _cl = factory.CreateCommandList();
     }
 
-    public static void AddRenderObject(RenderObject ro)
-    {
-        if (m_Renderables.Contains(ro))
-        {
-            log.Warn("Attempted to add duplicate RenderObject to list!");
-            return;
-        }
-        m_Renderables.Add(ro);
-    }
-
-    public static void RemoveRenderObject(RenderObject ro)
-    {
-        if (!m_Renderables.Contains(ro))
-        {
-            log.Error("Attempted to remove RenderObject not in the list!");
-            return;
-        }
-        m_Renderables.Remove(ro);
-    }
-
     public static void Shutdown()
     {
         _graphicsDevice.WaitForIdle();
 
         log.Info("Disposing Resources...");
-
-        foreach (RenderObject ro in m_Renderables)
-        {
-            // todo: should we clear resources whenever an RO is removed from the list?
-            ro.DisposeResources();
-        }
 
         _cl.Dispose();
         _graphicsDevice.Dispose();
@@ -156,18 +128,16 @@ public static class Renderer
 #if DEBUG
         _cl.PushDebugGroup("RenderScene");
 #endif
-        foreach (var entity in SceneManager.CurrentScene.Entities)
+        if (SceneManager.CurrentScene != null)
         {
-            IRenderable rendEnt = entity as IRenderable;
-            if (rendEnt != null)
+            foreach (var entity in SceneManager.CurrentScene.Entities)
             {
-                rendEnt.Render(_graphicsDevice, _cl);
+                IRenderable rendEnt = entity as IRenderable;
+                if (rendEnt != null)
+                {
+                    rendEnt.Render(_graphicsDevice, _cl);
+                }
             }
-        }
-
-        foreach (RenderObject ro in m_Renderables)
-        {
-            ro.Render(_graphicsDevice, _cl);
         }
 
         _imguiRend.Render(_graphicsDevice, _cl);
