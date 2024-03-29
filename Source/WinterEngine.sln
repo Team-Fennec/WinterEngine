@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinterEngine", "Engine\WinterEngine.csproj", "{21B8C928-847C-4015-8056-98222F3F274C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Launcher", "Launcher\Launcher.csproj", "{C6724A27-F8EE-431D-A238-F82CD93130A3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B0E72975-AE81-4875-BFE2-3A216C14861D} = {B0E72975-AE81-4875-BFE2-3A216C14861D}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MathLib", "MathLib\MathLib.csproj", "{F3C1651E-573F-4D12-9015-C71190C37ABE}"
 EndProject
