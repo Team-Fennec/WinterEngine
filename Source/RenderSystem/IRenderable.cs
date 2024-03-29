@@ -1,9 +1,15 @@
 using Veldrid;
+using Veldrid.Utilities;
 
 namespace WinterEngine.RenderSystem;
 
 public interface IRenderable
 {
-    public void CreateDeviceResources(ResourceFactory factory);
+    /// <summary>
+    /// DO NOT USE THIS OUTSIDE OF THE HOLDER ENTITY.
+    /// </summary>
+    public DisposeCollectorResourceFactory m_Factory { get; set; }
+
+    public void CreateDeviceResources();
     public void Render(GraphicsDevice gd, CommandList cl);
 }
