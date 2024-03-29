@@ -132,11 +132,9 @@ public class Engine
             InputSnapshot snapshot = Device.Window.PumpEvents();
             if (!Device.Window.Exists)
             { break; }
-            
-            if (!ImGui.GetIO().WantCaptureKeyboard && !ImGui.GetIO().WantCaptureMouse)
-            {
-                InputManager.UpdateEvents(snapshot);
-            }
+
+            InputManager.ProcessInputs = (!ImGui.GetIO().WantCaptureKeyboard && !ImGui.GetIO().WantCaptureMouse);
+            InputManager.UpdateEvents(snapshot);
 
             Renderer.ImGuiController.Update(deltaTime, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
 
