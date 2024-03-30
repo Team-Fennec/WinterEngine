@@ -29,7 +29,7 @@ public static class Renderer
     private static DeviceBuffer _worldBuffer;
 
     private static CommandList _cl;
-    private static Vector3 _clearColor = new Vector3(0.45f, 0.55f, 0.6f);
+    private static Vector3 _clearColor = new Vector3(0.25f, 0.25f, 0.25f);
 
     public static readonly VertexLayoutDescription vertexLayout = new VertexLayoutDescription(
         new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),

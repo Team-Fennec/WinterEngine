@@ -1,4 +1,5 @@
 ﻿using Datamodel;
+using log4net;
 using System.Reflection;
 using WinterEngine.Resource;
 
@@ -11,7 +12,16 @@ public static class MaterialSystem
     // jank as fuck but until I figure out the IResource nonsense it's the best we got.
     public static MaterialResource Load(string matName)
     {
-        Stream stream = ResourceManager.GetData($"materials/{matName}.wmat");
+        Stream stream;
+        try
+        {
+            stream = ResourceManager.GetData($"materials/{matName}.wmat");
+        }
+        catch
+        {
+            LogManager.GetLogger("MaterialSystem").Error($"Unable to load material {matName}");
+            stream = ResourceManager.GetData($"materials/engine/missing.wmat");
+        }
         Datamodel.Datamodel input = Datamodel.Datamodel.Load(stream);
 
         // check the shader value and try to instantiate that type

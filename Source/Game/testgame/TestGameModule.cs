@@ -42,7 +42,7 @@ public class TestGameModule : GameModule
         // Create test example scene
         m_TestScene = new Scene("Testing Scene");
         m_TestScene.AddEntity(new EntFreeCam() { Name = "Free Cam Player" });
-        m_TestScene.AddEntity(new EntSpinningCube() { Name = "Spinning Cube" });
+        m_TestScene.AddEntity(new EntStrawberryTest() { Name = "Strawberry" });
         SceneManager.LoadScene(m_TestScene);
     }
 

@@ -1,0 +1,8 @@
+<!-- dmx encoding keyvalues2 1 format wintermat 1 -->
+"DmeMaterial"
+{
+    "id" "elementid" "d978fd86-209d-4ad2-8209-e52875be309c"
+    "name" "string" "material"
+    "shader" "string" "UnlitTextured"
+    "basetexture" "string" "models/fruit/strawberry.png"
+}

@@ -1,8 +1,8 @@
 <!-- dmx encoding keyvalues2 1 format material 1 -->
 "DmeMaterial"
 {
-    "id" "elementid" "6126faca-d5f2-4d4a-869c-2cfd2fe9f189"
+    "id" "elementid" "fb1ff175-c3c2-4512-9d85-e7cd33810b01"
     "name" "string" "material"
     "shader" "string" "UnlitTextured"
-    "basetexture" "string" "models/snap.png"
+    "basetexture" "string" "engine/error.png"
 }
