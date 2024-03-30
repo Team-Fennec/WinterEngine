@@ -1,5 +1,9 @@
 ﻿using MathLib;
 using SharpGLTF.Schema2;
+using SharpGLTF.Transforms;
+using System.Numerics;
+using System.Reflection;
+using System.Security.Policy;
 using Veldrid;
 using WinterEngine.MaterialSystem;
 using WinterEngine.RenderSystem;
@@ -45,10 +49,25 @@ public class GLBModelResource : IResource
                 var verts = primitive.GetVertexAccessor("POSITION").AsVector3Array();
                 var uvs = primitive.GetVertexAccessor("TEXCOORD_0").AsVector2Array();
                 var norms = primitive.GetVertexAccessor("NORMAL").AsVector3Array();
+                var weights = primitive.GetVertexAccessor("WEIGHTS_0");
+                var joints = primitive.GetVertexAccessor("JOINTS_0");
 
-                for (int j = 0; j < verts.Count; j++)
+                if (weights != null && joints != null)
                 {
-                    Vertices.Add(new Vertex(verts[j], norms[j], RgbaFloat.White, uvs[j]));
+                    var ws = weights.AsVector4Array();
+                    var js = joints.AsVector4Array();
+
+                    for (int j = 0; j < verts.Count; j++)
+                    {
+                        Vertices.Add(new Vertex(verts[j], norms[j], RgbaFloat.White, uvs[j], js[j], ws[j]));
+                    }
+                }
+                else
+                {
+                    for (int j = 0; j < verts.Count; j++)
+                    {
+                        Vertices.Add(new Vertex(verts[j], norms[j], RgbaFloat.White, uvs[j]));
+                    }
                 }
 
                 foreach (var index in primitive.GetIndices())

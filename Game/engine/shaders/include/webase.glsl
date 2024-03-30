@@ -29,7 +29,7 @@
 	layout(location = 1) in vec2 fsin_texCoords;
 	layout(location = 0) out vec4 fsout_color;
 
-	layout(set = 0, binding = 3) uniform sampler SurfaceSampler;
+	layout(set = 0, binding = 4) uniform sampler SurfaceSampler;
 #endif
 
 // param types, wrapped just for linguistic convenience

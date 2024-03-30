@@ -12,3 +12,8 @@ layout(set = 0, binding = 2) uniform WorldBuffer
 {
     mat4 World;
 };
+
+layout(set = 0, binding = 3) uniform JointBuffer
+{
+    mat4 Joints;
+};

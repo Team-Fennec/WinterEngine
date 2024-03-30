@@ -20,12 +20,15 @@ public struct Vertex
     public Vertex(Vector3 pos) : this(pos, Vector3.One, RgbaFloat.White, Vector2.Zero) { }
     public Vertex(Vector3 pos, Vector3 normal) : this(pos, normal, RgbaFloat.White, Vector2.Zero) { }
     public Vertex(Vector3 pos, Vector3 normal, RgbaFloat color) : this(pos, normal, color, Vector2.Zero) { }
-    public Vertex(Vector3 pos, Vector3 normal, RgbaFloat color, Vector2 uv)
+    public Vertex(Vector3 pos, Vector3 normal, RgbaFloat color, Vector2 uv) : this(pos, normal, color, uv, Vector4.Zero, Vector4.Zero) {}
+    public Vertex(Vector3 pos, Vector3 normal, RgbaFloat color, Vector2 uv, Vector4 joint, Vector4 weight)
     {
         Position = pos;
         Color = color;
         Normal = normal;
         UV = uv;
+        Joint = joint;
+        Weight = weight;
     }
     #endregion
 }

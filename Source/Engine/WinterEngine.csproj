@@ -49,6 +49,7 @@ public static class EngineVersion {
     <PackageReference Include="log4net" Version="2.0.15" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="SharpGLTF.Core" Version="1.0.0-alpha0031" />
+    <PackageReference Include="SharpGLTF.Runtime" Version="1.0.0-alpha0031" />
     <PackageReference Include="Veldrid.ImageSharp" Version="4.9.0" />
     <ProjectReference Include="../MathLib/MathLib.csproj" />
     <ProjectReference Include="../../Veldrid.SDL2/Veldrid.SDL2.csproj" />

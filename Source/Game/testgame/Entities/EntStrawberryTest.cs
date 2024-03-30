@@ -23,6 +23,7 @@ namespace TestGame.Entities
         private List<MeshRenderData> m_RenderData = new List<MeshRenderData>();
         private DeviceBuffer m_LocalWorldBuffer;
         private ResourceSet m_ProjViewSet;
+        private DeviceBuffer m_blankMatrix;
 
         public DisposeCollectorResourceFactory m_Factory { get; set; }
 #pragma warning restore
@@ -47,12 +48,14 @@ namespace TestGame.Entities
 
             #region Create Shared Resources
             m_LocalWorldBuffer = m_Factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer));
+            m_blankMatrix = m_Factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer));
 
             ResourceLayout projViewLayout = m_Factory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("ProjectionBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex),
                     new ResourceLayoutElementDescription("ViewBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex),
                     new ResourceLayoutElementDescription("WorldBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex),
+                    new ResourceLayoutElementDescription("JointBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex),
                     new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment)
                 )
             );
@@ -62,6 +65,7 @@ namespace TestGame.Entities
                     Renderer.ProjectionBuffer,
                     Renderer.ViewBuffer,
                     m_LocalWorldBuffer,
+                    m_blankMatrix,
                     Renderer.GraphicsDevice.Aniso4xSampler
                 )
             );
