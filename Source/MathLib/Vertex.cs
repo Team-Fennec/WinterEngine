@@ -6,12 +6,14 @@ namespace MathLib;
 
 public struct Vertex
 {
-    public const uint SizeInBytes = 48;
+    public const uint SizeInBytes = 80;
 
     public Vector3 Position;
     public Vector3 Normal;
     public RgbaFloat Color;
     public Vector2 UV;
+    public Vector4 Joint;
+    public Vector4 Weight;
 
     #region Constructors
     public Vertex() : this(Vector3.Zero, Vector3.One, RgbaFloat.White, Vector2.Zero) { }
