@@ -17,6 +17,7 @@ using WinterEngine.Resource;
 using WinterEngine.SceneSystem;
 using WinterEngine.Utilities;
 using static WinterEngine.Localization.StringTools;
+using System.Globalization;
 
 namespace WinterEngine.Core;
 
@@ -75,6 +76,15 @@ public class Engine
                     break;
                 default:
                     throw new ArgumentException($"Invalid resource provider type {dirItem.Name}.");
+            }
+        }
+
+        foreach (KVObject langItem in (IEnumerable<KVObject>)gameInfoData["SupportedLanguages"])
+        {
+            // bruh?
+            if (langItem.Value.ToInt32(CultureInfo.CurrentCulture) > 0)
+            {
+                TranslationManager.AddTranslation($"{gameDir}_{langItem.Name}.txt");
             }
         }
 

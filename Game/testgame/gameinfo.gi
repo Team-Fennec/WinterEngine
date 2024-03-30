@@ -3,7 +3,12 @@
     "author" "Team Fennec"
 
     // engine is loaded automatically
-    "ResourcePaths" {
+    ResourcePaths {
         "dir" "testgame"
+    }
+    
+    SupportedLanguages
+    {
+        "english" "1"
     }
 }

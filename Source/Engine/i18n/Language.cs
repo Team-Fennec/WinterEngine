@@ -1,6 +1,6 @@
 namespace WinterEngine.Localization;
 
-internal record class Language
+internal class Language
 {
     public string langIdent;
     public Dictionary<string, string> tokens;

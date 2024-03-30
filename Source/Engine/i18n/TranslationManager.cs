@@ -27,7 +27,24 @@ public static class TranslationManager
             tokens.TryAdd(tokenObject.Name, tokenObject.Value.ToString());
         }
 
-        languageData.Add(trnsFileData["Language"].ToString(), new Language(trnsFileData["Language"].ToString(), tokens));
+        if (languageData.ContainsKey(trnsFileData["Language"].ToString()))
+        {
+            languageData.TryGetValue(CurrentLang, out var lang);
+            
+            foreach (var token in lang.tokens.Keys)
+            {
+                if (!tokens.ContainsKey(token))
+                {
+                    tokens.Add(token, lang.tokens[token]);
+                }
+            }
+
+            languageData[trnsFileData["Language"].ToString()].tokens = tokens;
+        }
+        else
+        {
+            languageData.Add(trnsFileData["Language"].ToString(), new Language(trnsFileData["Language"].ToString(), tokens));
+        }
         translationFile.Close();
 
         log.Info($"Added translation file {fileName}");

@@ -1,0 +1,6 @@
+"Lang" {
+	"Language" "english"
+	"tokens" {
+		// none: for now
+	}
+}
