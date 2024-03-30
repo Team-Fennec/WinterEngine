@@ -35,7 +35,9 @@ public static class Renderer
         new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
         new VertexElementDescription("Normal", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
         new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4),
-        new VertexElementDescription("TexCoords", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2)
+        new VertexElementDescription("TexCoords", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
+        new VertexElementDescription("Joint", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4),
+        new VertexElementDescription("Weight", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4)
     );
 
     public static void Init()

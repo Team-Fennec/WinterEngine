@@ -13,10 +13,14 @@
 	layout(location = 1) in vec3 Normal;
 	layout(location = 2) in vec4 Color;
 	layout(location = 3) in vec2 TexCoords;
+	layout(location = 4) in vec4 Joint;
+	layout(location = 5) in vec4 Weight;
 	#define v_Pos Position
 	#define v_Norm Normal
 	#define v_Col Color
 	#define v_Uv TexCoords
+	#define v_Joint Joint
+	#define v_Weight Weight
 
 	layout(location = 0) out vec4 fsin_Color;
 	layout(location = 1) out vec2 fsin_texCoords;
