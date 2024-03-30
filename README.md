@@ -56,6 +56,7 @@ This engine is composed of a lot of code and many different modules, this struct
 - ValveKeyValue
 - Datamodel.NET
 - LibVPKEdit
+- SharpGLTF
 
 # Disclaimer
 Team Fennec is not affiliated with, nor endorsed by, Valve Software. Source Engine and Source 2 Engine are property of Valve Software. Team Fennec is not affiliated with, nor endorsed by, Unity Technologies. Unity Engine is property of Unity Technologies.
