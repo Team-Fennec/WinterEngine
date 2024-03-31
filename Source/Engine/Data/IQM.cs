@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Xml;
 
 namespace WinterEngine.Data;
@@ -42,9 +43,17 @@ public class IQMModel
 	
 	public IQMHeader Header;
 
-    public List<string> Text; // first string always will be the empty string
-    public List<string> Comment;
-    public List<ushort> Frames; // one big unsigned short array where each group of framechannels components is one frame.
+    public List<string> Text = new List<string>(); // first string always will be the empty string
+    public List<string> Comment = new List<string>();
+    public List<ushort> Frames = new List<ushort>(); // one big unsigned short array where each group of framechannels components is one frame.
+
+    List<IQMMesh> m_Meshes = new List<IQMMesh>();
+    List<IQMTriangle> m_Triangles = new List<IQMTriangle>();
+    List<IQMVertexArray> m_VertexArrays = new List<IQMVertexArray>();
+    List<IQMPose> m_Poses = new List<IQMPose>();
+    List<IQMJoint> m_Joints = new List<IQMJoint>();
+    List<IQMBounds> m_Bounds = new List<IQMBounds>();
+    List<IQMAnim> m_Anims = new List<IQMAnim>();
 
     public IQMModel(Stream stream)
     {
@@ -65,6 +74,7 @@ public class IQMModel
             throw new InvalidDataException("Invalid version! Higher than 2 is not supported.");
         }
 
+        #region Read Header
         Header.fileSize = mdlReader.ReadUInt32();
         Header.flags = mdlReader.ReadUInt32();
         Header.num_text = mdlReader.ReadUInt32();
@@ -91,6 +101,58 @@ public class IQMModel
         Header.ofs_comment = mdlReader.ReadUInt32();
         Header.num_extensions = mdlReader.ReadUInt32();
         Header.ofs_extensions = mdlReader.ReadUInt32();
+        #endregion
+
+        #region Read Text Strings
+        mdlReader.BaseStream.Position = Header.ofs_text;
+
+        int stringCount = 0;
+        string currentStr = "";
+        while (stringCount < Header.num_text)
+        {
+            char c = mdlReader.ReadChar();
+            
+            if (c == '\0')
+            {
+                Text.Add(currentStr);
+                currentStr = "";
+            }
+            else
+            {
+                currentStr += c;
+            }
+
+            stringCount++;
+        }
+        #endregion
+
+        #region Read Meshes
+        mdlReader.BaseStream.Position = Header.ofs_meshes;
+
+        for (int i = 0; i < Header.num_meshes; i++)
+        {
+            IQMMesh mesh = new IQMMesh();
+            mesh.Name = Text[(int)mdlReader.ReadUInt32()];
+            mesh.Material = Text[(int)mdlReader.ReadUInt32()];
+
+            mesh.first_vertex = mdlReader.ReadUInt32();
+            mesh.num_vertexes = mdlReader.ReadUInt32();
+
+            mesh.first_triangle = mdlReader.ReadUInt32();
+            mesh.num_triangles = mdlReader.ReadUInt32();
+
+            m_Meshes.Add(mesh);
+        }
+        #endregion
+
+        #region Read Verticies and Vertex Arrays
+        mdlReader.BaseStream.Position = Header.ofs_vtxarrays;
+
+        for (int i = 0; i < Header.num_vtxarrays; i++)
+        {
+
+        }
+        #endregion
     }
 }
 
