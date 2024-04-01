@@ -12,13 +12,13 @@ namespace TestGame.Entities
     {
         struct MeshRenderData
         {
-            public IQMModelResource.MeshPrimitive Mesh;
+            public ModelResource.MeshPrimitive Mesh;
             public Pipeline Pipeline;
             public ResourceSet ShaderResources;
         }
 
 #pragma warning disable CS8618
-        private IQMModelResource m_Model;
+        private ModelResource m_Model;
 
         private List<MeshRenderData> m_RenderData = new List<MeshRenderData>();
         private DeviceBuffer m_LocalWorldBuffer;
@@ -30,7 +30,14 @@ namespace TestGame.Entities
 
         public override void Spawn()
         {
-            m_Model = ResourceManager.Load<IQMModelResource>("models/gort.iqm");
+            try
+            {
+                m_Model = ResourceManager.Load<IQMModelResource>("models/gort.iqm");
+            }
+            catch
+            {
+                m_Model = ResourceManager.Load<GLBModelResource>("models/engine/error.glb");
+            }
             CreateDeviceResources();
         }
 

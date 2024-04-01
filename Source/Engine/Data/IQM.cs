@@ -39,18 +39,10 @@ public enum IQMAnimFlags : uint
     Loop = 1<<0
 }
 
-public class IQMModelResource : IResource
+public class IQMModelResource : ModelResource, IResource
 {
 	public const string Magic = "INTERQUAKEMODEL";
 	public const int Version = 2;
-
-    public struct MeshPrimitive
-    {
-        public string Name;
-        public MeshHandle Handle;
-        public MaterialResource Material;
-        public ResourceSet ShaderResSet;
-    }
 
     char[] m_FullText;
 
@@ -58,9 +50,6 @@ public class IQMModelResource : IResource
     public IReadOnlyList<ushort> Indices => m_Indices;
     List<Vertex> m_Vertices = new List<Vertex>();
     List<ushort> m_Indices = new List<ushort>();
-
-    public IReadOnlyList<MeshPrimitive> Primitives => m_Primitives;
-    List<MeshPrimitive> m_Primitives = new List<MeshPrimitive>();
 
     #region IQM Data
     public IQMHeader Header;

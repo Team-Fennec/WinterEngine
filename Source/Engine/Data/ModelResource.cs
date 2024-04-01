@@ -12,20 +12,24 @@ using gMaterialSystem = WinterEngine.MaterialSystem.MaterialSystem;
 
 namespace WinterEngine.Data;
 
-public class GLBModelResource : IResource
+public abstract class ModelResource
 {
     public struct MeshPrimitive
     {
+        public string Name;
         public MeshHandle Handle;
         public MaterialResource Material;
         // used by the render system to hold the shader parameter resources
         public ResourceSet ShaderResSet;
     }
 
-    ModelRoot m_ModelRoot;
-
     public IReadOnlyList<MeshPrimitive> Primitives => m_Primitives;
-    List<MeshPrimitive> m_Primitives = new List<MeshPrimitive>();
+    protected List<MeshPrimitive> m_Primitives = new List<MeshPrimitive>();
+}
+
+public class GLBModelResource : ModelResource, IResource
+{
+    ModelRoot m_ModelRoot;
 
     public void LoadData(Stream stream)
     {
@@ -74,6 +78,7 @@ public class GLBModelResource : IResource
                     Indices.Add((ushort)index);
 
                 meshPrimitive.Handle = new MeshHandle(Vertices.ToArray(), Indices.ToArray());
+
                 m_Primitives.Add(meshPrimitive);
             }
         }
