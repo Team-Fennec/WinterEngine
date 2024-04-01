@@ -1,7 +1,5 @@
 using WinterEngine.Resource;
-using Veldrid;
 using WinterEngine.RenderSystem;
-using Vortice.Direct3D11;
 using System.Reflection;
 using Veldrid.ImageSharp;
 
@@ -53,7 +51,8 @@ public abstract class MaterialResource : IResource
                     string texPath = matData.Root.Get<string>(attr.PropName);
 
                     // load texture from resources
-                    ImageSharpTexture texture = new ImageSharpTexture(ResourceManager.GetData($"materials/{texPath}"));
+                    Stream data = ResourceManager.GetData($"materials/{texPath}");
+                    ImageSharpTexture texture = new ImageSharpTexture(data);
                     prop.SetValue(this,
                         new TextureHandle(
                             texture.CreateDeviceTexture(
@@ -62,6 +61,7 @@ public abstract class MaterialResource : IResource
                             )
                         )
                     );
+                    data.Close();
 
                     break;
                 default:
