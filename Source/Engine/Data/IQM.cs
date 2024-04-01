@@ -2,6 +2,9 @@ using MathLib;
 using System.Numerics;
 using System.Reflection.Metadata.Ecma335;
 using Veldrid;
+using WinterEngine.MaterialSystem;
+using WinterEngine.RenderSystem;
+using WinterEngine.Resource;
 
 namespace WinterEngine.Data;
 
@@ -37,12 +40,18 @@ public enum IQMAnimFlags : uint
     Loop = 1<<0
 }
 
-public class IQMModel
+public class IQMModelResource : IResource
 {
 	public const string Magic = "INTERQUAKEMODEL";
 	public const int Version = 2;
-	
-	public IQMHeader Header;
+
+    public struct MeshPrimitive
+    {
+        public string Name;
+        public MeshHandle Handle;
+        public MaterialResource Material;
+        public ResourceSet ShaderResSet;
+    }
 
     public List<string> Text = new List<string>(); // first string always will be the empty string
     public List<string> Comment = new List<string>();
@@ -52,14 +61,20 @@ public class IQMModel
     List<Vertex> m_Vertices = new List<Vertex>();
     List<ushort> m_Indices = new List<ushort>();
 
-    List<IQMMesh> m_Meshes = new List<IQMMesh>();
+    public IReadOnlyList<MeshPrimitive> Primitives => m_Primitives;
+    List<MeshPrimitive> m_Primitives = new List<MeshPrimitive>();
+
+    #region IQM Data
+    public IQMHeader Header;
+
     List<IQMVertexArray> m_VertexArrays = new List<IQMVertexArray>();
     List<IQMPose> m_Poses = new List<IQMPose>();
     List<IQMJoint> m_Joints = new List<IQMJoint>();
     List<IQMAnim> m_Anims = new List<IQMAnim>();
     List<ushort[]> m_Frames = new List<ushort[]>();
+    #endregion
 
-    public IQMModel(Stream stream)
+    public void LoadData(Stream stream)
     {
         BinaryReader mdlReader = new BinaryReader(stream);
         mdlReader.BaseStream.Position = 0;
@@ -127,25 +142,6 @@ public class IQMModel
             }
 
             stringCount++;
-        }
-        #endregion
-
-        #region Read Meshes
-        mdlReader.BaseStream.Position = Header.ofs_meshes;
-
-        for (int i = 0; i < Header.num_meshes; i++)
-        {
-            IQMMesh mesh = new IQMMesh();
-            mesh.Name = Text[(int)mdlReader.ReadUInt32()];
-            mesh.Material = Text[(int)mdlReader.ReadUInt32()];
-
-            mesh.first_vertex = mdlReader.ReadUInt32();
-            mesh.num_vertexes = mdlReader.ReadUInt32();
-
-            mesh.first_triangle = mdlReader.ReadUInt32();
-            mesh.num_triangles = mdlReader.ReadUInt32();
-
-            m_Meshes.Add(mesh);
         }
         #endregion
 
@@ -322,6 +318,35 @@ public class IQMModel
             m_Poses.Add(pose);
         }
         #endregion
+
+        #region Read Meshes
+        mdlReader.BaseStream.Position = Header.ofs_meshes;
+
+        for (int i = 0; i < Header.num_meshes; i++)
+        {
+            IQMMesh mesh = new IQMMesh();
+            mesh.Name = Text[(int)mdlReader.ReadUInt32()];
+            mesh.Material = Text[(int)mdlReader.ReadUInt32()];
+
+            mesh.first_vertex = mdlReader.ReadUInt32();
+            mesh.num_vertexes = mdlReader.ReadUInt32();
+
+            mesh.first_triangle = mdlReader.ReadUInt32();
+            mesh.num_triangles = mdlReader.ReadUInt32();
+
+            MeshPrimitive meshPrimitive = new MeshPrimitive();
+            meshPrimitive.Name = mesh.Name;
+            meshPrimitive.Material = MaterialSystem.MaterialSystem.Load(mesh.Material);
+            meshPrimitive.Handle = new MeshHandle(
+                m_Vertices.GetRange((int)mesh.first_vertex, (int)mesh.num_vertexes).ToArray(),
+                m_Indices.GetRange((int)mesh.first_triangle*3, (int)mesh.num_triangles*3).ToArray()
+            );
+
+            m_Primitives.Add(meshPrimitive);
+        }
+        #endregion
+
+        stream.Close();
     }
     
     struct PoseTrans
