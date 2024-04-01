@@ -1,6 +1,5 @@
 using MathLib;
 using System.Numerics;
-using System.Reflection.Metadata.Ecma335;
 using Veldrid;
 using WinterEngine.MaterialSystem;
 using WinterEngine.RenderSystem;
@@ -53,8 +52,7 @@ public class IQMModelResource : IResource
         public ResourceSet ShaderResSet;
     }
 
-    public List<string> Text = new List<string>(); // first string always will be the empty string
-    public List<string> Comment = new List<string>();
+    char[] m_FullText;
 
     public IReadOnlyList<Vertex> Vertices => m_Vertices;
     public IReadOnlyList<ushort> Indices => m_Indices;
@@ -73,6 +71,23 @@ public class IQMModelResource : IResource
     List<IQMAnim> m_Anims = new List<IQMAnim>();
     List<ushort[]> m_Frames = new List<ushort[]>();
     #endregion
+
+    string GetString(int start)
+    {
+        string str = "";
+        int i = start;
+        while (true)
+        {
+            char c = m_FullText[i];
+
+            if (c == '\0')
+                break;
+
+            str += c;
+            i++;
+        }
+        return str;
+    }
 
     public void LoadData(Stream stream)
     {
@@ -125,24 +140,7 @@ public class IQMModelResource : IResource
         #region Read Text Strings
         mdlReader.BaseStream.Position = Header.ofs_text;
 
-        int stringCount = 0;
-        string currentStr = "";
-        while (stringCount < Header.num_text)
-        {
-            char c = mdlReader.ReadChar();
-            
-            if (c == '\0')
-            {
-                Text.Add(currentStr);
-                currentStr = "";
-            }
-            else
-            {
-                currentStr += c;
-            }
-
-            stringCount++;
-        }
+        m_FullText = mdlReader.ReadChars((int)Header.num_text);
         #endregion
 
         #region Read Vertices and Vertex Arrays
@@ -243,7 +241,7 @@ public class IQMModelResource : IResource
         {
             IQMJoint joint = new IQMJoint();
 
-            joint.Name = Text[(int)mdlReader.ReadUInt32()];
+            joint.Name = GetString((int)mdlReader.ReadUInt32());
             joint.Parent = mdlReader.ReadInt32();
             joint.Translate = new Vector3(
                 mdlReader.ReadSingle(),
@@ -273,7 +271,7 @@ public class IQMModelResource : IResource
         {
             IQMAnim anim = new IQMAnim();
 
-            anim.Name = Text[(int)mdlReader.ReadUInt32()];
+            anim.Name = GetString((int)mdlReader.ReadUInt32());
             anim.FirstFrame = mdlReader.ReadUInt32();
             anim.NumFrames = mdlReader.ReadUInt32();
             anim.Framerate = mdlReader.ReadSingle();
@@ -325,8 +323,8 @@ public class IQMModelResource : IResource
         for (int i = 0; i < Header.num_meshes; i++)
         {
             IQMMesh mesh = new IQMMesh();
-            mesh.Name = Text[(int)mdlReader.ReadUInt32()];
-            mesh.Material = Text[(int)mdlReader.ReadUInt32()];
+            mesh.Name = GetString((int)mdlReader.ReadUInt32());
+            mesh.Material = GetString((int)mdlReader.ReadUInt32());
 
             mesh.first_vertex = mdlReader.ReadUInt32();
             mesh.num_vertexes = mdlReader.ReadUInt32();

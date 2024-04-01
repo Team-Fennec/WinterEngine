@@ -12,13 +12,13 @@ namespace TestGame.Entities
     {
         struct MeshRenderData
         {
-            public GLBModelResource.MeshPrimitive Mesh;
+            public IQMModelResource.MeshPrimitive Mesh;
             public Pipeline Pipeline;
             public ResourceSet ShaderResources;
         }
 
 #pragma warning disable CS8618
-        private GLBModelResource m_Model;
+        private IQMModelResource m_Model;
 
         private List<MeshRenderData> m_RenderData = new List<MeshRenderData>();
         private DeviceBuffer m_LocalWorldBuffer;
@@ -30,15 +30,7 @@ namespace TestGame.Entities
 
         public override void Spawn()
         {
-            try
-            {
-                m_Model = ResourceManager.Load<GLBModelResource>("models/fruit/strawberry.glb");
-            }
-            catch
-            {
-                LogManager.GetLogger("Game").Error($"Unable to load model fruit/strawberry.glb");
-                m_Model = ResourceManager.Load<GLBModelResource>("models/engine/error.glb");
-            }
+            m_Model = ResourceManager.Load<IQMModelResource>("models/gort.iqm");
             CreateDeviceResources();
         }
 
@@ -72,7 +64,7 @@ namespace TestGame.Entities
             #endregion
 
             #region Create Render Data
-            foreach (GLBModelResource.MeshPrimitive primitive in m_Model.Primitives)
+            foreach (IQMModelResource.MeshPrimitive primitive in m_Model.Primitives)
             {
                 MeshRenderData renderData = new MeshRenderData();
                 renderData.Mesh = primitive;
