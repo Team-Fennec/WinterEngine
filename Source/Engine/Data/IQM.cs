@@ -1,6 +1,7 @@
+using MathLib;
 using System.Numerics;
-using System.Runtime.InteropServices;
-using System.Xml;
+using System.Reflection.Metadata.Ecma335;
+using Veldrid;
 
 namespace WinterEngine.Data;
 
@@ -45,15 +46,18 @@ public class IQMModel
 
     public List<string> Text = new List<string>(); // first string always will be the empty string
     public List<string> Comment = new List<string>();
-    public List<ushort> Frames = new List<ushort>(); // one big unsigned short array where each group of framechannels components is one frame.
+
+    public IReadOnlyList<Vertex> Vertices => m_Vertices;
+    public IReadOnlyList<ushort> Indices => m_Indices;
+    List<Vertex> m_Vertices = new List<Vertex>();
+    List<ushort> m_Indices = new List<ushort>();
 
     List<IQMMesh> m_Meshes = new List<IQMMesh>();
-    List<IQMTriangle> m_Triangles = new List<IQMTriangle>();
     List<IQMVertexArray> m_VertexArrays = new List<IQMVertexArray>();
     List<IQMPose> m_Poses = new List<IQMPose>();
     List<IQMJoint> m_Joints = new List<IQMJoint>();
-    List<IQMBounds> m_Bounds = new List<IQMBounds>();
     List<IQMAnim> m_Anims = new List<IQMAnim>();
+    List<ushort[]> m_Frames = new List<ushort[]>();
 
     public IQMModel(Stream stream)
     {
@@ -145,14 +149,290 @@ public class IQMModel
         }
         #endregion
 
-        #region Read Verticies and Vertex Arrays
+        #region Read Vertices and Vertex Arrays
         mdlReader.BaseStream.Position = Header.ofs_vtxarrays;
 
         for (int i = 0; i < Header.num_vtxarrays; i++)
         {
+            IQMVertexArray vtxArray = new IQMVertexArray();
 
+            vtxArray.Type = (IQMVtxArrType)mdlReader.ReadUInt32();
+            vtxArray.Flags = mdlReader.ReadUInt32();
+            vtxArray.Format = (IQMVtxArrFormat)mdlReader.ReadUInt32();
+            vtxArray.Size = mdlReader.ReadUInt32();
+            vtxArray.Offset = mdlReader.ReadUInt32();
+        }
+
+        for (int v = 0; v < Header.num_vtx; v++)
+        {
+            Vertex vertex = new Vertex();
+
+            foreach (IQMVertexArray vertexArray in m_VertexArrays)
+            {
+                mdlReader.BaseStream.Position = vertexArray.Offset + (vertexArray.Size * v);
+                switch (vertexArray.Type)
+                {
+                    case IQMVtxArrType.Position:
+                        vertex.Position = new Vector3(
+                            mdlReader.ReadSingle(),
+                            mdlReader.ReadSingle(),
+                            mdlReader.ReadSingle()
+                        );
+                        break;
+                    case IQMVtxArrType.TexCoord:
+                        vertex.UV = new Vector2(
+                            mdlReader.ReadSingle(),
+                            mdlReader.ReadSingle()
+                        );
+                        break;
+                    case IQMVtxArrType.Normal:
+                        vertex.Normal = new Vector3(
+                            mdlReader.ReadSingle(),
+                            mdlReader.ReadSingle(),
+                            mdlReader.ReadSingle()
+                        );
+                        break;
+                    case IQMVtxArrType.Tangent:
+                        // NONE
+                        break;
+                    case IQMVtxArrType.BlendIndexes:
+                        vertex.Joint = new Vector4(
+                            mdlReader.ReadByte(),
+                            mdlReader.ReadByte(),
+                            mdlReader.ReadByte(),
+                            mdlReader.ReadByte()
+                        );
+                        break;
+                    case IQMVtxArrType.BlendWeights:
+                        vertex.Weight = new Vector4(
+                            mdlReader.ReadByte() / 255.0f,
+                            mdlReader.ReadByte() / 255.0f,
+                            mdlReader.ReadByte() / 255.0f,
+                            mdlReader.ReadByte() / 255.0f
+                        );
+                        break;
+                    case IQMVtxArrType.Color:
+                        vertex.Color = new RgbaFloat(
+                            mdlReader.ReadSingle(),
+                            mdlReader.ReadSingle(),
+                            mdlReader.ReadSingle(),
+                            mdlReader.ReadSingle()
+                        );
+                        break;
+                    case IQMVtxArrType.Custom:
+                        break;
+                }
+            }
+
+            m_Vertices.Add(vertex);
         }
         #endregion
+
+        #region Read Triangles
+        mdlReader.BaseStream.Position = Header.ofs_triangles;
+
+        for (var i = 0; i < Header.num_triangles; i++)
+        {
+            // DANGER: IQM uses u32 for vertex indices!
+            m_Indices.Add((ushort)mdlReader.ReadUInt32());
+            m_Indices.Add((ushort)mdlReader.ReadUInt32());
+            m_Indices.Add((ushort)mdlReader.ReadUInt32());
+        }
+        #endregion
+
+        #region Read Joints
+        mdlReader.BaseStream.Position = Header.ofs_joints;
+
+        for (int i = 0; i < Header.num_joints; i++)
+        {
+            IQMJoint joint = new IQMJoint();
+
+            joint.Name = Text[(int)mdlReader.ReadUInt32()];
+            joint.Parent = mdlReader.ReadInt32();
+            joint.Translate = new Vector3(
+                mdlReader.ReadSingle(),
+                mdlReader.ReadSingle(),
+                mdlReader.ReadSingle()
+            );
+            joint.Rotate = new Quaternion(
+                mdlReader.ReadSingle(),
+                mdlReader.ReadSingle(),
+                mdlReader.ReadSingle(),
+                mdlReader.ReadSingle()
+            );
+            joint.Scale = new Vector3(
+                mdlReader.ReadSingle(),
+                mdlReader.ReadSingle(),
+                mdlReader.ReadSingle()
+            );
+
+            m_Joints.Add(joint);
+        }
+        #endregion
+
+        #region Read Animations
+        mdlReader.BaseStream.Position = Header.ofs_anims;
+
+        for (int i = 0; i < Header.num_anims; i++)
+        {
+            IQMAnim anim = new IQMAnim();
+
+            anim.Name = Text[(int)mdlReader.ReadUInt32()];
+            anim.FirstFrame = mdlReader.ReadUInt32();
+            anim.NumFrames = mdlReader.ReadUInt32();
+            anim.Framerate = mdlReader.ReadSingle();
+            anim.Flags = mdlReader.ReadUInt32();
+
+            m_Anims.Add(anim);
+        }
+        #endregion
+
+        #region Read Frames
+        mdlReader.BaseStream.Position = Header.ofs_frames;
+
+        for (int i = 0; i < Header.num_frames; i++)
+        {
+            ushort[] Channels = new ushort[Header.num_framechannels];
+            for (int chn = 0; chn < Header.num_framechannels; chn++)
+            {
+                Channels[chn] = mdlReader.ReadUInt16();
+            }
+            m_Frames.Add(Channels);
+        }
+        #endregion
+
+        #region Read Poses
+        mdlReader.BaseStream.Position = Header.ofs_poses;
+
+        for (int i = 0; i < Header.num_poses; i++)
+        {
+            IQMPose pose = new IQMPose();
+
+            pose.Parent = mdlReader.ReadInt32();
+            pose.ChannelMask = mdlReader.ReadUInt32();
+            for (int off = 0; off < pose.ChannelOffset.Length; off++)
+            {
+                pose.ChannelOffset[off] = mdlReader.ReadSingle();
+            }
+            for (int off = 0; off < pose.ChannelScale.Length; off++)
+            {
+                pose.ChannelScale[off] = mdlReader.ReadSingle();
+            }
+
+            m_Poses.Add(pose);
+        }
+        #endregion
+    }
+    
+    struct PoseTrans
+    {
+        public Vector3 Position;
+        public Quaternion Rotation;
+        public Vector3 Scale;
+    }
+
+    public int GetAnimLength(string animName)
+    {
+        foreach (IQMAnim anim in m_Anims)
+        {
+            if (anim.Name == animName)
+            {
+                return (int)anim.NumFrames;
+            }
+        }
+        throw new ArgumentException($"No animation with name {animName} found!");
+    }
+
+    public float GetAnimFramerate(string animName)
+    {
+        foreach (IQMAnim anim in m_Anims)
+        {
+            if (anim.Name == animName)
+            {
+                return anim.Framerate;
+            }
+        }
+        throw new ArgumentException($"No animation with name {animName} found!");
+    }
+
+    public List<Matrix4x4> GetAnimFrameMatrix(string animName, int frame)
+    {
+        int animOff = -1;
+        foreach (IQMAnim anim in m_Anims)
+        {
+            if (anim.Name == animName)
+            {
+                animOff = (int)anim.FirstFrame;
+                break;
+            }
+        }
+        if (frame > GetAnimLength(animName))
+            throw new ArgumentException($"Frame number is outside animation length! (length: {GetAnimLength(animName)})");
+        if (animOff == -1)
+            throw new ArgumentException($"No animation with name {animName} found!");
+
+        // go through every joint and add it's matrix to the list for that frame
+        List<Matrix4x4> jointMats = new List<Matrix4x4>();
+
+        for (int i = 0; i < m_Joints.Count; i++)
+        {
+            PoseTrans transform = GetJointPoseTrans(i, animOff + frame);
+
+            Matrix4x4 rotation = Matrix4x4.CreateFromQuaternion(transform.Rotation);
+            Matrix4x4 scale = Matrix4x4.CreateScale(transform.Scale);
+            Matrix4x4 jointMat = rotation * scale;
+            jointMat.Translation = transform.Position;
+
+            jointMats.Add(jointMat);
+        }
+
+        return jointMats;
+    }
+
+    PoseTrans GetJointPoseTrans(int joint, int frame)
+    {
+        IQMPose pose = m_Poses[joint];
+
+        PoseTrans transform = new PoseTrans()
+        {
+            Position = new Vector3(pose.ChannelOffset[0], pose.ChannelOffset[1], pose.ChannelOffset[2]),
+            Rotation = new Quaternion(pose.ChannelOffset[3], pose.ChannelOffset[4], pose.ChannelOffset[5], pose.ChannelOffset[6]),
+            Scale = new Vector3(pose.ChannelOffset[7], pose.ChannelOffset[8], pose.ChannelOffset[9])
+        };
+
+        if ((pose.ChannelMask & 0x01) == 1)
+            transform.Position.X += m_Frames[frame][0] * pose.ChannelScale[0];
+        if ((pose.ChannelMask & 0x02) == 1)
+            transform.Position.Y += m_Frames[frame][1] * pose.ChannelScale[1];
+        if ((pose.ChannelMask & 0x04) == 1)
+            transform.Position.Z += m_Frames[frame][2] * pose.ChannelScale[2];
+
+        if ((pose.ChannelMask & 0x08) == 1)
+            transform.Rotation.X += m_Frames[frame][3] * pose.ChannelScale[3];
+        if ((pose.ChannelMask & 0x10) == 1)
+            transform.Rotation.Y += m_Frames[frame][4] * pose.ChannelScale[4];
+        if ((pose.ChannelMask & 0x20) == 1)
+            transform.Rotation.Z += m_Frames[frame][5] * pose.ChannelScale[5];
+        if ((pose.ChannelMask & 0x40) == 1)
+            transform.Rotation.W += m_Frames[frame][6] * pose.ChannelScale[6];
+
+        if ((pose.ChannelMask & 0x80) == 1)
+            transform.Scale.X += m_Frames[frame][7] * pose.ChannelScale[7];
+        if ((pose.ChannelMask & 0x100) == 1)
+            transform.Scale.Y += m_Frames[frame][8] * pose.ChannelScale[8];
+        if ((pose.ChannelMask & 0x200) == 1)
+            transform.Scale.Z += m_Frames[frame][9] * pose.ChannelScale[9];
+
+        // apply parent transformation
+        if (pose.Parent > -1)
+        {
+            PoseTrans parentTransform = GetJointPoseTrans(pose.Parent, frame);
+            transform.Position += parentTransform.Position;
+            transform.Rotation += parentTransform.Rotation;
+            transform.Scale += parentTransform.Scale;
+        }
+
+        return transform;
     }
 }
 
@@ -191,16 +471,7 @@ public struct IQMVertexArray
     public uint Offset; // tightly packed components array
 }
 
-public struct IQMTriangle
-{
-    public uint[] vertex;
-
-    public IQMTriangle()
-    {
-        vertex = new uint[3];
-    }
-}
-
+// todo: will we even end up using this?
 public struct IQMAdjacency
 {
     // each value is the index of the adjacent triangle for edge 0, 1, and 2, where ~0 (= -1) indicates no adjacent triangle
@@ -263,20 +534,4 @@ public struct IQMExtension
     public string Name;
     public uint NumData, OfsData;
     public uint OfsExtensions;
-}
-
-public struct IQMVertex
-{
-    public Vector3 Position;
-    public Vector2 TexCoord;
-    public Vector3 Normal;
-    public Vector4 Tangent;
-    public byte[] BlendIndices, BlendWeights, Color;
-
-    public IQMVertex()
-    {
-        BlendIndices = new byte[4];
-        BlendWeights = new byte[4];
-        Color = new byte[4];
-    }
 }
