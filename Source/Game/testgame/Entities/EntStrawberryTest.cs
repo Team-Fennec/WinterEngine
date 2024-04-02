@@ -139,6 +139,7 @@ namespace TestGame.Entities
 
         public void Render(GraphicsDevice gd, CommandList cl)
         {
+            ((IQMModelResource)m_Model).DisplayData();
 #if DEBUG
             cl.PushDebugGroup($"StrawberryTest_Render");
 #endif

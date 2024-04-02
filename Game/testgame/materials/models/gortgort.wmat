@@ -1,0 +1,8 @@
+<!-- dmx encoding keyvalues2 1 format wintermat 1 -->
+"DmeMaterial"
+{
+    "id" "elementid" "bb077854-f318-4be7-8898-33151172adc2"
+    "name" "string" "material"
+    "shader" "string" "UnlitTextured"
+    "basetexture" "string" "models/gort.png"
+}

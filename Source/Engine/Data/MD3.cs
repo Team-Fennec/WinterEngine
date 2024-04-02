@@ -26,7 +26,7 @@ public static class CConvert
     }
 }
 
-public class Md3Model
+public class MD3ModelResource : ModelResource, IResource
 {
     const int MagicIdent = 860898377; // IDP3
     const int Version = 15; // should not exceed this value
@@ -37,14 +37,16 @@ public class Md3Model
     public List<Md3Tag> Tags;
     public List<Md3Surface> Surfaces;
 
-    public Md3Model(string fileName)
+    public MD3ModelResource()
     {
         Frames = new List<Md3Frame>();
         Tags = new List<Md3Tag>();
         Surfaces = new List<Md3Surface>();
-        Stream mdlMem = ResourceManager.GetData(Path.Combine("models", $"{fileName}.md3"));
+    }
 
-        using (BinaryReader mdlReader = new BinaryReader(mdlMem))
+    public void LoadData(Stream stream)
+    {
+        using (BinaryReader mdlReader = new BinaryReader(stream))
         {
             mdlReader.BaseStream.Position = 0;
             // read the header

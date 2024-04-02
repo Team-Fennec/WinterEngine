@@ -1,3 +1,4 @@
+using ImGuiNET;
 using MathLib;
 using System.Numerics;
 using Veldrid;
@@ -78,6 +79,83 @@ public class IQMModelResource : ModelResource, IResource
         return str;
     }
 
+    public void DisplayData()
+    {
+        if (ImGui.CollapsingHeader("Vertices"))
+        {
+            foreach (var item in m_Vertices)
+            {
+                ImGui.SeparatorText(item.GetType().Name);
+                foreach (var field in item.GetType().GetFields())
+                {
+                    ImGui.Text($"{field.Name}: {field.GetValue(item)}");
+                }
+                ImGui.Separator();
+            }
+        }
+
+        if (ImGui.CollapsingHeader("Vertex Arrays"))
+        {
+            foreach (var item in m_VertexArrays)
+            {
+                ImGui.SeparatorText(item.GetType().Name);
+                foreach (var field in item.GetType().GetFields())
+                {
+                    ImGui.Text($"{field.Name}: {field.GetValue(item)}");
+                }
+                ImGui.Separator();
+            }
+        }
+
+        if (ImGui.CollapsingHeader("Anims"))
+        {
+            foreach (var item in m_Anims)
+            {
+                ImGui.SeparatorText(item.GetType().Name);
+                foreach (var field in item.GetType().GetFields())
+                {
+                    ImGui.Text($"{field.Name}: {field.GetValue(item)}");
+                }
+                ImGui.Separator();
+            }
+        }
+
+        if (ImGui.CollapsingHeader("Poses"))
+        {
+            foreach (var item in m_Poses)
+            {
+                ImGui.SeparatorText(item.GetType().Name);
+                foreach (var field in item.GetType().GetFields())
+                {
+                    ImGui.Text($"{field.Name}: {field.GetValue(item)}");
+                }
+                ImGui.Separator();
+            }
+        }
+
+        if (ImGui.CollapsingHeader("Joints"))
+        {
+            foreach (var item in m_Joints)
+            {
+                ImGui.SeparatorText(item.GetType().Name);
+                foreach (var field in item.GetType().GetFields())
+                {
+                    ImGui.Text($"{field.Name}: {field.GetValue(item)}");
+                }
+                ImGui.Separator();
+            }
+        }
+
+        if (ImGui.CollapsingHeader("Frames"))
+        {
+            foreach (var item in m_Frames)
+            {
+                ImGui.TextWrapped($"Channels: item.ToString()");
+                ImGui.Separator();
+            }
+        }
+    }
+
     public void LoadData(Stream stream)
     {
         BinaryReader mdlReader = new BinaryReader(stream);
@@ -144,6 +222,8 @@ public class IQMModelResource : ModelResource, IResource
             vtxArray.Format = (IQMVtxArrFormat)mdlReader.ReadUInt32();
             vtxArray.Size = mdlReader.ReadUInt32();
             vtxArray.Offset = mdlReader.ReadUInt32();
+
+            m_VertexArrays.Add(vtxArray);
         }
 
         for (int v = 0; v < Header.num_vtx; v++)
@@ -152,10 +232,11 @@ public class IQMModelResource : ModelResource, IResource
 
             foreach (IQMVertexArray vertexArray in m_VertexArrays)
             {
-                mdlReader.BaseStream.Position = vertexArray.Offset + (vertexArray.Size * v);
+                mdlReader.BaseStream.Position = vertexArray.Offset;
                 switch (vertexArray.Type)
                 {
                     case IQMVtxArrType.Position:
+                        mdlReader.BaseStream.Position += (sizeof(float) * vertexArray.Size * v);
                         vertex.Position = new Vector3(
                             mdlReader.ReadSingle(),
                             mdlReader.ReadSingle(),
@@ -163,12 +244,14 @@ public class IQMModelResource : ModelResource, IResource
                         );
                         break;
                     case IQMVtxArrType.TexCoord:
+                        mdlReader.BaseStream.Position += (sizeof(float) * vertexArray.Size * v);
                         vertex.UV = new Vector2(
                             mdlReader.ReadSingle(),
                             mdlReader.ReadSingle()
                         );
                         break;
                     case IQMVtxArrType.Normal:
+                        mdlReader.BaseStream.Position += (sizeof(float) * vertexArray.Size * v);
                         vertex.Normal = new Vector3(
                             mdlReader.ReadSingle(),
                             mdlReader.ReadSingle(),
@@ -179,6 +262,7 @@ public class IQMModelResource : ModelResource, IResource
                         // NONE
                         break;
                     case IQMVtxArrType.BlendIndexes:
+                        mdlReader.BaseStream.Position += (sizeof(byte) * vertexArray.Size * v);
                         vertex.Joint = new Vector4(
                             mdlReader.ReadByte(),
                             mdlReader.ReadByte(),
@@ -187,6 +271,7 @@ public class IQMModelResource : ModelResource, IResource
                         );
                         break;
                     case IQMVtxArrType.BlendWeights:
+                        mdlReader.BaseStream.Position += (sizeof(byte) * vertexArray.Size * v);
                         vertex.Weight = new Vector4(
                             mdlReader.ReadByte() / 255.0f,
                             mdlReader.ReadByte() / 255.0f,
@@ -195,11 +280,12 @@ public class IQMModelResource : ModelResource, IResource
                         );
                         break;
                     case IQMVtxArrType.Color:
+                        mdlReader.BaseStream.Position += (sizeof(byte) * vertexArray.Size * v);
                         vertex.Color = new RgbaFloat(
-                            mdlReader.ReadSingle(),
-                            mdlReader.ReadSingle(),
-                            mdlReader.ReadSingle(),
-                            mdlReader.ReadSingle()
+                            mdlReader.ReadByte() / 255.0f,
+                            mdlReader.ReadByte() / 255.0f,
+                            mdlReader.ReadByte() / 255.0f,
+                            mdlReader.ReadByte() / 255.0f
                         );
                         break;
                     case IQMVtxArrType.Custom:
