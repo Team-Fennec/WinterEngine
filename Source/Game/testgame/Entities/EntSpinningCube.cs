@@ -125,7 +125,7 @@ public class EntSpinningCube : Entity, IRenderable
         cl.SetGraphicsResourceSet(0, m_ProjViewSet);
         cl.SetGraphicsResourceSet(1, m_ShaderParams);
         cl.SetVertexBuffer(0, m_CubeMesh.VertexBuffer);
-        cl.SetIndexBuffer(m_CubeMesh.IndexBuffer, IndexFormat.UInt16);
+        cl.SetIndexBuffer(m_CubeMesh.IndexBuffer, IndexFormat.UInt32);
         cl.DrawIndexed(m_CubeMesh.IndexCount, 1, 0, 0, 0);
 #if DEBUG
         cl.PopDebugGroup();
@@ -199,7 +199,6 @@ public class EntSpinningCube : Entity, IRenderable
         CreateDeviceResources();
 
         Transform.LocalScale = new Vector3(2.0f);
-        Transform.LocalPosition.X = 20;
     }
 
     public override void Death()
