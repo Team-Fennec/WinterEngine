@@ -175,7 +175,7 @@ public class EntSpinningCube : Entity, IRenderable
                 new (new (-2.0f,  2.0f,  2.0f), Vector3.One, RgbaFloat.White, new Vector2(1, 1)),
                 new (new ( 2.0f,  2.0f,  2.0f), Vector3.One, RgbaFloat.White, new Vector2(0, 1))
             },
-            new ushort[] {
+            new uint[] {
                 0, 1, 2,
                 2, 3, 0,
 

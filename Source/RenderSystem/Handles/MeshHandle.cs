@@ -12,11 +12,11 @@ public class MeshHandle
     public DeviceBuffer IndexBuffer { get; private set; }
 
     public Vertex[] Vertices;
-    public ushort[] Indices;
+    public uint[] Indices;
 
     public uint IndexCount => (uint)Indices.Length;
 
-    public MeshHandle(Vertex[] vertices, ushort[] indices)
+    public MeshHandle(Vertex[] vertices, uint[] indices)
     {
         Vertices = vertices;
         Indices = indices;
@@ -29,7 +29,7 @@ public class MeshHandle
         );
         IndexBuffer = Renderer.GraphicsDevice.ResourceFactory.CreateBuffer(
             new BufferDescription(
-                sizeof(ushort) * (uint)Indices.Length,
+                sizeof(uint) * (uint)Indices.Length,
                 BufferUsage.IndexBuffer
             )
         );
@@ -48,7 +48,7 @@ public class MeshHandle
         }
     }
 
-    public void Update(Vertex[] vertices, ushort[] indices)
+    public void Update(Vertex[] vertices, uint[] indices)
     {
         // This doesn't check or change sizes because if you want a different model
         // then you should be making a new handle. This function is meant for updating

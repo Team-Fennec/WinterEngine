@@ -48,9 +48,9 @@ public class IQMModelResource : ModelResource, IResource
     char[] m_FullText;
 
     public IReadOnlyList<Vertex> Vertices => m_Vertices;
-    public IReadOnlyList<ushort> Indices => m_Indices;
+    public IReadOnlyList<uint> Indices => m_Indices;
     List<Vertex> m_Vertices = new List<Vertex>();
-    List<ushort> m_Indices = new List<ushort>();
+    List<uint> m_Indices = new List<uint>();
 
     #region IQM Data
     public IQMHeader Header;
@@ -77,83 +77,6 @@ public class IQMModelResource : ModelResource, IResource
             i++;
         }
         return str;
-    }
-
-    public void DisplayData()
-    {
-        if (ImGui.CollapsingHeader("Vertices"))
-        {
-            foreach (var item in m_Vertices)
-            {
-                ImGui.SeparatorText(item.GetType().Name);
-                foreach (var field in item.GetType().GetFields())
-                {
-                    ImGui.Text($"{field.Name}: {field.GetValue(item)}");
-                }
-                ImGui.Separator();
-            }
-        }
-
-        if (ImGui.CollapsingHeader("Vertex Arrays"))
-        {
-            foreach (var item in m_VertexArrays)
-            {
-                ImGui.SeparatorText(item.GetType().Name);
-                foreach (var field in item.GetType().GetFields())
-                {
-                    ImGui.Text($"{field.Name}: {field.GetValue(item)}");
-                }
-                ImGui.Separator();
-            }
-        }
-
-        if (ImGui.CollapsingHeader("Anims"))
-        {
-            foreach (var item in m_Anims)
-            {
-                ImGui.SeparatorText(item.GetType().Name);
-                foreach (var field in item.GetType().GetFields())
-                {
-                    ImGui.Text($"{field.Name}: {field.GetValue(item)}");
-                }
-                ImGui.Separator();
-            }
-        }
-
-        if (ImGui.CollapsingHeader("Poses"))
-        {
-            foreach (var item in m_Poses)
-            {
-                ImGui.SeparatorText(item.GetType().Name);
-                foreach (var field in item.GetType().GetFields())
-                {
-                    ImGui.Text($"{field.Name}: {field.GetValue(item)}");
-                }
-                ImGui.Separator();
-            }
-        }
-
-        if (ImGui.CollapsingHeader("Joints"))
-        {
-            foreach (var item in m_Joints)
-            {
-                ImGui.SeparatorText(item.GetType().Name);
-                foreach (var field in item.GetType().GetFields())
-                {
-                    ImGui.Text($"{field.Name}: {field.GetValue(item)}");
-                }
-                ImGui.Separator();
-            }
-        }
-
-        if (ImGui.CollapsingHeader("Frames"))
-        {
-            foreach (var item in m_Frames)
-            {
-                ImGui.TextWrapped($"Channels: item.ToString()");
-                ImGui.Separator();
-            }
-        }
     }
 
     public void LoadData(Stream stream)
@@ -302,10 +225,9 @@ public class IQMModelResource : ModelResource, IResource
 
         for (var i = 0; i < Header.num_triangles; i++)
         {
-            // DANGER: IQM uses u32 for vertex indices!
-            m_Indices.Add((ushort)mdlReader.ReadUInt32());
-            m_Indices.Add((ushort)mdlReader.ReadUInt32());
-            m_Indices.Add((ushort)mdlReader.ReadUInt32());
+            m_Indices.Add(mdlReader.ReadUInt32());
+            m_Indices.Add(mdlReader.ReadUInt32());
+            m_Indices.Add(mdlReader.ReadUInt32());
         }
         #endregion
 

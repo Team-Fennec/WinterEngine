@@ -48,7 +48,7 @@ public class GLBModelResource : ModelResource, IResource
                 meshPrimitive.Material = gMaterialSystem.Load(primitive.Material.Name);
 
                 List<Vertex> Vertices = new List<Vertex>();
-                List<ushort> Indices = new List<ushort>();
+                List<uint> Indices = new List<uint>();
 
                 var verts = primitive.GetVertexAccessor("POSITION").AsVector3Array();
                 var uvs = primitive.GetVertexAccessor("TEXCOORD_0").AsVector2Array();
@@ -75,7 +75,7 @@ public class GLBModelResource : ModelResource, IResource
                 }
 
                 foreach (var index in primitive.GetIndices())
-                    Indices.Add((ushort)index);
+                    Indices.Add(index);
 
                 meshPrimitive.Handle = new MeshHandle(Vertices.ToArray(), Indices.ToArray());
 
