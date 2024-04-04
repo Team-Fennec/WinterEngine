@@ -152,13 +152,17 @@ public static class InputManager
                         m_MouseState[(int)mEvent.MouseButton] = InputState.Released;
                 }
             }
+
+            m_MouseDelta = m_MousePosition - snapshot.MousePosition;
+            m_MousePosition = snapshot.MousePosition;
+        }
+        else
+        {
+            m_MouseDelta = new Vector2(0, 0);
         }
 
-        m_MouseDelta = m_MousePosition - snapshot.MousePosition;
-        m_MousePosition = snapshot.MousePosition;
-
 #if HAS_PROFILING
-		Profiler.PopProfile();
+        Profiler.PopProfile();
 #endif
     }
 
