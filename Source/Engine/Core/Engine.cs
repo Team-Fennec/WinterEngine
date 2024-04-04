@@ -18,6 +18,8 @@ using WinterEngine.SceneSystem;
 using WinterEngine.Utilities;
 using static WinterEngine.Localization.StringTools;
 using System.Globalization;
+using log4net.Layout;
+using log4net.Appender;
 
 namespace WinterEngine.Core;
 
@@ -44,8 +46,50 @@ public class Engine
     public static bool ShowFpsMeter = false;
 #endif
 
+    const string LogPatternBase = "[%level][%logger] %message%newline";
+
     public static void PreInit()
     {
+        // configure logger
+        Debug.WriteLine("[ENGINE] Initializing logger");
+
+        #region Log Appenders
+        ConsoleExAppender consoleAppender = new ConsoleExAppender()
+        {
+            Layout = new PatternLayout($"[%date]{LogPatternBase}")
+        };
+        consoleAppender.ActivateOptions();
+
+        GameConsoleAppender gConsoleAppender = new GameConsoleAppender()
+        {
+            Layout = new PatternLayout(LogPatternBase)
+        };
+        gConsoleAppender.ActivateOptions();
+
+        FileAppender fileAppender = new FileAppender()
+        {
+            Layout = new PatternLayout($"[%date]{LogPatternBase}"),
+            Encoding = System.Text.Encoding.Unicode,
+            File = Path.Combine("logs", $"runtime_{DateTime.Now.ToString("yyyymmddHHmmss")}.log"),
+            AppendToFile = false
+        };
+        fileAppender.ActivateOptions();
+
+#if DEBUG
+        DebugAppender debugAppender = new DebugAppender()
+        {
+            Layout = new PatternLayout($"[%level] %message%newline")
+        };
+        debugAppender.ActivateOptions();
+        log4net.Config.BasicConfigurator.Configure(new IAppender[] { gConsoleAppender, consoleAppender, fileAppender, debugAppender });
+#else
+        log4net.Config.BasicConfigurator.Configure(new IAppender[] {gConsoleAppender, consoleAppender, fileAppender});
+#endif
+        #endregion
+        // confirm all logging is working
+        m_Log.Info($"WinterEngine {EngineVersion.Version.Major} patch {EngineVersion.Version.Minor} (build {EngineVersion.Build})");
+
+        // add engine resources
         m_Log.Info("Adding engine resources");
         // adds the engine resources and starts up certain engine systems
         ResourceManager.AddProvider(new Resource.Providers.DirectoryProvider("engine"));
@@ -55,8 +99,6 @@ public class Engine
 
     public static void Init(string gameDir)
     {
-        m_Log.Info("Initializing Engine...");
-
         m_Log.Info("Reading Gameinfo...");
 
         var kv = KVSerializer.Create(KVSerializationFormat.KeyValues1Text);
@@ -108,7 +150,7 @@ public class Engine
             if (File.Exists(Path.Combine(gameDir, "bin", "game.dll")))
             {
                 m_GameAssembly = Assembly.LoadFile(Path.Combine(execAssemPath, gameDir, "bin", "game.dll"));
-                m_Log.Info("Loaded Game Dll");
+                m_Log.Notice($"Loaded Game Dll for Game {Path.GetDirectoryName(gameDir)}");
             }
             else
             {
@@ -125,8 +167,9 @@ public class Engine
         );
         m_GameInstance.Startup();
 
-        
+
         // Add gui game console
+        m_Log.Info("Registering UIGameConsole panel");
         m_ImGuiPanels.Add(new UIGameConsole());
 
 #if HAS_PROFILING

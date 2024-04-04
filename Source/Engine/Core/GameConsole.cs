@@ -3,6 +3,7 @@ using log4net.Core;
 using System.Reflection;
 using WinterEngine.Core;
 using WinterEngine.RenderSystem;
+using WinterEngine.Utilities;
 
 namespace WinterEngine.Core
 {
@@ -10,7 +11,7 @@ namespace WinterEngine.Core
     {
         protected override void Append(LoggingEvent loggingEvent)
         {
-            GameConsole.logMessages.Add(new GameConsole.LogInfo(RenderLoggingEvent(loggingEvent), loggingEvent.Level));
+            GameConsole.LogMessage(RenderLoggingEvent(loggingEvent), loggingEvent.Level);
         }
     }
 
@@ -33,7 +34,15 @@ namespace WinterEngine.Core
             cmdList.TryAdd(command.Command, command);
         }
 
-        public static List<LogInfo> logMessages = new List<LogInfo>();
+        public static void LogMessage(string message, Level level)
+        {
+            LogInfo info = new LogInfo(message, level);
+            logMessages.Add(info);
+            OnLogMessage?.Invoke(null, info);
+        }
+        public static event EventHandler<LogInfo> OnLogMessage;
+
+        private static List<LogInfo> logMessages = new List<LogInfo>();
         public static Dictionary<string, ConCmd> cmdList = new Dictionary<string, ConCmd>();
         public static bool ShowConsole = true;
     }
@@ -53,20 +62,20 @@ namespace WinterEngine.ConsoleCommands
         {
             if (args.Length == 0)
             {
-                LogManager.GetLogger("Command").Info("Available Commands:");
-                string cmdList = "";
+                LogManager.GetLogger("Command").Notice("Available Commands:");
+                List<string> cmdList = new List<string>();
                 foreach (ConCmd command in GameConsole.cmdList.Values)
                 {
-                    cmdList += $"{command.Command},";
+                    cmdList.Add(command.Command);
                 }
-                LogManager.GetLogger("Command").Info(cmdList);
+                LogManager.GetLogger("Command").Notice(string.Join(", ", cmdList));
             }
             else
             {
                 if (GameConsole.cmdList.ContainsKey(args[0]))
                 {
                     GameConsole.cmdList.TryGetValue(args[0], out var command);
-                    LogManager.GetLogger("Command").Info($"{args[0]}: {command.Description}");
+                    LogManager.GetLogger("Command").Notice($"{args[0]}: {command.Description}");
                 }
             }
         }

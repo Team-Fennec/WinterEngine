@@ -1,17 +1,10 @@
-using log4net;
-using log4net.Config;
 using Veldrid.Sdl2;
-using WinterEngine;
 using static WinterEngine.Localization.StringTools;
 
 internal class Program
 {
     private static int Main(string[] args)
     {
-        // Set up log4net
-        XmlConfigurator.Configure(new FileInfo("logconfig.xml"));
-        LogManager.GetLogger("Launcher").Info($"WinterEngine {EngineVersion.Version.Major} patch {EngineVersion.Version.Minor} (build {EngineVersion.Build})");
-
         WinterEngine.Core.Engine.PreInit();
 
         // loop through command line arguments
@@ -53,10 +46,6 @@ internal class Program
             return 1;
         }
 
-#if DEBUG
-        WinterEngine.Core.Engine.Init(gameName);
-        WinterEngine.Core.Engine.Run();
-#else
         try
         {
             WinterEngine.Core.Engine.Init(gameName);
@@ -84,7 +73,6 @@ internal class Program
 
             return 1;
         }
-#endif
 
         return 0;
     }

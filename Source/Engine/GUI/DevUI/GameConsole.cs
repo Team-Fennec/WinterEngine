@@ -9,7 +9,9 @@ public class UIGameConsole : ImGuiPanel
 {
     string userInput = "";
 
-    public const int MAX_LOG_COUNT = 200;
+    public const int MAX_LOG_COUNT = 500;
+
+    List<(string msg, Vector4 col)> m_LogLines = new List<(string msg, Vector4 col)>();
 
     public UIGameConsole()
     {
@@ -21,10 +23,68 @@ public class UIGameConsole : ImGuiPanel
         ID = "game_console";
 
         LoadSchemeFile("ToolsScheme.res");
+
+        GameConsole.OnLogMessage += PrintLogMsg;
+    }
+
+    private void PrintLogMsg(object? sender, GameConsole.LogInfo e)
+    {
+        Vector4 typeColor = new Vector4(1, 1, 1, 1);
+
+        if (e.Type == Level.Error || e.Type == Level.Fatal)
+        {
+            typeColor = new Vector4(1, 0, 0, 1);
+        }
+        else if (e.Type == Level.Info)
+        {
+            typeColor = new Vector4(0.5f, 0.5f, 0.5f, 1);
+        }
+        else if (e.Type == Level.Warn)
+        {
+            typeColor = new Vector4(1, 1, 0, 1);
+        }
+
+        PrintMessage(e.Text, typeColor);
+    }
+
+    void PrintMessage(string msg)
+    {
+        PrintMessage(msg, Vector4.One);
+    }
+
+    void PrintMessage(string msg, Vector4 color)
+    {
+        if (m_LogLines.Count == MAX_LOG_COUNT)
+        {
+            m_LogLines.RemoveAt(0);
+        }
+        m_LogLines.Add((msg, color));
     }
 
     protected override void OnLayout()
     {
+        // Draw text overlay in top right
+        if (ImGui.Begin("##engine_version_overlay", ImGuiWindowFlags.NoSavedSettings
+            | ImGuiWindowFlags.NoDecoration
+            | ImGuiWindowFlags.NoMove
+            | ImGuiWindowFlags.NoDocking
+            | ImGuiWindowFlags.NoBringToFrontOnFocus
+            | ImGuiWindowFlags.AlwaysAutoResize
+            | ImGuiWindowFlags.NoInputs
+            | ImGuiWindowFlags.NoFocusOnAppearing
+            | ImGuiWindowFlags.NoBackground))
+        {
+            ImGui.Text($"WinterEngine {EngineVersion.Version.Major} patch {EngineVersion.Version.Minor} (build {EngineVersion.Build})");
+#if DEBUG
+            ImGui.Text("Build Mode: Debug");
+#else
+            ImGui.Text("Build Mode: Release");
+#endif
+
+            ImGui.SetWindowPos(new(ImGui.GetMainViewport().WorkSize.X - ImGui.GetWindowSize().X, 0));
+            ImGui.End();
+        }
+
         // Draw the scroll view with the colored text
         ImGui.PushStyleColor(ImGuiCol.ChildBg, new Vector4(0.1f, 0.1f, 0.1f, 1.0f));
 
@@ -33,28 +93,9 @@ public class UIGameConsole : ImGuiPanel
         {
             ImGui.PushTextWrapPos(ImGui.GetContentRegionAvail().X);
 
-            foreach (GameConsole.LogInfo msg in GameConsole.logMessages)
+            foreach (var line in m_LogLines)
             {
-                Vector4 typeColor = new Vector4(1, 1, 1, 1);
-
-                if (msg.Type == Level.Error)
-                {
-                    typeColor = new Vector4(1, 0, 0, 1);
-                }
-                else if (msg.Type == Level.Info)
-                {
-                    typeColor = new Vector4(0, 1, 1, 1);
-                }
-                else if (msg.Type == Level.Warn)
-                {
-                    typeColor = new Vector4(1, 1, 0, 1);
-                }
-                else if (msg.Type == Level.Fatal)
-                {
-                    typeColor = new Vector4(1, 0, 0, 1);
-                }
-
-                ImGui.TextColored(typeColor, msg.Text);
+                ImGui.TextColored(line.col, line.msg);
             }
             ImGui.PopTextWrapPos();
 
@@ -71,7 +112,7 @@ public class UIGameConsole : ImGuiPanel
 
         if (hitEnter || hitButton)
         {
-            Console.WriteLine(userInput);
+            PrintMessage(userInput);
             if (userInput != "")
                 Engine.ExecuteCommand(userInput);
             userInput = "";
