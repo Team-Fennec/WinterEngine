@@ -6,6 +6,7 @@
 	    <Nullable>enable</Nullable>
 	    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	    <RootNamespace>WinterEngine.InputSystem</RootNamespace>
+    <Version>1.0.0</Version>
 	</PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
