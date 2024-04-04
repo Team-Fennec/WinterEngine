@@ -2,15 +2,17 @@
 > This is still extremely work in progress and extremely experimental! As more things are completed we will polish the code up, but right now there is one programmer on the project and the focus is making the engine work over everything else.
 
 ![](Branding/LogoB.svg)
-The modular source-like C# game engine used by Team Fennec.
+An open source, modular C# Game Engine built by Team Fennec.
+
+![](Branding/gh_screenshots/testgame_01.png)
 
 Features Include:
-- Familiar file formats for Source developers (KeyValues and DataModel)
-- Modular design with (relatively) interchangeable components
-- Entity Component System inspired by Unity
-- Game as a module system
+- Modular design
+- Custom Entity-Component System
+- Game Module system
 - Jolt Physics
-- In Engine tooling system inspired by Source 2
+- In-Engine tooling system
+- Source-like Game Console
 
 ## Building
 In order to build WinterEngine you'll need the following:
@@ -32,14 +34,7 @@ In order to work with the Engine code effecively, the following setups are recom
 
 ## Contribution
 > [!NOTE]
-> This section is not finished yet
-
-This engine is composed of a lot of code and many different modules, this structure is extremely important to maintain to keep the engine easy to work on. As such, we have imposed the following set of guidelines for contributions:
-
-- Pull requests should only contain changes related to the subject of the PR
-- Broad PRs should be split up into several more specific PRs if possible
-- Pull using rebase, avoid having merge commits in your history
-- All code should be formatted according to the editorconfig file inside the repository
+> This will be replaced with a code of conduct file
 
 # Acknowledgements
 **Sources for logo:**
@@ -59,4 +54,4 @@ This engine is composed of a lot of code and many different modules, this struct
 - SharpGLTF
 
 # Disclaimer
-Team Fennec is not affiliated with, nor endorsed by, Valve Software. Source Engine and Source 2 Engine are property of Valve Software. Team Fennec is not affiliated with, nor endorsed by, Unity Technologies. Unity Engine is property of Unity Technologies.
+Team Fennec is not affiliated with, nor endorsed by, Valve Software. Source Engine is owned by Valve Software.
