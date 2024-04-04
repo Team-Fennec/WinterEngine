@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using ImGuiNET;
+using MathLib;
+using System.Numerics;
 using Veldrid;
 using Veldrid.Utilities;
 using WinterEngine.Data;
@@ -15,7 +17,10 @@ namespace TestGame.Entities
             public ModelResource.MeshPrimitive Mesh;
             public Pipeline Pipeline;
             public ResourceSet ShaderResources;
+            public ResourceSet ProjViewSet;
         }
+
+        public string ModelPath = "fruit/strawberry.glb";
 
 #pragma warning disable CS8618
         private ModelResource m_Model;
@@ -28,11 +33,27 @@ namespace TestGame.Entities
         public DisposeCollectorResourceFactory m_Factory { get; set; }
 #pragma warning restore
 
+        public EntStrawberryTest() : base() { }
+
+        public EntStrawberryTest(string modelPath)
+        {
+            ModelPath = modelPath;
+
+            Spawn();
+        }
+
         public override void Spawn()
         {
             try
             {
-                m_Model = ResourceManager.Load<IQMModelResource>("models/gort.iqm");
+                if (Path.GetExtension(ModelPath) == ".glb")
+                {
+                    m_Model = ResourceManager.Load<GLBModelResource>($"models/{ModelPath}");
+                }
+                else
+                {
+                    m_Model = ResourceManager.Load<IQMModelResource>($"models/{ModelPath}");
+                }
             }
             catch
             {
@@ -58,20 +79,10 @@ namespace TestGame.Entities
                     new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment)
                 )
             );
-
-            m_ProjViewSet = m_Factory.CreateResourceSet(new ResourceSetDescription(
-                    projViewLayout,
-                    Renderer.ProjectionBuffer,
-                    Renderer.ViewBuffer,
-                    m_LocalWorldBuffer,
-                    m_blankMatrix,
-                    Renderer.GraphicsDevice.Aniso4xSampler
-                )
-            );
             #endregion
 
             #region Create Render Data
-            foreach (IQMModelResource.MeshPrimitive primitive in m_Model.Primitives)
+            foreach (ModelResource.MeshPrimitive primitive in m_Model.Primitives)
             {
                 MeshRenderData renderData = new MeshRenderData();
                 renderData.Mesh = primitive;
@@ -89,7 +100,7 @@ namespace TestGame.Entities
                 pipelineDescription.RasterizerState = new RasterizerStateDescription(
                     cullMode: shader.CullMode,
                     fillMode: PolygonFillMode.Solid,
-                    frontFace: FrontFace.CounterClockwise,
+                    frontFace: FrontFace.Clockwise,
                     depthClipEnabled: true,
                     scissorTestEnabled: false
                 );
@@ -119,6 +130,16 @@ namespace TestGame.Entities
 
                 renderData.Pipeline = m_Factory.CreateGraphicsPipeline(pipelineDescription);
 
+                renderData.ProjViewSet = m_Factory.CreateResourceSet(new ResourceSetDescription(
+                        projViewLayout,
+                        Renderer.ProjectionBuffer,
+                        Renderer.ViewBuffer,
+                        m_LocalWorldBuffer,
+                        m_blankMatrix,
+                        Renderer.GraphicsDevice.Aniso4xSampler
+                    )
+                );
+
                 // go through and add all values
                 List<BindableResource> data = new List<BindableResource>();
                 foreach (ShaderParam param in shader.Params)
@@ -139,9 +160,8 @@ namespace TestGame.Entities
 
         public void Render(GraphicsDevice gd, CommandList cl)
         {
-            ((IQMModelResource)m_Model).DisplayData();
 #if DEBUG
-            cl.PushDebugGroup($"StrawberryTest_Render");
+            cl.PushDebugGroup($"Entity_{Name}_Render");
 #endif
             Matrix4x4 rotation = Matrix4x4.CreateFromYawPitchRoll(
                 Transform.EulerRotation.X,
@@ -157,16 +177,17 @@ namespace TestGame.Entities
             int rdIndex = 0;
             foreach (MeshRenderData renderData in m_RenderData)
             {
-                cl.PushDebugGroup($"RenderData_{rdIndex}");
+
+                cl.PushDebugGroup($"{Name}_RenderData_{rdIndex}");
 #else
             foreach (MeshRenderData renderData in m_RenderData)
             {
 #endif
-                cl.SetPipeline(renderData.Pipeline);
-                cl.SetGraphicsResourceSet(0, m_ProjViewSet);
-                cl.SetGraphicsResourceSet(1, renderData.ShaderResources);
                 cl.SetVertexBuffer(0, renderData.Mesh.Handle.VertexBuffer);
-                cl.SetIndexBuffer(renderData.Mesh.Handle.IndexBuffer, IndexFormat.UInt16);
+                cl.SetIndexBuffer(renderData.Mesh.Handle.IndexBuffer, IndexFormat.UInt32);
+                cl.SetPipeline(renderData.Pipeline);
+                cl.SetGraphicsResourceSet(0, renderData.ProjViewSet);
+                cl.SetGraphicsResourceSet(1, renderData.ShaderResources);
                 cl.DrawIndexed(renderData.Mesh.Handle.IndexCount, 1, 0, 0, 0);
 #if DEBUG
                 cl.PopDebugGroup();
