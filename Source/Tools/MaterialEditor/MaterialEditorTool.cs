@@ -1,4 +1,4 @@
-﻿using ImGuiNET;
+using ImGuiNET;
 using WinterEngine.ToolsFramework;
 
 namespace MaterialEditor;
