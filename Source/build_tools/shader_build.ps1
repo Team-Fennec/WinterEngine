@@ -8,6 +8,8 @@
 
     2024 K. 'ashi/eden' J.
 #>
+using namespace System;
+using namespace System.IO;
 
 param (
     [Parameter(Mandatory=$true)][string]$shader
@@ -19,6 +21,11 @@ $ScriptDir = Split-Path -Parent $PSCommandPath;
 
 function CompileShader([string]$name)
 {
+    if ((Test-Path $name) -eq $false)
+    {
+        throw "Couldn't compile shader: file '$name' not found.";
+    }
+
     $shaderFile = Get-Content $name;
 
     $writerMode = 0; # 0 - global, 1 - vertex, 2 - fragment
@@ -39,7 +46,7 @@ function CompileShader([string]$name)
             $writerMode = 2;
             continue;
         }
-        elseif ($line -match '^#version')
+        elseif ($line.StartsWith("#version"))
         {
             if ($writerMode -eq 0 -Or $writerMode -eq 1)
             {
@@ -51,13 +58,13 @@ function CompileShader([string]$name)
             }
             continue;
         }
-        elseif ($line -match '^#cull_mode')
+        elseif ($line.StartsWith("#cull_mode"))
         {
             $shCullMode = $line.split(" ")[1];
             
             continue;
         }
-        elseif ($line -match '^#depth_clip' -or $line -match '^#depth_test')
+        elseif ($line.StartsWith("#depth_clip") -or $line.StartsWith("#depth_test"))
         {
             $shDepthMode = $line.split(" ")[1];
             continue;
@@ -77,21 +84,21 @@ function CompileShader([string]$name)
     $VertexCode = ParseShaderCode $vtxOut;
     $FragmentCode = ParseShaderCode $frgOut;
 
-    [System.Console]::WriteLine("Compiling intermediary shader code...");
+    [Console]::WriteLine("Compiling intermediary shader code...");
     Set-Content "temp_vert_shd.glsl" $VertexCode;
     Set-Content "temp_frag_shd.glsl" $FragmentCode;
 
-    $shaderName = [System.IO.Path]::GetFileNameWithoutExtension($name);
-    $validatorPath = [System.IO.Path]::Combine($ScriptDir, "glslangValidator");
+    $shaderName = [Path]::GetFileNameWithoutExtension($name);
+    $validatorPath = [Path]::Combine($ScriptDir, "glslangValidator");
 
-    [System.Console]::WriteLine("Compiling vertex shader code...");
+    [Console]::WriteLine("Compiling vertex shader code...");
     & $validatorPath -V "temp_vert_shd.glsl" -o "$shaderName.vtx.spv" -S vert
-    [System.Console]::WriteLine("Compiling fragment shader code...");
+    [Console]::WriteLine("Compiling fragment shader code...");
     & $validatorPath -V "temp_frag_shd.glsl" -o "$shaderName.frg.spv" -S frag
 
-    [System.Console]::WriteLine("Cleaning up...");
-    [System.IO.File]::Delete("temp_vert_shd.glsl");
-    [System.IO.File]::Delete("temp_frag_shd.glsl");
+    [Console]::WriteLine("Cleaning up...");
+    Remove-Item "temp_frag_shd.glsl";
+    Remove-Item "temp_vert_shd.glsl";
 }
 
 function ParseShaderCode([string]$code)
@@ -101,13 +108,13 @@ function ParseShaderCode([string]$code)
     $contentList = $code.split("`n");
     foreach ($line in $contentList)
     {
-        if ($line -match '^#include')
+        if ($line.StartsWith("#include"))
         {
             # parse out include and load it's code
             [string]$inclFilename = $line.replace("#include ", "").replace('"', "");
 
             [string]$inclConts = "";
-            $inclPath = [System.IO.Path]::Combine("include", $inclFilename);
+            $inclPath = [Path]::Combine("include", $inclFilename);
             $inclFile = Get-Content $inclPath;
             foreach ($inclLine in $inclFile)
             {
@@ -124,9 +131,9 @@ function ParseShaderCode([string]$code)
     return $output;
 }
 
-[System.Console]::WriteLine("===========================================");
-[System.Console]::WriteLine("     WinterEngine Shader Compiler v1.0     ");
-[System.Console]::WriteLine("===========================================");
-[System.Console]::WriteLine("Compiling shader $shader");
+[Console]::WriteLine("===========================================");
+[Console]::WriteLine("     WinterEngine Shader Compiler v1.0     ");
+[Console]::WriteLine("===========================================");
+[Console]::WriteLine("Compiling shader $shader");
 
 CompileShader $shader;
