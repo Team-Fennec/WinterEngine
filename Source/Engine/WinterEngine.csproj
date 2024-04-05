@@ -63,6 +63,7 @@ public static class EngineVersion {
     <ProjectReference Include="..\RenderSystem\WinterEngine.RenderSystem.csproj" />
     <ProjectReference Include="..\SceneSystem\WinterEngine.SceneSystem.csproj" />
     <ProjectReference Include="..\InputSystem\WinterEngine.InputSystem.csproj" />
+    <ProjectReference Include="..\Veneer\Veneer.csproj" />
     <PackageReference Include="Veldrid" Version="4.9.0" />
     <PackageReference Include="Veldrid.SPIRV" Version="1.0.15" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="4.9.0" />

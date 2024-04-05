@@ -12,9 +12,4 @@
     {
         "english" "1"
     }
-    
-    SupportedLanguages
-    {
-        "english" "1"
-    }
 }

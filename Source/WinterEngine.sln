@@ -52,7 +52,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinterEngine.Diagnostics", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{6459B9D4-722E-4B83-A0E6-7C9E712A2970}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaterialEditor", "Tools\MaterialEditor\MaterialEditor.csproj", "{89F15EC0-B9D1-426B-A1F4-B8CB99FC26BB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaterialEditor", "Tools\MaterialEditor\MaterialEditor.csproj", "{89F15EC0-B9D1-426B-A1F4-B8CB99FC26BB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Veneer", "Veneer\Veneer.csproj", "{C8B042A2-BB9E-42F3-97FC-110DC45A3853}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -136,6 +138,10 @@ Global
 		{89F15EC0-B9D1-426B-A1F4-B8CB99FC26BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89F15EC0-B9D1-426B-A1F4-B8CB99FC26BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{89F15EC0-B9D1-426B-A1F4-B8CB99FC26BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8B042A2-BB9E-42F3-97FC-110DC45A3853}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8B042A2-BB9E-42F3-97FC-110DC45A3853}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8B042A2-BB9E-42F3-97FC-110DC45A3853}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8B042A2-BB9E-42F3-97FC-110DC45A3853}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

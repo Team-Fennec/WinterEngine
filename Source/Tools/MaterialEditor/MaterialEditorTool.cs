@@ -1,4 +1,5 @@
-﻿using WinterEngine.ToolsFramework;
+﻿using ImGuiNET;
+using WinterEngine.ToolsFramework;
 
 namespace MaterialEditor;
 
@@ -18,7 +19,17 @@ public sealed class MaterialEditorTool : EngineTool
 
     public override void OnLayout()
     {
-        
+        // Draw Menubar
+        if (ImGui.BeginMenuBar())
+        {
+            if (ImGui.BeginMenu("File"))
+            {
+
+                ImGui.EndMenu();
+            }
+
+            ImGui.EndMenuBar();
+        }
     }
 
     public override void Shutdown()

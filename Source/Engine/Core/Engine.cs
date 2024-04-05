@@ -20,6 +20,7 @@ using static WinterEngine.Localization.StringTools;
 using System.Globalization;
 using log4net.Layout;
 using log4net.Appender;
+using Veneer;
 
 #if HAS_MACROS
 //#macro ClassLogger(name) private static readonly ILog m_Log = LogManager.GetLogger(name)
@@ -30,7 +31,7 @@ namespace WinterEngine.Core;
 public class Engine
 {
 #if HAS_MACROS
-    ClassLogger("Engine");
+    //ClassLogger("Engine");
 #else
     private static readonly ILog m_Log = LogManager.GetLogger("Engine");
 #endif
@@ -187,6 +188,9 @@ public class Engine
         m_ImGuiPanels.Add(new ProfilerPanel());
 #endif
 
+        // veneer
+        GuiManager.AddPanel(new VeneerTestPanel());
+
         IsRunning = true;
     }
 
@@ -264,6 +268,8 @@ public class Engine
             {
                 panel.DoLayout();
             }
+
+            GuiManager.Update();
 #if HAS_PROFILING
             Profiler.PopProfile();
 #endif
