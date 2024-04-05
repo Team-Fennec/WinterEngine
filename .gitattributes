@@ -3,3 +3,5 @@
 *.gi linguist-vendored
 *.vdf linguist-vendored
 *.dmx linguist-vendored
+*.iqm linguist-vendored
+*.smd linguist-vendored
