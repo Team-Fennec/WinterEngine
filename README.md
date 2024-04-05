@@ -32,10 +32,6 @@ In order to work with the Engine code effecively, the following setups are recom
 - Visual Studio 2022 or newer
 - Windows 10 or newer
 
-## Contribution
-> [!NOTE]
-> This will be replaced with a code of conduct file
-
 # Acknowledgements
 **Sources for logo:**
 - https://commons.wikimedia.org/wiki/File:Nordic_Snowflake.svg
