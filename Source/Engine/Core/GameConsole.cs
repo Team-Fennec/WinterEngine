@@ -51,10 +51,37 @@ namespace WinterEngine.Core
 // baseline commands
 namespace WinterEngine.ConsoleCommands
 {
+    // temporary until macros are finished
+#if HAS_MACROS
+    ConsoleCommand(help, "usage: <command>\nLists information on a command.", {
+        if (args.Length == 0)
+        {
+            LogManager.GetLogger("Command").Notice("Available Commands:");
+            List<string> cmdList = new List<string>();
+            foreach (ConCmd command in GameConsole.cmdList.Values)
+            {
+                cmdList.Add(command.Command);
+            }
+            LogManager.GetLogger("Command").Notice(string.Join(", ", cmdList));
+        }
+        else
+        {
+            if (GameConsole.cmdList.ContainsKey(args[0]))
+            {
+                GameConsole.cmdList.TryGetValue(args[0], out var command);
+                LogManager.GetLogger("Command").Notice($"{args[0]}: {command.Description}");
+            }
+        }
+    })
+
+    ConsoleCommand(quit, "Quit to Desktop", {
+        Device.Window.Close();
+    })
+#else
     internal sealed class HelpCommand : ConCmd
     {
         public override string Command => "help";
-        public override string Description => "usage: <command>\nLists information on a command.";
+        public override string Description => "";
         public override CmdFlags Flags => CmdFlags.None;
 
 
@@ -92,4 +119,5 @@ namespace WinterEngine.ConsoleCommands
             Device.Window.Close();
         }
     }
+#endif
 }

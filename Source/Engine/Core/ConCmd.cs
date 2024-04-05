@@ -12,6 +12,16 @@ public enum CmdFlags
     Debug
 }
 
+#if HAS_MACROS
+//#macro ConsoleCommand(name, desc, fn) internal sealed class nameConCommand : ConCmd {\
+    public override string Command => "name";\
+    public override string Description => desc;\
+    public override CmdFlags Flags => CmdFlags.None;\
+    public override void Exec(string[] args)\
+    fn\
+}
+#endif
+
 public abstract class ConCmd
 {
     public abstract string Command { get; }
