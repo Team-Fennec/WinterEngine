@@ -8,7 +8,6 @@ public class Label : Control
 
 	protected override void OnLayout()
 	{
-		ImGui.SetCursorPos(Position);
 		ImGui.Text(Text);
 	}
 }

@@ -14,7 +14,6 @@ public class InputField : Control
 
 	protected override void OnLayout()
 	{
-		ImGui.SetCursorPos(Position);
 		string oldVal = Value;
 		if (ImGui.InputText($"{Label}##{this.Guid.ToString()}", ref Value, (uint)MaxChars, ImGuiInputTextFlags.EnterReturnsTrue))
 		{

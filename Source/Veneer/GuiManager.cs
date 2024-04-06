@@ -6,8 +6,9 @@ namespace Veneer;
 public static class GuiManager
 {
 	private static readonly ILog m_Log = LogManager.GetLogger("Veneer");
-
 	private static List<Panel> m_Panels = new List<Panel>();
+    
+    public static bool ShowImguiDemo = false;
 
 	public static void AddPanel(Panel panel)
 	{
@@ -69,6 +70,11 @@ public static class GuiManager
 
 	public static void Update()
 	{
+        if (ShowImguiDemo)
+        {
+            ImGui.ShowDemoWindow(ref ShowImguiDemo);
+        }
+
 		foreach (Panel panel in m_Panels)
         {
             panel.DoLayout();

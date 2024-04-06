@@ -52,6 +52,11 @@ public class Panel
         // do your thing
     }
 
+    protected void LoadLayoutFile(string filename)
+    {
+
+    }
+
     protected void LoadSchemeFile(string filename)
     {
         Stream fileData = ResourceManager.GetData($"resource/{filename}");
@@ -161,8 +166,9 @@ public class Panel
 
         ImGui.SetNextWindowSize(Size, ImGuiCond.Once);
         ImGui.SetNextWindowPos(Pos, ImGuiCond.Once);
-        if (ImGui.Begin($"{Title}##{ID}", ref Visible, Flags))
+        if (ImGui.Begin($"{Title}##{ID}", ref Visible, Flags | ImGuiWindowFlags.MenuBar))
         {
+
             foreach (Control control in m_Controls)
             {
                 control.Draw();

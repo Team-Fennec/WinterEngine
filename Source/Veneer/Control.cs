@@ -1,4 +1,5 @@
 using System.Numerics;
+using ImGuiNET;
 
 namespace Veneer;
 
@@ -7,7 +8,14 @@ namespace Veneer;
 ///</summary>
 public class Control
 {
-	public string Name {
+    public enum AnchorPos
+    {
+        Start,
+        End,
+        Center
+    }
+
+    public string Name {
 		get {
 			return m_Name == "" ? m_Guid.ToString() : m_Name;
 		}
@@ -16,10 +24,16 @@ public class Control
 		}
 	}
 	public Guid Guid => m_Guid;
-	public Vector2 Position = Vector2.Zero;
+
+    #region Layout Properties
+    public Vector2 Position = Vector2.Zero;
 	public Vector2 Size = Vector2.Zero;
-	public List<Control> Children = new List<Control>();
-	
+    public AnchorPos VerticalAnchor = AnchorPos.Start;
+    public AnchorPos HorizontalAnchor = AnchorPos.Start;
+    #endregion
+
+    public List<Control> Children = new List<Control>();
+
 	private string m_Name = "";
 	private Guid m_Guid = Guid.NewGuid();
 
@@ -29,7 +43,31 @@ public class Control
 		{
 			child.Draw();
 		}
-		OnLayout();
+
+        switch (VerticalAnchor)
+        {
+            case AnchorPos.Start:
+                ImGui.SetCursorPosY(Position.Y);
+                break;
+            case AnchorPos.End:
+                ImGui.SetCursorPosY(ImGui.GetWindowHeight() - Position.Y);
+                break;
+            case AnchorPos.Center:
+                throw new NotImplementedException("Center anchoring isn't implemented yet!");
+        }
+        switch (HorizontalAnchor)
+        {
+            case AnchorPos.Start:
+                ImGui.SetCursorPosX(Position.X);
+                break;
+            case AnchorPos.End:
+                ImGui.SetCursorPosX(ImGui.GetWindowWidth() - Position.X);
+                break;
+            case AnchorPos.Center:
+                throw new NotImplementedException("Center anchoring isn't implemented yet!");
+        }
+
+        OnLayout();
 	}
 
 	protected virtual void OnLayout() {}

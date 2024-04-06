@@ -11,7 +11,6 @@ public class Button : Control
 
 	protected override void OnLayout()
 	{
-		ImGui.SetCursorPos(Position);
 		if (ImGui.Button($"{Text}##{this.Guid.ToString()}", Size))
 		{
 			OnPushed?.Invoke(this, EventArgs.Empty);
