@@ -1,11 +1,11 @@
 using ImGuiNET;
 using System.Numerics;
 using WinterEngine.Core;
-using WinterEngine.Gui;
 
 namespace WinterEngine.ToolsFramework.Gui;
 
 // there is no reason to inherit this class ever
+/*
 public sealed class ToolRootPanel : ImGuiPanel
 {
 
@@ -78,4 +78,4 @@ public sealed class ToolRootPanel : ImGuiPanel
             ImGui.EndMenuBar();
         }
     }
-}
+}*/

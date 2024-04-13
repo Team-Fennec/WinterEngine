@@ -8,8 +8,7 @@ using Veldrid.Sdl2;
 #if HAS_PROFILING
 using WinterEngine.Diagnostics;
 #endif
-using WinterEngine.Gui;
-using WinterEngine.Gui.DevUI;
+using WinterEngine.DevUI;
 using WinterEngine.InputSystem;
 using WinterEngine.Localization;
 using WinterEngine.RenderSystem;
@@ -42,17 +41,9 @@ public class Engine
     private static GameModule m_GameInstance;
     private static FrameTimeAverager m_FTA = new FrameTimeAverager(0.666);
 
-    private static List<ImGuiPanel> m_ImGuiPanels = new List<ImGuiPanel>();
-
     public static bool IsRunning = false;
-    public static bool LimitFrameRate = true;
-    public static double FrameLimit = 60.0;
-
-#if DEBUG
-    public static bool ShowFpsMeter = true;
-#else
-    public static bool ShowFpsMeter = false;
-#endif
+    public static string GameDir => m_GameDir;
+    private static string m_GameDir = "";
 
     const string LogPatternBase = "[%level][%logger] %message%newline";
 
@@ -108,6 +99,7 @@ public class Engine
     public static void Init(string gameDir)
     {
         m_Log.Info("Reading Gameinfo...");
+        m_GameDir = gameDir;
 
         var kv = KVSerializer.Create(KVSerializationFormat.KeyValues1Text);
         KVObject gameInfoData = kv.Deserialize(File.Open(Path.Combine(gameDir, "gameinfo.gi"), FileMode.Open));
@@ -153,7 +145,8 @@ public class Engine
 
         // register config var
         ConfigManager.RegisterCVar("r_showfps", true);
-        ConfigManager.RegisterCVar("r_showprof", false);
+        ConfigManager.RegisterCVar("r_limitfps", true);
+        ConfigManager.RegisterCVar("maxfps", 60.0);
 
         // load up the game now that we're initialized
         // search for bin dir
@@ -184,17 +177,15 @@ public class Engine
 
         // Add gui game console
         m_Log.Info("Registering UIGameConsole panel");
-        m_ImGuiPanels.Add(new UIGameConsole());
+        GuiManager.AddPanel(new UIGameConsole());
 
 #if HAS_PROFILING
         InputAction profAction = new InputAction("Profiler");
         profAction.AddBinding(Key.F1);
         InputManager.RegisterAction(profAction);
 
-        m_ImGuiPanels.Add(new ProfilerPanel());
+        GuiManager.AddPanel(new ProfilerPanel());
 #endif
-
-        // veneer
         GuiManager.AddPanel(new VeneerTestPanel());
 
         IsRunning = true;
@@ -211,7 +202,7 @@ public class Engine
             long currentFrameTicks = stopwatch.ElapsedTicks;
             double deltaTime = (currentFrameTicks - previousFrameTicks) / (double)Stopwatch.Frequency;
 
-            while (LimitFrameRate && deltaTime < (1.0 / FrameLimit))
+            while (ConfigManager.GetValue<bool>("r_limitfps") && deltaTime < (1.0 / ConfigManager.GetValue<double>("maxfps")))
             {
                 currentFrameTicks = stopwatch.ElapsedTicks;
                 deltaTime = (currentFrameTicks - previousFrameTicks) / (double)Stopwatch.Frequency;
@@ -231,11 +222,11 @@ public class Engine
             Renderer.ImGuiController.Update((float)deltaTime, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
 
             if (InputManager.ActionCheckPressed("Console"))
-            { SetPanelVisible("game_console", true); }
+            { GuiManager.SetPanelVisible("game_console", true); }
 
 #if HAS_PROFILING
             if (InputManager.ActionCheckPressed("Profiler"))
-            { SetPanelVisible("engine_profiler", !GetPanelVisible("engine_profiler")); }
+            { GuiManager.SetPanelVisible("engine_profiler", !GuiManager.GetPanelVisible("engine_profiler")); }
 
             Profiler.PushProfile("ImGuiUpdate");
 #endif
@@ -257,12 +248,6 @@ public class Engine
                 );
             }
 
-            // imgui stuff
-            foreach (ImGuiPanel panel in m_ImGuiPanels)
-            {
-                panel.DoLayout();
-            }
-
             GuiManager.Update();
 #if HAS_PROFILING
             Profiler.PopProfile();
@@ -274,32 +259,6 @@ public class Engine
 
         Shutdown();
         return m_ReturnCode;
-    }
-
-    public static void SetPanelVisible(string ID, bool v)
-    {
-        foreach (ImGuiPanel panel in m_ImGuiPanels)
-        {
-            if (panel.ID == ID)
-            {
-                panel.Visible = v;
-                return;
-            }
-        }
-        m_Log.Error($"No panel was found with ID {ID}");
-    }
-
-    public static bool GetPanelVisible(string ID)
-    {
-        foreach (ImGuiPanel panel in m_ImGuiPanels)
-        {
-            if (panel.ID == ID)
-            {
-                return panel.Visible;
-            }
-        }
-        m_Log.Warn($"No panel was found with ID {ID}");
-        return false;
     }
 
     public static void Shutdown()

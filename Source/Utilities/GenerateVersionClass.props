@@ -1,0 +1,23 @@
+<Project>
+	<Target Name="GenerateVersionClass" BeforeTargets="BeforeCompile;CoreCompile" Outputs="$(IntermediateOutputPath)GeneratedFile.cs">
+    <PropertyGroup>
+      <GeneratedText>
+        <![CDATA[
+using System%3B
+
+namespace $(RootNamespace)%3B
+
+public static class ProgInfo {
+    public static readonly Version Version = new Version("$(AssemblyVersion)")%3B
+    public const string Build = "$([System.DateTime]::Now.ToString("yyyyMMddHHmmss"))"%3B
+}
+    ]]>
+      </GeneratedText>
+      <GeneratedFilePath>$(IntermediateOutputPath)ProgInfo.gen.cs</GeneratedFilePath>
+    </PropertyGroup>
+    <ItemGroup>
+      <FileWrites Include="$(GeneratedFilePath)" />
+    </ItemGroup>
+    <WriteLinesToFile Lines="$(GeneratedText)" File="$(GeneratedFilePath)" WriteOnlyWhenDifferent="true" Overwrite="true" />
+  </Target>
+</Project>

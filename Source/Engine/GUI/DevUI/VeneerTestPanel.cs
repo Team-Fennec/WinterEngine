@@ -3,8 +3,9 @@ using Veneer;
 using Veneer.Controls;
 using WinterEngine.Utilities;
 using System.Numerics;
+using WinterEngine.Core;
 
-namespace WinterEngine.Gui.DevUI;
+namespace WinterEngine.DevUI;
 
 public sealed class VeneerTestPanel : Panel
 {
@@ -13,8 +14,8 @@ public sealed class VeneerTestPanel : Panel
         Title = "Veneer Test Panel";
         Size = new Vector2(500, 400);
         Pos = new Vector2(100, 100);
-        Flags = ImGuiWindowFlags.NoSavedSettings;
-        Visible = true;
+        Flags = ImGuiWindowFlags.NoSavedSettings | ImGuiWindowFlags.MenuBar;
+        Visible = false;
         ID = "veneer_test_panel";
 
         LoadSchemeFile("ToolsScheme.res");
@@ -24,14 +25,31 @@ public sealed class VeneerTestPanel : Panel
 
 	protected override void CreateGui()
 	{
-		Button testButton = new Button()
+        MenuBar testMenuBar = new MenuBar();
+        testMenuBar.AddMenu("Menu 1");
+        testMenuBar.AddMenuItem("Menu 1", new MenuItem("Print Msg", () =>
+        {
+            LogManager.GetLogger("TestPanel").Notice("Printing message from menu item!");
+        }));
+        testMenuBar.AddMenuItem("Menu 1", new MenuItem("Print Warn", () =>
+        {
+            LogManager.GetLogger("TestPanel").Warn("Printing warning from menu item!");
+        }));
+        testMenuBar.AddMenuItem("Menu 1", new MenuItem("separator 1"));
+        testMenuBar.AddMenuItem("Menu 1", new MenuItem("Cause Error", () =>
+        {
+            Engine.Error("Menubar caused Error");
+        }));
+
+        Button testButton = new Button()
 		{
 			Size = new Vector2(120, 20),
-			Position = new Vector2(20, 250),
-			Text = "Veneer Button"
+			Position = new Vector2(20, 20),
+			Text = "Veneer Button",
+            VerticalAnchor = Control.AnchorPos.End
 		};
 		testButton.OnPushed += (o, e) => {
-			log4net.LogManager.GetLogger("TestButton").Notice("Button Pressed!");
+			LogManager.GetLogger("TestPanel").Notice("Button Pressed!");
 		};
 
         InputField testField = new InputField()
@@ -41,11 +59,11 @@ public sealed class VeneerTestPanel : Panel
         };
         testField.OnConfirmed += (o, e) =>
         {
-            log4net.LogManager.GetLogger("TestField").Notice($"Field Confirmed: {e}!");
+            LogManager.GetLogger("TestPanel").Notice($"Field Confirmed: {e}!");
         };
         testField.OnModified += (o, e) =>
         {
-            log4net.LogManager.GetLogger("TestField").Notice($"Field Modified: {e}!");
+            LogManager.GetLogger("TestPanel").Notice($"Field Modified: {e}!");
         };
 
         Label testLabel = new Label()
@@ -57,5 +75,6 @@ public sealed class VeneerTestPanel : Panel
 		AddControl(testButton);
 		AddControl(testLabel);
         AddControl(testField);
+        AddControl(testMenuBar);
 	}
 }

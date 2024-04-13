@@ -1,3 +1,4 @@
+//#define THIRDPERSON_CAMERA
 using ImGuiNET;
 using log4net;
 using MathLib;
@@ -108,13 +109,22 @@ public static class Renderer
         Vector3 m_CamPos = SceneManager.ActiveCamera.Position;
         Vector3 m_CamAng = SceneManager.ActiveCamera.Rotation;
 
+#if THIRDPERSON_CAMERA
+        Vector3 lookFrom = new Vector3(
+            m_CamPos.X + 30.0f * (float)Math.Cos(Angles.Deg2Rad(m_CamAng.Z)),
+            m_CamPos.Y - 30.0f * (float)Math.Sin(Angles.Deg2Rad(m_CamAng.Z)),
+            m_CamPos.Z - 30.0f * (float)Math.Sin(Angles.Deg2Rad(m_CamAng.X))
+        );
+        _cl.UpdateBuffer(_viewBuffer, 0, Matrix4x4.CreateLookAt(lookFrom, m_CamPos, Vector3.UnitZ));
+#else
         Vector3 lookAt = new Vector3(
             m_CamPos.X + (float)Math.Cos(Angles.Deg2Rad(m_CamAng.Z)),
             m_CamPos.Y - (float)Math.Sin(Angles.Deg2Rad(m_CamAng.Z)),
             m_CamPos.Z - (float)Math.Sin(Angles.Deg2Rad(m_CamAng.X))
         );
-
         _cl.UpdateBuffer(_viewBuffer, 0, Matrix4x4.CreateLookAt(m_CamPos, lookAt, Vector3.UnitZ));
+#endif
+
         Matrix4x4 rotation = Matrix4x4.CreateFromYawPitchRoll(m_CamAng.Z, m_CamAng.X, m_CamAng.Y);
         _cl.UpdateBuffer(_worldBuffer, 0, ref rotation);
 #if DEBUG

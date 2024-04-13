@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using ValveKeyValue;
 using Veldrid;
 
 namespace WinterEngine.Core;
@@ -24,10 +25,23 @@ public static class ConfigManager
     private static readonly ILog m_Log = LogManager.GetLogger("Config");
 
     private static List<ConVar> m_ConVars = new List<ConVar>();
+    private static Dictionary<string, ConVar> m_CVars = new Dictionary<string, ConVar>();
 
     public static void Init()
     {
         m_Log.Info("Initializing ConfigManager");
+    }
+
+    public static void SaveConfig()
+    {
+        string path = Path.Combine(Engine.GameDir, "cfg", "config.cfg");
+        Datamodel.Datamodel configDmx = new Datamodel.Datamodel("config", 1);
+        configDmx.Root = new Datamodel.Element(configDmx, "DmeConfig");
+
+        foreach (string key in m_CVars.Keys)
+        {
+            //configDmx.Root.Add(key, m_CVars[])
+        }
     }
 
     public static void RegisterCVar(string key, object value)

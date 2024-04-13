@@ -20,45 +20,24 @@ namespace TestGame.Entities
             public ResourceSet ProjViewSet;
         }
 
-        public string ModelPath = "fruit/strawberry.glb";
+        public string ModelPath = "gort.glb";
 
 #pragma warning disable CS8618
-        private ModelResource m_Model;
+        private GLBModelResource m_Model;
 
         private List<MeshRenderData> m_RenderData = new List<MeshRenderData>();
         private DeviceBuffer m_LocalWorldBuffer;
         private ResourceSet m_ProjViewSet;
-        private DeviceBuffer m_blankMatrix;
+        private DeviceBuffer m_JointMatrices;
 
         public DisposeCollectorResourceFactory m_Factory { get; set; }
 #pragma warning restore
 
         public EntStrawberryTest() : base() { }
 
-        public EntStrawberryTest(string modelPath)
-        {
-            ModelPath = modelPath;
-
-            Spawn();
-        }
-
         public override void Spawn()
         {
-            try
-            {
-                if (Path.GetExtension(ModelPath) == ".glb")
-                {
-                    m_Model = ResourceManager.Load<GLBModelResource>($"models/{ModelPath}");
-                }
-                else
-                {
-                    m_Model = ResourceManager.Load<IQMModelResource>($"models/{ModelPath}");
-                }
-            }
-            catch
-            {
-                m_Model = ResourceManager.Load<GLBModelResource>("models/engine/error.glb");
-            }
+            m_Model = ResourceManager.Load<GLBModelResource>($"models/{ModelPath}");
             CreateDeviceResources();
         }
 
@@ -68,7 +47,7 @@ namespace TestGame.Entities
 
             #region Create Shared Resources
             m_LocalWorldBuffer = m_Factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer));
-            m_blankMatrix = m_Factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer));
+            m_JointMatrices = m_Factory.CreateBuffer(new BufferDescription(2048, BufferUsage.UniformBuffer));
 
             ResourceLayout projViewLayout = m_Factory.CreateResourceLayout(
                 new ResourceLayoutDescription(
@@ -135,7 +114,7 @@ namespace TestGame.Entities
                         Renderer.ProjectionBuffer,
                         Renderer.ViewBuffer,
                         m_LocalWorldBuffer,
-                        m_blankMatrix,
+                        m_JointMatrices,
                         Renderer.GraphicsDevice.Aniso4xSampler
                     )
                 );
@@ -172,22 +151,24 @@ namespace TestGame.Entities
             Matrix4x4 worldMatrix = rotation * scale;
             worldMatrix.Translation = Transform.Position;
             cl.UpdateBuffer(m_LocalWorldBuffer, 0, ref worldMatrix);
+            cl.UpdateBuffer(m_JointMatrices, 0, m_Model.GetAnimJointMatrices("Roll", 1.0f).ToArray());
 
 #if DEBUG
             int rdIndex = 0;
             foreach (MeshRenderData renderData in m_RenderData)
             {
-
-                cl.PushDebugGroup($"{Name}_RenderData_{rdIndex}");
+                cl.PushDebugGroup($"{Name}_RenderData_{renderData.Mesh.Name}");
 #else
             foreach (MeshRenderData renderData in m_RenderData)
             {
 #endif
-                cl.SetVertexBuffer(0, renderData.Mesh.Handle.VertexBuffer);
-                cl.SetIndexBuffer(renderData.Mesh.Handle.IndexBuffer, IndexFormat.UInt32);
+                renderData.Mesh.Handle.Update(renderData.Mesh.Handle.Vertices, renderData.Mesh.Handle.Indices);
+
                 cl.SetPipeline(renderData.Pipeline);
                 cl.SetGraphicsResourceSet(0, renderData.ProjViewSet);
                 cl.SetGraphicsResourceSet(1, renderData.ShaderResources);
+                cl.SetVertexBuffer(0, renderData.Mesh.Handle.VertexBuffer);
+                cl.SetIndexBuffer(renderData.Mesh.Handle.IndexBuffer, IndexFormat.UInt32);
                 cl.DrawIndexed(renderData.Mesh.Handle.IndexCount, 1, 0, 0, 0);
 #if DEBUG
                 cl.PopDebugGroup();

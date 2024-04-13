@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GameDir>gortgame</GameDir>
+    <AssemblyName>game</AssemblyName>
+  </PropertyGroup>
+  
+  <Import Project="../../build_tools/CopyToGameBin.props" />
+  <Import Project="../shared/game_shared.props" />
+  
+</Project>

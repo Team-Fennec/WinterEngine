@@ -35,6 +35,18 @@ public class Panel
         }
     }
 
+    public void SetMenubarVisible(bool visible)
+    {
+        if (visible && !Flags.HasFlag(ImGuiWindowFlags.MenuBar))
+        {
+            Flags |= ImGuiWindowFlags.MenuBar;
+        }
+        else if (Flags.HasFlag(ImGuiWindowFlags.MenuBar))
+        {
+            Flags &= ~ImGuiWindowFlags.MenuBar;
+        }
+    }
+
     public void SetResizable(bool resizable)
     {
         if (resizable && Flags.HasFlag(ImGuiWindowFlags.NoResize))
@@ -137,6 +149,7 @@ public class Panel
 
     public void AddControl(Control control)
     {
+        control.Parent = this;
         m_Controls.Add(control);
     }
 
@@ -166,9 +179,8 @@ public class Panel
 
         ImGui.SetNextWindowSize(Size, ImGuiCond.Once);
         ImGui.SetNextWindowPos(Pos, ImGuiCond.Once);
-        if (ImGui.Begin($"{Title}##{ID}", ref Visible, Flags | ImGuiWindowFlags.MenuBar))
+        if (ImGui.Begin($"{Title}##{ID}", ref Visible, Flags))
         {
-
             foreach (Control control in m_Controls)
             {
                 control.Draw();

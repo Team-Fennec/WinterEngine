@@ -1,5 +1,6 @@
 using ImGuiNET;
 using System.Numerics;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Veneer.Controls;
 
@@ -99,7 +100,22 @@ public class MenuBar : Control
 	protected override void OnLayout()
 	{
         ImGui.SetCursorPos(Vector2.Zero);
-		if (ImGui.BeginMenuBar())
+
+        /*ImDrawListPtr drawList = ImGui.GetForegroundDrawList();
+        Vector2 startPos = ImGui.GetCursorScreenPos() + new Vector2(0, ImGui.GetTextLineHeight() + 6);
+        Vector4 cTop = new Vector4(0.8f, 0.8f, 0.8f, 1.0f);
+        Vector4 cBottom = new Vector4(0.2f, 0.2f, 0.2f, 1.0f);
+
+        drawList.AddRectFilledMultiColor(
+            startPos,
+            startPos + new Vector2(ImGui.GetWindowSize().X, ImGui.GetTextLineHeight() + 6),
+            ImGui.ColorConvertFloat4ToU32(cTop),
+            ImGui.ColorConvertFloat4ToU32(cTop),
+            ImGui.ColorConvertFloat4ToU32(cBottom),
+            ImGui.ColorConvertFloat4ToU32(cBottom)
+        );*/
+
+        if (ImGui.BeginMenuBar())
 		{
 			foreach (var menuStruct in m_Menus)
 			{
@@ -124,5 +140,5 @@ public class MenuBar : Control
 
 			ImGui.EndMenuBar();
 		}
-	}
+    }
 }

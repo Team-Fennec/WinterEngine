@@ -10,5 +10,5 @@ public abstract class EngineTool
     public abstract void Shutdown();
 
     public abstract void GameThink(double deltaTime);
-    public abstract void OnLayout();
+    public abstract void CreateGui();
 }

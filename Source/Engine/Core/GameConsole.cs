@@ -1,6 +1,7 @@
 using log4net.Appender;
 using log4net.Core;
 using System.Reflection;
+using Veneer;
 using WinterEngine.Core;
 using WinterEngine.RenderSystem;
 using WinterEngine.Utilities;
@@ -117,6 +118,18 @@ namespace WinterEngine.ConsoleCommands
         public override void Exec(string[] args)
         {
             Device.Window.Close();
+        }
+    }
+
+    internal sealed class ImguiDemoCommand : ConCmd
+    {
+        public override string Command => "show_imgui_demo";
+        public override string Description => "Show the ImGui Demo Window";
+        public override CmdFlags Flags => CmdFlags.None;
+
+        public override void Exec(string[] args)
+        {
+            GuiManager.ShowImguiDemo = true;
         }
     }
 #endif
