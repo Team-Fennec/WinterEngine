@@ -141,6 +141,7 @@ public class Engine
         Device.Init(gameProperName.ToString());
         Renderer.Init();
         InputManager.Init();
+        ConfigManager.Init();
 
         // Setup game console
         InputAction conAction = new InputAction("Console");
@@ -148,6 +149,11 @@ public class Engine
         InputManager.RegisterAction(conAction);
         GameConsole.RegisterCommand(new ConsoleCommands.HelpCommand());
         GameConsole.RegisterCommand(new ConsoleCommands.QuitCommand());
+        GameConsole.RegisterCommand(new ConsoleCommands.ImguiDemoCommand());
+
+        // register config var
+        ConfigManager.RegisterCVar("r_showfps", true);
+        ConfigManager.RegisterCVar("r_showprof", false);
 
         // load up the game now that we're initialized
         // search for bin dir
@@ -234,33 +240,21 @@ public class Engine
             Profiler.PushProfile("ImGuiUpdate");
 #endif
 
-            if (ShowFpsMeter)
+            if (ConfigManager.GetValue<bool>("r_showfps"))
             {
-                // pain
-                ImGui.SetNextWindowPos(new Vector2(0, Device.Window.Height - 20), ImGuiCond.Always);
-                if (ImGui.Begin("##fps_counter", 
-                    ImGuiWindowFlags.NoSavedSettings
-                    | ImGuiWindowFlags.NoDecoration
-                    | ImGuiWindowFlags.NoMove
-                    | ImGuiWindowFlags.NoDocking
-                    | ImGuiWindowFlags.NoBringToFrontOnFocus
-                    | ImGuiWindowFlags.AlwaysAutoResize
-                    | ImGuiWindowFlags.NoInputs
-                    | ImGuiWindowFlags.NoFocusOnAppearing
-                    | ImGuiWindowFlags.NoBackground))
-                {
-                    Vector4 color = Vector4.One;
+                Vector4 color = Vector4.One;
+                if (m_FTA.CurrentAverageFramesPerSecond > 50)
+                    color = new Vector4(0.0f, 1.0f, 0.0f, 1.0f);
+                else if (m_FTA.CurrentAverageFramesPerSecond > 30)
+                    color = new Vector4(1.0f, 1.0f, 0.0f, 1.0f);
+                else
+                    color = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
 
-                    if (m_FTA.CurrentAverageFramesPerSecond > 50)
-                        color = new Vector4(0.0f, 1.0f, 0.0f, 1.0f);
-                    else if (m_FTA.CurrentAverageFramesPerSecond > 30)
-                        color = new Vector4(1.0f, 1.0f, 0.0f, 1.0f);
-                    else
-                        color = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
-
-                    ImGui.TextColored(color, $"FPS: {Math.Round(m_FTA.CurrentAverageFramesPerSecond, 2)}");
-                    ImGui.End();
-                }
+                ImGui.GetBackgroundDrawList().AddText(
+                    new Vector2(0, Device.Window.Height - 10),
+                    ImGui.ColorConvertFloat4ToU32(color),
+                    $"FPS: {Math.Round(m_FTA.CurrentAverageFramesPerSecond, 2)}"
+                );
             }
 
             // imgui stuff
