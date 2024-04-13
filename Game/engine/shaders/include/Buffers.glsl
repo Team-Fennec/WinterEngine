@@ -15,5 +15,5 @@ layout(set = 0, binding = 2) uniform WorldBuffer
 
 layout(set = 0, binding = 3) uniform JointBuffer
 {
-    mat4 Joints;
+    mat4 Joints[32];
 };
