@@ -2,6 +2,11 @@ using System;
 using System.Collections.Generic;
 using ValveKeyValue;
 using WinterEngine.Core;
+using Veneer;
+using WinterEngine.ToolsFramework.Gui;
+using WinterEngine.Utilities;
+using System.Reflection;
+using Gtk;
 
 namespace WinterEngine.ToolsFramework;
 
@@ -12,6 +17,9 @@ public static class ToolsFramework
     static List<EngineTool> m_EngineTools = new List<EngineTool>();
     static EngineTool m_CurrentTool;
     static bool m_ToolsActive = true; // default to true
+    public static Application m_gtkApplication; // useed to handle GTKsharp within the tools framework
+    static Task m_gtkLoop;
+    static bool m_ShouldQuit = false;
 
     public static EngineTool GetCurrentTool() => m_CurrentTool;
     public static IEnumerable<EngineTool> GetToolList() => m_EngineTools;
@@ -21,6 +29,11 @@ public static class ToolsFramework
         log.Info("Initializing Engine Tools...");
 
         GameConsole.RegisterCommand(new LoadToolCommand());
+
+        Application.Init();
+
+        m_gtkApplication = new Application("org.Fennec.WinterTools", GLib.ApplicationFlags.None);
+        m_gtkApplication.Register(GLib.Cancellable.Current);
 
         // search for an enginetools.txt file around us
         if (!File.Exists("enginetools.vdf"))
@@ -35,11 +48,30 @@ public static class ToolsFramework
         KVObject engineToolsList = kv.Deserialize(File.OpenRead("enginetools.vdf"));
 
         // go through the entries and add the tools
-
         foreach (KVObject toolObj in (IEnumerable<KVObject>)engineToolsList.Value)
         {
             Engine.ExecuteCommand($"tool_load {toolObj.Value}");
         }
+
+        // add panels
+        GuiManager.AddPanel(new ModuleLoadPanel());
+        GuiManager.AddPanel(new ToolRootPanel());
+    }
+
+    public static void Shutdown()
+    {
+        Application.Quit();
+    }
+
+    public static async void Update()
+    {
+        // disgusting hack: this should not work how does this NOT cause memory violations and corruption
+        await Task.Run( () => { Application.RunIteration(); });
+    }
+
+    public static void RegisterTool(EngineTool instance)
+    {
+        m_EngineTools.Add(instance);
     }
 }
 
@@ -51,6 +83,26 @@ internal sealed class LoadToolCommand : ConCmd
 
     public override void Exec(string[] args)
     {
+        if (args.Length < 1)
+        { return; }
+
         // todo: load tool command
+        // load up the game now that we're initialized
+        // search for bin dir
+        if (Directory.Exists(Path.Combine("bin", "tools")))
+        {
+            string execAssemPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            // try and load client.dll
+            if (File.Exists(Path.Combine("bin", "tools", $"{args[0]}.dll")))
+            {
+                Assembly toolAssem = Assembly.LoadFile(Path.Combine(execAssemPath, "bin", "tools", $"{args[0]}.dll"));
+                var toolInstance = (EngineTool)toolAssem.CreateInstance(
+                    toolAssem.GetTypes().Where(t => typeof(EngineTool).IsAssignableFrom(t)).First().FullName
+                );
+                toolInstance.Init();
+                ToolsFramework.RegisterTool(toolInstance);
+                LogManager.GetLogger("Tools").Notice($"Loaded tool {args[0]}");
+            }
+        }
     }
 }

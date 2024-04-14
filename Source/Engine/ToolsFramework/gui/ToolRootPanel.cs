@@ -1,53 +1,42 @@
 using ImGuiNET;
 using System.Numerics;
 using WinterEngine.Core;
+using Veneer;
 
 namespace WinterEngine.ToolsFramework.Gui;
 
 // there is no reason to inherit this class ever
-/*
-public sealed class ToolRootPanel : ImGuiPanel
+public sealed class ToolRootPanel : Panel
 {
-
     public ToolRootPanel()
     {
         Title = "Engine Tools#engine_tools_root";
-        Flags = ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoSavedSettings | ImGuiWindowFlags.NoBringToFrontOnFocus;
+        Flags = ImGuiWindowFlags.NoDecoration
+        | ImGuiWindowFlags.NoMove
+        | ImGuiWindowFlags.MenuBar
+        | ImGuiWindowFlags.NoSavedSettings
+        | ImGuiWindowFlags.NoDocking
+        | ImGuiWindowFlags.NoBringToFrontOnFocus;
         Size = ImGui.GetMainViewport().WorkSize;
+        Visible = true;
+
+        LoadSchemeFile("ToolsScheme.res");
 
         SetResizable(false);
         SetTitlebarVisible(false);
     }
 
-    void ModulePopup()
+    protected override void RawLayout()
     {
-        // get a list of every dll within the tools folder
-        if (ImGui.BeginPopup("Load Tool Module##engine_tools_module_load"))
-        {
-            string toolItem = "";
-            // list box
+        ImGui.SetWindowPos(Vector2.Zero);
 
-            if (ImGui.Button("Load") && toolItem != "")
-            {
-                //Engine.SendCommand($"tool_load {toolItem}");
-                ImGui.CloseCurrentPopup();
-            }
-            ImGui.SameLine();
-            if (ImGui.Button("Cancel"))
-            {
-                ImGui.CloseCurrentPopup();
-            }
-
-            ImGui.EndPopup();
-        }
-    }
-
-    protected override void OnLayout()
-    {
         uint DockSpaceID = ImGui.GetID("engine_tools_dockspace");
         ImGui.DockSpace(DockSpaceID, new Vector2(0.0f, 0.0f), ImGuiDockNodeFlags.None);
 
-        ModulePopup();
+        GuiManager.SetPanelVisible("game_console", true);
+        Panel gameConsole = GuiManager.GetPanel("game_console");
+        if (gameConsole != null)
+            gameConsole.DockID = DockSpaceID;
 
         if (ImGui.BeginMenuBar())
         {
@@ -66,16 +55,24 @@ public sealed class ToolRootPanel : ImGuiPanel
                 ImGui.Separator();
                 if (ImGui.MenuItem("Load tool module"))
                 {
-                    ImGui.OpenPopup("engine_tools_module_load");
+                    GuiManager.SetPanelVisible("load_tool_module_dialog", true);
                 }
                 ImGui.EndMenu();
             }
 
             // display tool name centered
-            ImGui.SetCursorPosX((ImGui.GetMainViewport().WorkSize.X / 2) - (ImGui.CalcTextSize(ToolsFramework.GetCurrentTool().ToolName).X / 2));
-            ImGui.Text(ToolsFramework.GetCurrentTool().ToolName);
+            if (ToolsFramework.GetCurrentTool() == null)
+            {
+                ImGui.SetCursorPosX((ImGui.GetMainViewport().WorkSize.X / 2) - (ImGui.CalcTextSize("No Tool Loaded").X / 2));
+                ImGui.Text("No Tool Loaded");
+            }
+            else
+            {
+                ImGui.SetCursorPosX((ImGui.GetMainViewport().WorkSize.X / 2) - (ImGui.CalcTextSize(ToolsFramework.GetCurrentTool().ToolName).X / 2));
+                ImGui.Text(ToolsFramework.GetCurrentTool().ToolName);
+            }
 
             ImGui.EndMenuBar();
         }
     }
-}*/
+}

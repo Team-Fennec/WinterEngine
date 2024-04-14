@@ -16,6 +16,7 @@ public class Panel
     public Vector2 Pos = Vector2.Zero;
     public ImGuiWindowFlags Flags = ImGuiWindowFlags.None;
     public bool Visible = true;
+    public uint DockID = 0;
 
     List<(ImGuiCol style, Vector4 color)> m_StyleColors = new List<(ImGuiCol style, Vector4 color)>();
     List<(ImGuiStyleVar var, float value)> m_StyleOptions = new List<(ImGuiStyleVar var, float value)>();
@@ -177,6 +178,11 @@ public class Panel
             ImGui.PushStyleVar(optStruct.var, optStruct.value);
         }
 
+        if (DockID != 0)
+        {
+            ImGui.SetNextWindowDockID(DockID, ImGuiCond.Once);
+        }
+
         ImGui.SetNextWindowSize(Size, ImGuiCond.Once);
         ImGui.SetNextWindowPos(Pos, ImGuiCond.Once);
         if (ImGui.Begin($"{Title}##{ID}", ref Visible, Flags))
@@ -185,6 +191,7 @@ public class Panel
             {
                 control.Draw();
             }
+            RawLayout();
 
             ImGui.End();
         }
@@ -195,4 +202,7 @@ public class Panel
         if (m_StyleOptions.Count > 0)
             ImGui.PopStyleVar(m_StyleOptions.Count);
     }
+
+    // call raw imgui commands on a panel
+    protected virtual void RawLayout() { }
 }

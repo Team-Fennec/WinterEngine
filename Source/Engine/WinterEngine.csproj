@@ -45,6 +45,7 @@ public static class EngineVersion {
   </ItemGroup>
   
   <ItemGroup>
+    <PackageReference Include="GtkSharp" Version="3.24.24.95" />
     <PackageReference Include="ImGui.NET" Version="1.90.1.1" />
     <PackageReference Include="log4net" Version="2.0.15" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

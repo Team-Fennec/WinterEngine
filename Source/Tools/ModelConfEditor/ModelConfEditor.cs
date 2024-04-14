@@ -1,7 +1,5 @@
 ﻿using ImGuiNET;
 using WinterEngine.ToolsFramework;
-using Veneer;
-using Veneer.Controls;
 
 namespace ModelConfEditor;
 
@@ -11,20 +9,24 @@ public sealed class ModelConfEditorTool : EngineTool
 
     public override void GameThink(double deltaTime)
     {
-        throw new NotImplementedException();
+
     }
 
     public override void Init()
     {
-        throw new NotImplementedException();
+        MainWindow mainWindow = new MainWindow();
+
+        ToolsFramework.m_gtkApplication.AddWindow(mainWindow);
+        mainWindow.Show();
     }
 
     public override void CreateGui()
     {
+        
     }
 
     public override void Shutdown()
     {
-        throw new NotImplementedException();
+
     }
 }
