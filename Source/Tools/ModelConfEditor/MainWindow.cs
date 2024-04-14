@@ -6,24 +6,22 @@ namespace ModelConfEditor
 {
     public class MainWindow : Window
     {
-        [UI] private Label _label1 = null;
-        [UI] private Button _button1 = null;
-
-        private int _counter;
+        [UI] private Entry entry_ModelName = null;
+        [UI] private Entry entry_ReferenceName = null;
+        [UI] private Button animList_AddRowButton = null;
+        [UI] private Button animList_RemRowButton = null;
+        [UI] private ListBox animList_ListBox = null;
 
         public MainWindow() : this(new Builder("MdlConfWin.glade")) { }
 
         private MainWindow(Builder builder) : base(builder.GetRawOwnedObject("MdlConfWin"))
         {
             builder.Autoconnect(this);
-
-            _button1.Clicked += Button1_Clicked;
         }
 
-        private void Button1_Clicked(object sender, EventArgs a)
+        private void OnAddPressed()
         {
-            _counter++;
-            _label1.Text = "Hello World! This button has been clicked " + _counter + " time(s).";
+            // todo: button pressed code
         }
     }
 }
