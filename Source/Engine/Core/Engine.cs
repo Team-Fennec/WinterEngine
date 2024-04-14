@@ -25,18 +25,18 @@ using Veneer;
 
 namespace WinterEngine.Core;
 
-public class Engine
+public static class Engine
 {
     private static readonly ILog m_Log = LogManager.GetLogger("Engine");
 
-    private static int m_ReturnCode = 0;
+    private static int m_ReturnCode;
 
     private static Assembly m_GameAssembly;
     private static GameModule m_GameInstance;
     private static FrameTimeAverager m_FTA = new FrameTimeAverager(0.666);
 
-    public static bool IsRunning = false;
-    public static bool IsToolsMode = false;
+    public static bool IsRunning;
+    public static bool IsToolsMode;
     public static string GameDir => m_GameDir;
     private static string m_GameDir = "";
 
@@ -264,11 +264,11 @@ public class Engine
             {
                 Vector4 color = Vector4.One;
                 if (m_FTA.CurrentAverageFramesPerSecond > 50)
-                    color = new Vector4(0.0f, 1.0f, 0.0f, 1.0f);
+                { color = new Vector4(0.0f, 1.0f, 0.0f, 1.0f); }
                 else if (m_FTA.CurrentAverageFramesPerSecond > 30)
-                    color = new Vector4(1.0f, 1.0f, 0.0f, 1.0f);
+                { color = new Vector4(1.0f, 1.0f, 0.0f, 1.0f); }
                 else
-                    color = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+                { color = new Vector4(1.0f, 0.0f, 0.0f, 1.0f); }
 
                 ImGui.GetForegroundDrawList().AddText(
                     new Vector2(0, ImGui.GetMainViewport().WorkSize.Y - 10),
@@ -296,7 +296,7 @@ public class Engine
         IsRunning = false;
 
         if (IsToolsMode)
-            gToolsFramework.Shutdown();
+        { gToolsFramework.Shutdown(); }
 
         m_GameInstance.Shutdown();
         SceneManager.Shutdown();

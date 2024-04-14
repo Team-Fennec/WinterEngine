@@ -41,12 +41,7 @@ public class TestGameModule : GameModule
         
         // Create test example scene
         m_TestScene = new Scene("Testing Scene");
-        m_TestScene.AddEntity(new EntFreeCam() { Name = "Free Cam Player" });
-        //m_TestScene.AddEntity(new EntStrawberryTest() { Name = "Strawberry" });
-
-        //Entity strawberry2 = new EntStrawberryTest() { Name = "Gort" };
-        //strawberry2.Transform.LocalPosition = new System.Numerics.Vector3(15, 15, 0);
-        //m_TestScene.AddEntity(strawberry2);
+        m_TestScene.AddEntity(new EntFreeCam { Name = "Free Cam Player" });
 
         SceneManager.LoadScene(m_TestScene);
     }

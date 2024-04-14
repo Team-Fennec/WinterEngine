@@ -35,13 +35,14 @@ namespace WinterEngine.Core
             cmdList.TryAdd(command.Command, command);
         }
 
+        public static event EventHandler<LogInfo> OnLogMessage;
+
         public static void LogMessage(string message, Level level)
         {
             LogInfo info = new LogInfo(message, level);
             logMessages.Add(info);
             OnLogMessage?.Invoke(null, info);
         }
-        public static event EventHandler<LogInfo> OnLogMessage;
 
         private static List<LogInfo> logMessages = new List<LogInfo>();
         public static Dictionary<string, ConCmd> cmdList = new Dictionary<string, ConCmd>();
