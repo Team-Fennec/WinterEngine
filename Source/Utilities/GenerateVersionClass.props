@@ -20,4 +20,8 @@ public static class ProgInfo {
     </ItemGroup>
     <WriteLinesToFile Lines="$(GeneratedText)" File="$(GeneratedFilePath)" WriteOnlyWhenDifferent="true" Overwrite="true" />
   </Target>
+
+  <ItemGroup>
+    <Compile Include="$(IntermediateOutputPath)ProgInfo.gen.cs" />
+  </ItemGroup>
 </Project>
