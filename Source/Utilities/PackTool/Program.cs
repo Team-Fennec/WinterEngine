@@ -2,12 +2,12 @@ namespace PackTool;
 
 internal class Program
 {
-    void PrintArg(string key, string description)
+    static void PrintArg(string key, string description)
     {
         Console.WriteLine($"-{key} | {description}");
     }
 
-    void PrintHelp()
+    static void PrintHelp()
     {
         Console.WriteLine("Usage: [args] [files]");
         Console.WriteLine("Specify files and folders to be packed. Default output is the name of the first file or folder.");
