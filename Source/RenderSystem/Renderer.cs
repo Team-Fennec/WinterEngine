@@ -44,6 +44,7 @@ public static class Renderer
     public static void Init()
     {
         log.Info("Initializing GraphicsDevice");
+
         GraphicsDeviceOptions options = new GraphicsDeviceOptions(
             true,
             PixelFormat.R32_Float,
@@ -53,7 +54,11 @@ public static class Renderer
             true,
             false
         );
+#if LINUX
+        _graphicsDevice = VeldridStartup.CreateGraphicsDevice(Device.Window, options, GraphicsBackend.Vulkan);
+#else
         _graphicsDevice = VeldridStartup.CreateGraphicsDevice(Device.Window, options);
+#endif
 
         log.Info("Initializing ImGui");
 
