@@ -48,7 +48,7 @@ namespace ConsoleTool
         private void OnButtonPressed(object sender, EventArgs a)
         {
             TextIter insertIter = LogBuffer.EndIter;
-            LogBuffer.Insert(ref insertIter, console_CommandEntry.Text);
+            LogBuffer.Insert(ref insertIter, $"{console_CommandEntry.Text}\n");
 
             if (console_CommandEntry.Text != "")
             {
