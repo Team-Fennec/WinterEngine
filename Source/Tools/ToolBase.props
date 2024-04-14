@@ -1,0 +1,25 @@
+<Project>
+    <PropertyGroup>
+        <BinDir>tools</BinDir>
+        <!-- don't install gtk on engine tools, we inherit from main engine -->
+        <SkipGtkInstall>true</SkipGtkInstall>
+    </PropertyGroup>
+
+    <Import Project="../build_tools/CopyToEngineBin.props" />
+
+    <ItemGroup>
+        <PackageReference Include="GtkSharp" Version="3.24.24.95" />
+        <PackageReference Include="log4net" Version="2.0.15" />
+        <ProjectReference Include="..\Engine\WinterEngine.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="**\*.glade" />
+        <EmbeddedResource Include="**\*.glade">
+            <LogicalName>%(Filename)%(Extension)</LogicalName>
+        </EmbeddedResource>
+        <EmbeddedResource Include="icons/*.png">
+            <LogicalName>icons/%(Filename)%(Extension)</LogicalName>
+        </EmbeddedResource>
+    </ItemGroup>
+</Project>

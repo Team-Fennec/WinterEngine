@@ -17,6 +17,7 @@ namespace ModelConfEditor
         private MainWindow(Builder builder) : base(builder.GetRawOwnedObject("MdlConfWin"))
         {
             builder.Autoconnect(this);
+            Icon = Gdk.Pixbuf.LoadFromResource("icons/Icon.png");
         }
 
         private void OnAddPressed()

@@ -19,6 +19,7 @@ namespace ConsoleTool
         private MainWindow(Builder builder) : base(builder.GetRawOwnedObject("ConsoleWindow"))
         {
             builder.Autoconnect(this);
+            Icon = Gdk.Pixbuf.LoadFromResource("icons/Icon.png");
 
             LogBuffer = console_LogView.Buffer;
             GameConsole.OnLogMessage += PrintToConsole;
