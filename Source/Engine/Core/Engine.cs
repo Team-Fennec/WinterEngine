@@ -22,19 +22,12 @@ using log4net.Layout;
 using log4net.Appender;
 using Veneer;
 
-#if HAS_MACROS
-//#macro ClassLogger(name) private static readonly ILog m_Log = LogManager.GetLogger(name)
-#endif
 
 namespace WinterEngine.Core;
 
 public class Engine
 {
-#if HAS_MACROS
-    //ClassLogger("Engine");
-#else
     private static readonly ILog m_Log = LogManager.GetLogger("Engine");
-#endif
 
     private static int m_ReturnCode = 0;
 

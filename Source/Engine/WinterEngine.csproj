@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <RootNamespace>WinterEngine</RootNamespace>
-    <AssemblyVersion>17.0</AssemblyVersion>
+    <AssemblyVersion>20.0</AssemblyVersion>
   </PropertyGroup>
 
   <Import Project="../WEBase.props" />
