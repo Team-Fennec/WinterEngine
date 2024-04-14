@@ -10,7 +10,7 @@
     <ItemGroup>
         <PackageReference Include="GtkSharp" Version="3.24.24.95" />
         <PackageReference Include="log4net" Version="2.0.15" />
-        <ProjectReference Include="..\Engine\WinterEngine.csproj" />
+        <ProjectReference Include="..\..\Engine\WinterEngine.csproj" />
     </ItemGroup>
 
     <ItemGroup>
