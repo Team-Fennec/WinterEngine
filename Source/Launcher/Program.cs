@@ -1,5 +1,5 @@
 using Veldrid.Sdl2;
-using static WinterEngine.Localization.StringTools;
+using System.Reflection;
 
 internal class Program
 {
