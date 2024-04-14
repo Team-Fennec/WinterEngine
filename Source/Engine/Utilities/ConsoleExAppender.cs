@@ -25,7 +25,9 @@ public class ConsoleExAppender : AppenderSkeleton
         else if (loggingEvent.Level == Level.Notice)
             fgColor = ConsoleColor.Blue;
 
+        ConsoleColor prevColor = Console.ForegroundColor;
         Console.ForegroundColor = fgColor;
         Console.Write(RenderLoggingEvent(loggingEvent));
+        Console.ForegroundColor = prevColor;
     }
 }
