@@ -262,7 +262,7 @@ public static class Engine
 
             if (ConfigManager.GetValue<bool>("r_showfps"))
             {
-                Vector4 color = Vector4.One;
+                Vector4 color;
                 if (m_FTA.CurrentAverageFramesPerSecond > 50)
                 { color = new Vector4(0.0f, 1.0f, 0.0f, 1.0f); }
                 else if (m_FTA.CurrentAverageFramesPerSecond > 30)
