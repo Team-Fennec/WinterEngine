@@ -278,7 +278,7 @@ public class Engine
                     color = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
 
                 ImGui.GetForegroundDrawList().AddText(
-                    new Vector2(0, Device.Window.Height - 10),
+                    new Vector2(0, ImGui.GetMainViewport().WorkSize.Y - 10),
                     ImGui.ColorConvertFloat4ToU32(color),
                     $"FPS: {Math.Round(m_FTA.CurrentAverageFramesPerSecond, 2)}"
                 );

@@ -1,4 +1,6 @@
 "EngineTools"
 {
-	"dll" "ModelConfEditor"
+	//"dll" "console"
+	"dll" "modeleditor"
+	//"dll" "materialeditor"
 }

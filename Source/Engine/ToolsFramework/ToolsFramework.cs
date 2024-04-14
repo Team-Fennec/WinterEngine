@@ -66,7 +66,7 @@ public static class ToolsFramework
     public static async void Update()
     {
         // disgusting hack: this should not work how does this NOT cause memory violations and corruption
-        await Task.Run( () => { Application.RunIteration(); });
+        await Task.Run(Application.RunIteration);
     }
 
     public static void RegisterTool(EngineTool instance)
