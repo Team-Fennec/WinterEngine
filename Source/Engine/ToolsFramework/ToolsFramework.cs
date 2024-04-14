@@ -17,12 +17,13 @@ public static class ToolsFramework
     static List<EngineTool> m_EngineTools = new List<EngineTool>();
     static EngineTool m_CurrentTool;
     static bool m_ToolsActive = true; // default to true
+
     public static Application m_gtkApplication; // useed to handle GTKsharp within the tools framework
     static Task m_gtkLoop;
-    static bool m_ShouldQuit = false;
+    static GtkSplashWindow m_Splash;
 
     public static EngineTool GetCurrentTool() => m_CurrentTool;
-    public static IEnumerable<EngineTool> GetToolList() => m_EngineTools;
+    public static IReadOnlyList<EngineTool> GetToolList() => m_EngineTools;
 
     public static void Init()
     {
@@ -34,6 +35,15 @@ public static class ToolsFramework
 
         m_gtkApplication = new Application("org.Fennec.WinterTools", GLib.ApplicationFlags.None);
         m_gtkApplication.Register(GLib.Cancellable.Current);
+
+        // create splash window
+        m_Splash = new GtkSplashWindow();
+        m_gtkApplication.AddWindow(m_Splash);
+        m_Splash.SetStatusText("Loading Tools Framework");
+        m_Splash.Show();
+
+        // run iteration to show the splash
+        Application.RunIteration();
 
         // search for an enginetools.txt file around us
         if (!File.Exists("enginetools.vdf"))
@@ -56,6 +66,8 @@ public static class ToolsFramework
         // add panels
         GuiManager.AddPanel(new ModuleLoadPanel());
         GuiManager.AddPanel(new ToolRootPanel());
+
+        m_Splash.Hide();
     }
 
     public static void Shutdown()
@@ -67,6 +79,20 @@ public static class ToolsFramework
     {
         // disgusting hack: this should not work how does this NOT cause memory violations and corruption
         await Task.Run(Application.RunIteration);
+    }
+
+    public static void SwitchTool(string name)
+    {
+        foreach (EngineTool tool in m_EngineTools)
+        {
+            if (tool.ToolName == name)
+            {
+                tool.OnEnable();
+                m_CurrentTool = tool;
+                return;
+            }
+        }
+        log.Error($"No tool by name '{name}' is registered");
     }
 
     public static void RegisterTool(EngineTool instance)
@@ -101,6 +127,8 @@ internal sealed class LoadToolCommand : ConCmd
                 );
                 toolInstance.Init();
                 ToolsFramework.RegisterTool(toolInstance);
+                ToolsFramework.SwitchTool(toolInstance.ToolName);
+
                 LogManager.GetLogger("Tools").Notice($"Loaded tool {args[0]}");
             }
         }

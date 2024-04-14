@@ -1,6 +1,6 @@
 "EngineTools"
 {
-	//"dll" "console"
+	"dll" "console"
 	"dll" "modeleditor"
 	//"dll" "materialeditor"
 }

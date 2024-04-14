@@ -41,6 +41,13 @@ public static class EngineVersion {
   </Target>
   
   <ItemGroup>
+    <None Remove="**\*.glade" />
+    <EmbeddedResource Include="**\*.glade">
+      <LogicalName>%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Include="$(IntermediateOutputPath)EngineVersion.gen.cs" />
   </ItemGroup>
   
