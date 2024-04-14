@@ -7,7 +7,6 @@
     <property name="title" translatable="yes">Material Editor</property>
     <property name="default-width">960</property>
     <property name="default-height">540</property>
-    <property name="icon">icons/Icon.png</property>
     <child>
       <object class="GtkBox">
         <property name="visible">True</property>
