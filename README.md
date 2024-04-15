@@ -48,6 +48,7 @@ In order to work with the Engine code effecively, the following setups are recom
 - Datamodel.NET
 - LibVPKEdit
 - SharpGLTF
+- Gtk#
 
 # Disclaimer
 Team Fennec is not affiliated with, nor endorsed by, Valve Software. Source Engine is owned by Valve Software.
