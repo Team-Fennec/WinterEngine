@@ -7,6 +7,7 @@ using WinterEngine.ToolsFramework.Gui;
 using WinterEngine.Utilities;
 using System.Reflection;
 using Gtk;
+using System.Diagnostics;
 
 namespace WinterEngine.ToolsFramework;
 
@@ -18,9 +19,11 @@ public static class ToolsFramework
     static EngineTool m_CurrentTool;
     static bool m_ToolsActive = true; // default to true
 
-    public static Application m_gtkApplication; // useed to handle GTKsharp within the tools framework
+    public static Application m_gtkApplication; // used to handle GTKsharp within the tools framework
     static Task m_gtkLoop;
+    static Task m_stallPreventionLoop;
     static GtkSplashWindow m_Splash;
+    static CancellationTokenSource m_TokenSource;
 
     public static EngineTool GetCurrentTool() => m_CurrentTool;
     public static IReadOnlyList<EngineTool> GetToolList() => m_EngineTools;
@@ -43,7 +46,7 @@ public static class ToolsFramework
         m_Splash.Show();
 
         // run iteration to show the splash
-        Application.RunIteration();
+        m_gtkLoop = Task.Run(Application.RunIteration);
 
         // search for an enginetools.txt file around us
         if (!File.Exists("enginetools.vdf"))
@@ -75,10 +78,16 @@ public static class ToolsFramework
         Application.Quit();
     }
 
-    public static async void Update()
+
+    public static void Update()
     {
-        // disgusting hack: this should not work how does this NOT cause memory violations and corruption
-        await Task.Run(Application.RunIteration);
+        // do not wait, do not block, just wait for it to complete on it's own.
+        if (m_gtkLoop.IsCompleted)
+        {
+            m_gtkLoop.Dispose();
+            // disgusting hack: this should not work how does this NOT cause memory violations and corruption
+            m_gtkLoop = Task.Run(Application.RunIteration);
+        }
     }
 
     public static void SwitchTool(string name)

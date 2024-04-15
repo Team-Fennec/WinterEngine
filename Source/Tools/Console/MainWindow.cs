@@ -3,6 +3,7 @@ using WinterEngine.Core;
 using log4net.Core;
 using Gtk;
 using UI = Gtk.Builder.ObjectAttribute;
+using System.Text.RegularExpressions;
 
 namespace ConsoleTool
 {
@@ -25,7 +26,18 @@ namespace ConsoleTool
             GameConsole.OnLogMessage += PrintToConsole;
 
             #region TextView Tags
-            TextTag tag = new TextTag("info-log");
+            TextTag tag = new TextTag("channel-block");
+            Gdk.RGBA bgColor = new Gdk.RGBA();
+            bgColor.Red = 0.0;
+            bgColor.Blue = 0.0;
+            bgColor.Green = 0.0;
+            bgColor.Alpha = 1.0;
+            tag.BackgroundRgba = bgColor;
+            tag.Foreground = "white";
+            tag.Size = 24;
+            LogBuffer.TagTable.Add(tag);
+
+            tag = new TextTag("info-log");
             tag.Foreground = "gray";
             LogBuffer.TagTable.Add(tag);
 
@@ -58,26 +70,36 @@ namespace ConsoleTool
             }
         }
 
+        private void OnFilterModified(object sender, EventArgs a)
+        {
+            // todo: implement filtering of console messages
+        }
+
         private void PrintToConsole(object? sender, GameConsole.LogInfo e)
         {
             TextIter insertIter = LogBuffer.EndIter;
 
+            Regex logMsgRgx = new Regex(@"\[(?<level>\w+)\]\[(?<channel>\w+)\](?<message>.*)");
+            string channel = logMsgRgx.Match(e.Text).Groups["channel"].Value;
+            string message = logMsgRgx.Match(e.Text).Groups["message"].Value;
+
             // print with tag
+            LogBuffer.InsertWithTagsByName(ref insertIter, channel.PadLeft(5).PadRight(5), "channel-block");
             if (e.Type == Level.Error || e.Type == Level.Fatal)
             {
-                LogBuffer.InsertWithTagsByName(ref insertIter, e.Text, "error-log");
+                LogBuffer.InsertWithTagsByName(ref insertIter, $"ERROR: {message}", "error-log");
             }
             else if (e.Type == Level.Info)
             {
-                LogBuffer.InsertWithTagsByName(ref insertIter, e.Text, "info-log");
+                LogBuffer.InsertWithTagsByName(ref insertIter, $"INFO: {message}", "info-log");
             }
             else if (e.Type == Level.Warn)
             {
-                LogBuffer.InsertWithTagsByName(ref insertIter, e.Text, "warn-log");
+                LogBuffer.InsertWithTagsByName(ref insertIter, $"WARN: {message}", "warn-log");
             }
             else
             {
-                LogBuffer.InsertWithTagsByName(ref insertIter, e.Text, "notice-log");
+                LogBuffer.InsertWithTagsByName(ref insertIter, $"NOTICE: {message}", "notice-log");
             }
         }
     }
