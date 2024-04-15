@@ -78,6 +78,8 @@ public abstract class MaterialResource : IResource
             m_Shader.DepthTest,
             m_Shader.CullMode
         );
+        m_Handle.VertexShader.Name = $"{ShaderName}_VertexShader";
+        m_Handle.FragmentShader.Name = $"{ShaderName}_FragmentShader";
 
         SetShaderParameters();
     }

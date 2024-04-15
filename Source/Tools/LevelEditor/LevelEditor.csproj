@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>chisel</AssemblyName>
+  </PropertyGroup>
+
+  <Import Project="../ToolsBase.props" />
+
+  <ItemGroup>
+    <PackageReference Include="ImGui.NET" Version="1.90.1.1" />
+    <ProjectReference Include="..\..\..\DatamodelLib\Datamodel.NET.csproj" />
+    <ProjectReference Include="..\..\..\ValveKeyValue\ValveKeyValue\ValveKeyValue\ValveKeyValue.csproj" />
+    <ProjectReference Include="..\..\FileSystem\WinterEngine.FileSystem.csproj" />
+    <ProjectReference Include="..\..\MaterialSystem\WinterEngine.MaterialSystem.csproj" />
+    <ProjectReference Include="..\..\MathLib\MathLib.csproj" />
+    <ProjectReference Include="..\..\RenderSystem\WinterEngine.RenderSystem.csproj" />
+    <ProjectReference Include="../../SceneSystem/WinterEngine.SceneSystem.csproj" />
+  </ItemGroup>
+
+</Project>

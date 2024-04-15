@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="log4net" Version="2.0.15" />
+    <PackageReference Include="ImGui.NET" Version="1.90.1.1" />
+    <ProjectReference Include="..\..\DatamodelLib\Datamodel.NET.csproj" />
+    <ProjectReference Include="..\..\ValveKeyValue\ValveKeyValue\ValveKeyValue\ValveKeyValue.csproj" />
+    <ProjectReference Include="..\FileSystem\WinterEngine.FileSystem.csproj" />
+  </ItemGroup>
+
+</Project>

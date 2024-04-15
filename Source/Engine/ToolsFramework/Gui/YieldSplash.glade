@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.40.0 -->
+<interface>
+  <requires lib="gtk+" version="3.24"/>
+  <object class="GtkWindow" id="YieldSplashWindow">
+    <property name="can-focus">False</property>
+    <property name="title" translatable="yes">Splash</property>
+    <property name="resizable">False</property>
+    <property name="window-position">center</property>
+    <property name="default-width">620</property>
+    <property name="default-height">400</property>
+    <property name="type-hint">splashscreen</property>
+    <property name="decorated">False</property>
+    <property name="deletable">False</property>
+    <child>
+      <object class="GtkOverlay">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <child>
+          <object class="GtkImage" id="splash_Image">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+          <packing>
+            <property name="index">-1</property>
+          </packing>
+        </child>
+        <child type="overlay">
+          <object class="GtkLabel" id="splash_StatusText">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="valign">end</property>
+            <property name="margin-top">12</property>
+            <property name="margin-bottom">12</property>
+            <property name="label" translatable="yes">Status Label</property>
+            <property name="justify">center</property>
+            <attributes>
+              <attribute name="scale" value="1.5"/>
+            </attributes>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

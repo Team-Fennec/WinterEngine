@@ -2,21 +2,11 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RootNamespace>WinterEngine</RootNamespace>
-    <AssemblyVersion>15.3</AssemblyVersion>
+    <AssemblyVersion>20.0</AssemblyVersion>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>$(DefineConstants);HAS_PROFILING</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>$(DefineConstants);HAS_PROFILING</DefineConstants>
-  </PropertyGroup>
+  <Import Project="../WEBase.props" />
 
   <Target Name="GenerateVersionClass" BeforeTargets="BeforeCompile;CoreCompile" Outputs="$(IntermediateOutputPath)GeneratedFile.cs">
     <PropertyGroup>
@@ -41,13 +31,20 @@ public static class EngineVersion {
   </Target>
   
   <ItemGroup>
+    <None Remove="**\*.glade" />
+    <EmbeddedResource Include="**\*.glade">
+      <LogicalName>%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Include="$(IntermediateOutputPath)EngineVersion.gen.cs" />
   </ItemGroup>
   
   <ItemGroup>
+    <PackageReference Include="GtkSharp" Version="3.24.24.95" />
     <PackageReference Include="ImGui.NET" Version="1.90.1.1" />
     <PackageReference Include="log4net" Version="2.0.15" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="SharpGLTF.Core" Version="1.0.0-alpha0031" />
     <PackageReference Include="SharpGLTF.Runtime" Version="1.0.0-alpha0031" />
     <PackageReference Include="Veldrid.ImageSharp" Version="4.9.0" />
@@ -63,6 +60,7 @@ public static class EngineVersion {
     <ProjectReference Include="..\RenderSystem\WinterEngine.RenderSystem.csproj" />
     <ProjectReference Include="..\SceneSystem\WinterEngine.SceneSystem.csproj" />
     <ProjectReference Include="..\InputSystem\WinterEngine.InputSystem.csproj" />
+    <ProjectReference Include="..\Veneer\Veneer.csproj" />
     <PackageReference Include="Veldrid" Version="4.9.0" />
     <PackageReference Include="Veldrid.SPIRV" Version="1.0.15" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="4.9.0" />

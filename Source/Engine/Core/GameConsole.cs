@@ -1,6 +1,7 @@
 using log4net.Appender;
 using log4net.Core;
 using System.Reflection;
+using Veneer;
 using WinterEngine.Core;
 using WinterEngine.RenderSystem;
 using WinterEngine.Utilities;
@@ -34,13 +35,14 @@ namespace WinterEngine.Core
             cmdList.TryAdd(command.Command, command);
         }
 
+        public static event EventHandler<LogInfo> OnLogMessage;
+
         public static void LogMessage(string message, Level level)
         {
             LogInfo info = new LogInfo(message, level);
             logMessages.Add(info);
             OnLogMessage?.Invoke(null, info);
         }
-        public static event EventHandler<LogInfo> OnLogMessage;
 
         private static List<LogInfo> logMessages = new List<LogInfo>();
         public static Dictionary<string, ConCmd> cmdList = new Dictionary<string, ConCmd>();
@@ -51,33 +53,6 @@ namespace WinterEngine.Core
 // baseline commands
 namespace WinterEngine.ConsoleCommands
 {
-    // temporary until macros are finished
-#if HAS_MACROS
-    ConsoleCommand(help, "usage: <command>\nLists information on a command.", {
-        if (args.Length == 0)
-        {
-            LogManager.GetLogger("Command").Notice("Available Commands:");
-            List<string> cmdList = new List<string>();
-            foreach (ConCmd command in GameConsole.cmdList.Values)
-            {
-                cmdList.Add(command.Command);
-            }
-            LogManager.GetLogger("Command").Notice(string.Join(", ", cmdList));
-        }
-        else
-        {
-            if (GameConsole.cmdList.ContainsKey(args[0]))
-            {
-                GameConsole.cmdList.TryGetValue(args[0], out var command);
-                LogManager.GetLogger("Command").Notice($"{args[0]}: {command.Description}");
-            }
-        }
-    })
-
-    ConsoleCommand(quit, "Quit to Desktop", {
-        Device.Window.Close();
-    })
-#else
     internal sealed class HelpCommand : ConCmd
     {
         public override string Command => "help";
@@ -119,5 +94,16 @@ namespace WinterEngine.ConsoleCommands
             Device.Window.Close();
         }
     }
-#endif
+
+    internal sealed class ImguiDemoCommand : ConCmd
+    {
+        public override string Command => "show_imgui_demo";
+        public override string Description => "Show the ImGui Demo Window";
+        public override CmdFlags Flags => CmdFlags.None;
+
+        public override void Exec(string[] args)
+        {
+            GuiManager.ShowImguiDemo = true;
+        }
+    }
 }

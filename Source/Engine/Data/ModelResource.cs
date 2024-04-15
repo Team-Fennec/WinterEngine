@@ -1,9 +1,8 @@
 ﻿using MathLib;
 using SharpGLTF.Schema2;
 using SharpGLTF.Transforms;
+using SharpGLTF.Runtime;
 using System.Numerics;
-using System.Reflection;
-using System.Security.Policy;
 using Veldrid;
 using WinterEngine.MaterialSystem;
 using WinterEngine.RenderSystem;
@@ -19,8 +18,6 @@ public abstract class ModelResource
         public string Name;
         public MeshHandle Handle;
         public MaterialResource Material;
-        // used by the render system to hold the shader parameter resources
-        public ResourceSet ShaderResSet;
     }
 
     public IReadOnlyList<MeshPrimitive> Primitives => m_Primitives;
@@ -30,12 +27,17 @@ public abstract class ModelResource
 public class GLBModelResource : ModelResource, IResource
 {
     ModelRoot m_ModelRoot;
+    SceneTemplate m_SceneTemplate;
+    SceneInstance m_SceneInstance;
 
     public void LoadData(Stream stream)
     {
         // el em fucking ay oh
         m_ModelRoot = ModelRoot.ReadGLB(stream);
         stream.Close();
+
+        m_SceneTemplate = SceneTemplate.Create(m_ModelRoot.DefaultScene);
+        m_SceneInstance = m_SceneTemplate.CreateInstance();
 
         foreach (Mesh meshInf in m_ModelRoot.LogicalMeshes)
         {
@@ -82,5 +84,48 @@ public class GLBModelResource : ModelResource, IResource
                 m_Primitives.Add(meshPrimitive);
             }
         }
+    }
+
+    public List<Matrix4x4> GetAnimJointMatrices(string animName, float time)
+    {
+        List<Matrix4x4> jointMats = new List<Matrix4x4>();
+
+        Animation? anim = null;
+        foreach(Animation animation in m_ModelRoot.LogicalAnimations)
+        {
+            if (animation.Name == animName)
+            {
+                anim = animation;
+                break;
+            }
+        }
+
+        if (anim == null)
+        {
+            throw new Exception($"No animation by name {animName} found!");
+        }
+
+        foreach (Node joint in m_ModelRoot.LogicalNodes)
+        {
+            if (joint.IsSkinJoint)
+            {
+                jointMats.Add(GetJointTransform(joint, anim, time));
+            }
+        }
+
+        return jointMats;
+    }
+
+    Matrix4x4 GetJointTransform(Node joint, Animation anim, float time)
+    {
+        AffineTransform transform = joint.GetLocalTransform(anim, time);
+        Matrix4x4 jointMat = transform.Matrix;
+
+        if (joint.VisualParent != null)
+        {
+            jointMat *= GetJointTransform(joint.VisualParent, anim, time);
+        }
+
+        return jointMat;
     }
 }

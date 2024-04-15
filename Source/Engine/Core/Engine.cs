@@ -8,8 +8,7 @@ using Veldrid.Sdl2;
 #if HAS_PROFILING
 using WinterEngine.Diagnostics;
 #endif
-using WinterEngine.Gui;
-using WinterEngine.Gui.DevUI;
+using WinterEngine.DevUI;
 using WinterEngine.InputSystem;
 using WinterEngine.Localization;
 using WinterEngine.RenderSystem;
@@ -17,45 +16,33 @@ using WinterEngine.Resource;
 using WinterEngine.SceneSystem;
 using WinterEngine.Utilities;
 using static WinterEngine.Localization.StringTools;
+using gToolsFramework = WinterEngine.ToolsFramework.ToolsFramework;
 using System.Globalization;
 using log4net.Layout;
 using log4net.Appender;
+using Veneer;
 
-#if HAS_MACROS
-//#macro ClassLogger(name) private static readonly ILog m_Log = LogManager.GetLogger(name)
-#endif
 
 namespace WinterEngine.Core;
 
-public class Engine
+public static class Engine
 {
-#if HAS_MACROS
-    ClassLogger("Engine");
-#else
     private static readonly ILog m_Log = LogManager.GetLogger("Engine");
-#endif
 
-    private static int m_ReturnCode = 0;
+    private static int m_ReturnCode;
 
     private static Assembly m_GameAssembly;
     private static GameModule m_GameInstance;
     private static FrameTimeAverager m_FTA = new FrameTimeAverager(0.666);
 
-    private static List<ImGuiPanel> m_ImGuiPanels = new List<ImGuiPanel>();
-
-    public static bool IsRunning = false;
-    public static bool LimitFrameRate = true;
-    public static double FrameLimit = 60.0;
-
-#if DEBUG
-    public static bool ShowFpsMeter = true;
-#else
-    public static bool ShowFpsMeter = false;
-#endif
+    public static bool IsRunning;
+    public static bool IsToolsMode;
+    public static string GameDir => m_GameDir;
+    private static string m_GameDir = "";
 
     const string LogPatternBase = "[%level][%logger] %message%newline";
 
-    public static void PreInit()
+    public static void PreInit(string[] args)
     {
         // configure logger
         Debug.WriteLine("[ENGINE] Initializing logger");
@@ -102,14 +89,39 @@ public class Engine
         ResourceManager.AddProvider(new Resource.Providers.DirectoryProvider("engine"));
         // todo(engine): get system lang and load the corresponding translation (or try to)
         TranslationManager.AddTranslation("engine_english.txt");
+
+        for (int i = 0; i < args.Length; i++)
+        {
+            switch (args[i])
+            {
+                case "-game":
+                    if (i == args.Length - 1)
+                    {
+                        Error(TRS("engine.error.no_game_provided"));
+                    }
+
+                    if (args[i + 1] == "" || !Directory.Exists(args[i + 1]))
+                    {
+                        Error(TRS("engine.error.invalid_game_provided"));
+                    }
+
+                    m_GameDir = args[i + 1];
+                    i++;
+                    break;
+                case "-tools":
+                    IsToolsMode = true;
+                    m_Log.Notice("Starting in Tools Mode");
+                    break;
+            }
+        }
     }
 
-    public static void Init(string gameDir)
+    public static void Init()
     {
         m_Log.Info("Reading Gameinfo...");
 
         var kv = KVSerializer.Create(KVSerializationFormat.KeyValues1Text);
-        KVObject gameInfoData = kv.Deserialize(File.Open(Path.Combine(gameDir, "gameinfo.gi"), FileMode.Open));
+        KVObject gameInfoData = kv.Deserialize(File.Open(Path.Combine(m_GameDir, "gameinfo.gi"), FileMode.Open));
 
         KVValue gameProperName = gameInfoData["name"];
 
@@ -133,13 +145,16 @@ public class Engine
             // bruh?
             if (langItem.Value.ToInt32(CultureInfo.CurrentCulture) > 0)
             {
-                TranslationManager.AddTranslation($"{gameDir}_{langItem.Name}.txt");
+                TranslationManager.AddTranslation($"{m_GameDir}_{langItem.Name}.txt");
             }
         }
 
         Device.Init(gameProperName.ToString());
         Renderer.Init();
         InputManager.Init();
+        ConfigManager.Init();
+
+        ImGui.GetIO().ConfigWindowsMoveFromTitleBarOnly = true;
 
         // Setup game console
         InputAction conAction = new InputAction("Console");
@@ -147,17 +162,28 @@ public class Engine
         InputManager.RegisterAction(conAction);
         GameConsole.RegisterCommand(new ConsoleCommands.HelpCommand());
         GameConsole.RegisterCommand(new ConsoleCommands.QuitCommand());
+        GameConsole.RegisterCommand(new ConsoleCommands.ImguiDemoCommand());
+
+        if (IsToolsMode)
+        {
+            gToolsFramework.Init();
+        }
+
+        // register config var
+        ConfigManager.RegisterCVar("r_showfps", true);
+        ConfigManager.RegisterCVar("r_limitfps", true);
+        ConfigManager.RegisterCVar("maxfps", 60.0);
 
         // load up the game now that we're initialized
         // search for bin dir
-        if (Directory.Exists(Path.Combine(gameDir, "bin")))
+        if (Directory.Exists(Path.Combine(m_GameDir, "bin")))
         {
             string execAssemPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             // try and load client.dll
-            if (File.Exists(Path.Combine(gameDir, "bin", "game.dll")))
+            if (File.Exists(Path.Combine(m_GameDir, "bin", "game.dll")))
             {
-                m_GameAssembly = Assembly.LoadFile(Path.Combine(execAssemPath, gameDir, "bin", "game.dll"));
-                m_Log.Notice($"Loaded Game Dll for Game {Path.GetDirectoryName(gameDir)}");
+                m_GameAssembly = Assembly.LoadFile(Path.Combine(execAssemPath, m_GameDir, "bin", "game.dll"));
+                m_Log.Notice($"Loaded Game Dll for Game {Path.GetDirectoryName(m_GameDir)}");
             }
             else
             {
@@ -177,15 +203,16 @@ public class Engine
 
         // Add gui game console
         m_Log.Info("Registering UIGameConsole panel");
-        m_ImGuiPanels.Add(new UIGameConsole());
+        GuiManager.AddPanel(new UIGameConsole());
 
 #if HAS_PROFILING
         InputAction profAction = new InputAction("Profiler");
         profAction.AddBinding(Key.F1);
         InputManager.RegisterAction(profAction);
 
-        m_ImGuiPanels.Add(new ProfilerPanel());
+        GuiManager.AddPanel(new ProfilerPanel());
 #endif
+        GuiManager.AddPanel(new VeneerTestPanel());
 
         IsRunning = true;
     }
@@ -201,7 +228,7 @@ public class Engine
             long currentFrameTicks = stopwatch.ElapsedTicks;
             double deltaTime = (currentFrameTicks - previousFrameTicks) / (double)Stopwatch.Frequency;
 
-            while (LimitFrameRate && deltaTime < (1.0 / FrameLimit))
+            while (ConfigManager.GetValue<bool>("r_limitfps") && deltaTime < (1.0 / ConfigManager.GetValue<double>("maxfps")))
             {
                 currentFrameTicks = stopwatch.ElapsedTicks;
                 deltaTime = (currentFrameTicks - previousFrameTicks) / (double)Stopwatch.Frequency;
@@ -218,52 +245,39 @@ public class Engine
             InputManager.ProcessInputs = (!ImGui.GetIO().WantCaptureKeyboard && !ImGui.GetIO().WantCaptureMouse);
             InputManager.UpdateEvents(snapshot);
 
+            if (IsToolsMode)
+                gToolsFramework.Update();
+
             Renderer.ImGuiController.Update((float)deltaTime, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
 
             if (InputManager.ActionCheckPressed("Console"))
-            { SetPanelVisible("game_console", true); }
+            { GuiManager.SetPanelVisible("game_console", true); }
 
 #if HAS_PROFILING
             if (InputManager.ActionCheckPressed("Profiler"))
-            { SetPanelVisible("engine_profiler", !GetPanelVisible("engine_profiler")); }
+            { GuiManager.SetPanelVisible("engine_profiler", !GuiManager.GetPanelVisible("engine_profiler")); }
 
             Profiler.PushProfile("ImGuiUpdate");
 #endif
 
-            if (ShowFpsMeter)
+            if (ConfigManager.GetValue<bool>("r_showfps"))
             {
-                // pain
-                ImGui.SetNextWindowPos(new Vector2(0, Device.Window.Height - 20), ImGuiCond.Always);
-                if (ImGui.Begin("##fps_counter", 
-                    ImGuiWindowFlags.NoSavedSettings
-                    | ImGuiWindowFlags.NoDecoration
-                    | ImGuiWindowFlags.NoMove
-                    | ImGuiWindowFlags.NoDocking
-                    | ImGuiWindowFlags.NoBringToFrontOnFocus
-                    | ImGuiWindowFlags.AlwaysAutoResize
-                    | ImGuiWindowFlags.NoInputs
-                    | ImGuiWindowFlags.NoFocusOnAppearing
-                    | ImGuiWindowFlags.NoBackground))
-                {
-                    Vector4 color = Vector4.One;
+                Vector4 color;
+                if (m_FTA.CurrentAverageFramesPerSecond > 50)
+                { color = new Vector4(0.0f, 1.0f, 0.0f, 1.0f); }
+                else if (m_FTA.CurrentAverageFramesPerSecond > 30)
+                { color = new Vector4(1.0f, 1.0f, 0.0f, 1.0f); }
+                else
+                { color = new Vector4(1.0f, 0.0f, 0.0f, 1.0f); }
 
-                    if (m_FTA.CurrentAverageFramesPerSecond > 50)
-                        color = new Vector4(0.0f, 1.0f, 0.0f, 1.0f);
-                    else if (m_FTA.CurrentAverageFramesPerSecond > 30)
-                        color = new Vector4(1.0f, 1.0f, 0.0f, 1.0f);
-                    else
-                        color = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
-
-                    ImGui.TextColored(color, $"FPS: {Math.Round(m_FTA.CurrentAverageFramesPerSecond, 2)}");
-                    ImGui.End();
-                }
+                ImGui.GetForegroundDrawList().AddText(
+                    new Vector2(0, ImGui.GetMainViewport().WorkSize.Y - 10),
+                    ImGui.ColorConvertFloat4ToU32(color),
+                    $"FPS: {Math.Round(m_FTA.CurrentAverageFramesPerSecond, 2)}"
+                );
             }
 
-            // imgui stuff
-            foreach (ImGuiPanel panel in m_ImGuiPanels)
-            {
-                panel.DoLayout();
-            }
+            GuiManager.Update();
 #if HAS_PROFILING
             Profiler.PopProfile();
 #endif
@@ -276,36 +290,13 @@ public class Engine
         return m_ReturnCode;
     }
 
-    public static void SetPanelVisible(string ID, bool v)
-    {
-        foreach (ImGuiPanel panel in m_ImGuiPanels)
-        {
-            if (panel.ID == ID)
-            {
-                panel.Visible = v;
-                return;
-            }
-        }
-        m_Log.Error($"No panel was found with ID {ID}");
-    }
-
-    public static bool GetPanelVisible(string ID)
-    {
-        foreach (ImGuiPanel panel in m_ImGuiPanels)
-        {
-            if (panel.ID == ID)
-            {
-                return panel.Visible;
-            }
-        }
-        m_Log.Warn($"No panel was found with ID {ID}");
-        return false;
-    }
-
     public static void Shutdown()
     {
         m_Log.Info("Beginning Engine Shutdown");
         IsRunning = false;
+
+        if (IsToolsMode)
+        { gToolsFramework.Shutdown(); }
 
         m_GameInstance.Shutdown();
         SceneManager.Shutdown();
@@ -340,6 +331,54 @@ public class Engine
             string[] args = inpSplit.Skip(1).ToArray();
             // do command
             command.Exec(args);
+            return;
+        }
+
+        if (ConfigManager.GetCVar(inpSplit[0]) != null)
+        {
+            ConVar cVar = ConfigManager.GetCVar(inpSplit[0]).GetValueOrDefault();
+
+            if (cVar.Type == typeof(bool))
+            {
+                if (bool.TryParse(inpSplit[1], out bool newValue))
+                {
+                    cVar.Value = newValue;
+                }
+                else
+                {
+                    m_Log.Error($"Invalid value {inpSplit[1]} for type bool");
+                }
+            }
+            else if (cVar.Type == typeof(int))
+            {
+                if (int.TryParse(inpSplit[1], out int newValue))
+                {
+                    cVar.Value = newValue;
+                }
+                else
+                {
+                    m_Log.Error($"Invalid value {inpSplit[1]} for type int");
+                }
+            }
+            else if (cVar.Type == typeof(float))
+            {
+                if (float.TryParse(inpSplit[1], out float newValue))
+                {
+                    cVar.Value = newValue;
+                }
+                else
+                {
+                    m_Log.Error($"Invalid value {inpSplit[1]} for type float");
+                }
+            }
+            else if (cVar.Type == typeof(string))
+            {
+                cVar.Value = string.Join(" ", inpSplit.Skip(1));
+            }
+            else
+            {
+                m_Log.Error($"Cannot set value of type {cVar.Type.Name} from console!");
+            }
         }
     }
 }

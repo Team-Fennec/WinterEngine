@@ -2,16 +2,20 @@ using ImGuiNET;
 using log4net.Core;
 using System.Numerics;
 using WinterEngine.Core;
+using WinterEngine.RenderSystem;
+using Veneer.Controls;
+using Veneer;
 
-namespace WinterEngine.Gui.DevUI;
+namespace WinterEngine.DevUI;
 
-public class UIGameConsole : ImGuiPanel
+public class UIGameConsole : Panel
 {
     string userInput = "";
 
     public const int MAX_LOG_COUNT = 500;
 
-    List<(string msg, Vector4 col)> m_LogLines = new List<(string msg, Vector4 col)>();
+    private RichTextLabel m_ConLogLabel;
+    private InputField m_ConLogInput;
 
     public UIGameConsole()
     {
@@ -23,25 +27,26 @@ public class UIGameConsole : ImGuiPanel
         ID = "game_console";
 
         LoadSchemeFile("ToolsScheme.res");
+        CreateGui();
 
         GameConsole.OnLogMessage += PrintLogMsg;
     }
 
     private void PrintLogMsg(object? sender, GameConsole.LogInfo e)
     {
-        Vector4 typeColor = new Vector4(1, 1, 1, 1);
+        int[] typeColor = new int[] {255, 255, 255, 255};
 
         if (e.Type == Level.Error || e.Type == Level.Fatal)
         {
-            typeColor = new Vector4(1, 0, 0, 1);
+            typeColor = new int[] {255, 0, 0, 255};
         }
         else if (e.Type == Level.Info)
         {
-            typeColor = new Vector4(0.5f, 0.5f, 0.5f, 1);
+            typeColor = new int[] {128, 128, 128, 255};
         }
         else if (e.Type == Level.Warn)
         {
-            typeColor = new Vector4(1, 1, 0, 1);
+            typeColor = new int[] {255, 255, 0, 255};
         }
 
         PrintMessage(e.Text, typeColor);
@@ -49,41 +54,82 @@ public class UIGameConsole : ImGuiPanel
 
     void PrintMessage(string msg)
     {
-        PrintMessage(msg, Vector4.One);
+        PrintMessage(msg, new int[] {255, 255, 255, 255});
     }
 
-    void PrintMessage(string msg, Vector4 color)
+    void PrintMessage(string msg, int[] color)
     {
-        if (m_LogLines.Count == MAX_LOG_COUNT)
-        {
-            m_LogLines.RemoveAt(0);
-        }
-        m_LogLines.Add((msg, color));
+        m_ConLogLabel.PushColor(color[0], color[1], color[2], color[3]);
+        m_ConLogLabel.AppendText(msg);
+        m_ConLogLabel.PopColor();
     }
 
+    protected override void CreateGui()
+    {
+        Button confirmButton = new Button()
+        {
+            Size = new Vector2(80, 20),
+            Position = new Vector2(80, 20),
+            Text = "Submit",
+            VerticalAnchor = Control.AnchorPos.End,
+            HorizontalAnchor = Control.AnchorPos.End
+        };
+
+        m_ConLogLabel = new RichTextLabel()
+        {
+            Position = new Vector2(0, 0),
+            Size = new Vector2(480, 340),
+            WrapText = false,
+            AutoScroll = true,
+            AutoSizeY = true,
+            AutoSizeX = true
+        };
+
+        m_ConLogInput = new InputField()
+        {
+            Label = "",
+            Position = new Vector2(0, 20),
+            VerticalAnchor = Control.AnchorPos.End
+        };
+
+        confirmButton.OnPushed += (o,e) => {
+            PrintMessage($"{m_ConLogInput.Value}\n");
+            if (m_ConLogInput.Value != "")
+                Engine.ExecuteCommand(m_ConLogInput.Value);
+            m_ConLogInput.Value = "";
+        };
+        m_ConLogInput.OnConfirmed += (o,e) => {
+            PrintMessage($"{m_ConLogInput.Value}\n");
+            if (m_ConLogInput.Value != "")
+                Engine.ExecuteCommand(m_ConLogInput.Value);
+            m_ConLogInput.Value = "";
+        };
+
+        AddControl(m_ConLogLabel);
+        AddControl(m_ConLogInput);
+        AddControl(confirmButton);
+    }
+
+#if false
     protected override void OnLayout()
     {
         // Draw text overlay in top right
-        if (ImGui.Begin("##engine_version_overlay", ImGuiWindowFlags.NoSavedSettings
-            | ImGuiWindowFlags.NoDecoration
-            | ImGuiWindowFlags.NoMove
-            | ImGuiWindowFlags.NoDocking
-            | ImGuiWindowFlags.NoBringToFrontOnFocus
-            | ImGuiWindowFlags.AlwaysAutoResize
-            | ImGuiWindowFlags.NoInputs
-            | ImGuiWindowFlags.NoFocusOnAppearing
-            | ImGuiWindowFlags.NoBackground))
-        {
-            ImGui.Text($"WinterEngine {EngineVersion.Version.Major} patch {EngineVersion.Version.Minor} (build {EngineVersion.Build})");
+        string mainStr = $"WinterEngine {EngineVersion.Version.Major} patch {EngineVersion.Version.Minor} (build {EngineVersion.Build})";
+        Vector2 position = new(ImGui.GetMainViewport().Size.X - ImGui.CalcTextSize(mainStr).X, 0);
+        ImGui.GetBackgroundDrawList().AddText(
+            position,
+            ImGui.ColorConvertFloat4ToU32(Vector4.One),
+            mainStr
+        );
+        ImGui.GetBackgroundDrawList().AddText(
+            position with { Y = ImGui.GetTextLineHeight() },
+            ImGui.ColorConvertFloat4ToU32(Vector4.One),
 #if DEBUG
-            ImGui.Text("Build Mode: Debug");
+            "Build Mode: Debug"
 #else
-            ImGui.Text("Build Mode: Release");
+            "Build Mode: Release"
 #endif
-
-            ImGui.SetWindowPos(new(ImGui.GetMainViewport().WorkSize.X - ImGui.GetWindowSize().X, 0));
-            ImGui.End();
-        }
+        );
 
         // Draw the scroll view with the colored text
         ImGui.PushStyleColor(ImGuiCol.ChildBg, new Vector4(0.1f, 0.1f, 0.1f, 1.0f));
@@ -112,10 +158,8 @@ public class UIGameConsole : ImGuiPanel
 
         if (hitEnter || hitButton)
         {
-            PrintMessage(userInput);
-            if (userInput != "")
-                Engine.ExecuteCommand(userInput);
-            userInput = "";
+            
         }
     }
+#endif
 }

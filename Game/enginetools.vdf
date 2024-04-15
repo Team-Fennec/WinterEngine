@@ -1,4 +1,6 @@
 "EngineTools"
 {
-	// no tools currently
+	"dll" "console"
+	"dll" "modeleditor"
+	"dll" "materialeditor"
 }

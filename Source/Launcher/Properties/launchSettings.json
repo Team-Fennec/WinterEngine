@@ -1,8 +1,12 @@
 {
   "profiles": {
-    "Launcher": {
+    "Launcher (Normal)": {
       "commandName": "Project",
       "commandLineArgs": "-game testgame"
+    },
+    "Launcher (Tools)": {
+      "commandName": "Project",
+      "commandLineArgs": "-game testgame -tools"
     }
   }
 }

@@ -1,54 +1,20 @@
 using Veldrid.Sdl2;
-using static WinterEngine.Localization.StringTools;
+using System.Reflection;
 
 internal class Program
 {
-    private static int Main(string[] args)
+    [STAThread]
+    public static int Main(string[] args)
     {
-        WinterEngine.Core.Engine.PreInit();
+        WinterEngine.Core.Engine.PreInit(args);
 
-        // loop through command line arguments
-        string gameName = "";
-        for (int i = 0; i < args.Length; i++)
-        {
-            switch (args[i])
-            {
-                case "-game":
-                    if (i == args.Length - 1)
-                    {
-                        unsafe
-                        {
-                            Sdl2Native.SDL_ShowSimpleMessageBox(
-                                SDL_MessageBoxFlags.Error,
-                                "Winter Engine",
-                                TRS("engine.error.no_game_provided"),
-                                null
-                            );
-                        }
-                        return 1;
-                    }
-                    gameName = args[i + 1];
-                    break;
-            }
-        }
-
-        if (gameName == "" || !Directory.Exists(gameName))
-        {
-            unsafe
-            {
-                Sdl2Native.SDL_ShowSimpleMessageBox(
-                    SDL_MessageBoxFlags.Error,
-                    "Winter Engine",
-                    TRS("engine.error.invalid_game_provided"),
-                    null
-                );
-            }
-            return 1;
-        }
-
+#if DEBUG
+        WinterEngine.Core.Engine.Init();
+        WinterEngine.Core.Engine.Run();
+#else
         try
         {
-            WinterEngine.Core.Engine.Init(gameName);
+            WinterEngine.Core.Engine.Init();
             WinterEngine.Core.Engine.Run();
         }
         catch (Exception e)
@@ -73,6 +39,7 @@ internal class Program
 
             return 1;
         }
+#endif
 
         return 0;
     }

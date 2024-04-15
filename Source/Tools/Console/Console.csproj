@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>console</AssemblyName>
+  </PropertyGroup>
+
+  <Import Project="../ToolsBase.props" />
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\DebugProf\WinterEngine.Diagnostics.csproj" />
+    <ProjectReference Include="..\..\FileSystem\WinterEngine.FileSystem.csproj" />
+    <ProjectReference Include="..\..\MathLib\MathLib.csproj" />
+  </ItemGroup>
+
+</Project>

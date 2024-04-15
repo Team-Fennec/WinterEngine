@@ -2,12 +2,10 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RootNamespace>WinterEngine.MaterialSystem</RootNamespace>
   </PropertyGroup>
+
+  <Import Project="../WEBase.props" />
 
   <ItemGroup>
     <ProjectReference Include="../../DatamodelLib/Datamodel.NET.csproj" />
