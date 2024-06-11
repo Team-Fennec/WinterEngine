@@ -12,11 +12,17 @@ public enum CmdFlags
     Debug
 }
 
-public abstract class ConCmd
+[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
+public sealed class ConCmdAttribute : Attribute
 {
-    public abstract string Command { get; }
-    public abstract string Description { get; }
-    public abstract CmdFlags Flags { get; }
+    public string Command;
+    public string Description;
+    public CmdFlags Flags;
 
-    public abstract void Exec(string[] args);
+    public ConCmdAttribute(string command, string description, CmdFlags flags)
+    {
+        Command = command;
+        Description = description;
+        Flags = flags;
+    }
 }

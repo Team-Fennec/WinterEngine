@@ -153,6 +153,7 @@ public static class Engine
         Renderer.Init();
         InputManager.Init();
         ConfigManager.Init();
+        GameConsole.RegisterAllCommands();
 
         ImGui.GetIO().ConfigWindowsMoveFromTitleBarOnly = true;
 
@@ -160,9 +161,6 @@ public static class Engine
         InputAction conAction = new InputAction("Console");
         conAction.AddBinding(Key.Tilde);
         InputManager.RegisterAction(conAction);
-        GameConsole.RegisterCommand(new ConsoleCommands.HelpCommand());
-        GameConsole.RegisterCommand(new ConsoleCommands.QuitCommand());
-        GameConsole.RegisterCommand(new ConsoleCommands.ImguiDemoCommand());
 
         if (IsToolsMode)
         {

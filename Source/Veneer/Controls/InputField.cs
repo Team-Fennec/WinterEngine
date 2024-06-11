@@ -8,9 +8,12 @@ public class InputField : Control
 	public string Label = "";
 	public string Value = "";
 	public int MaxChars = 2048;
+    public bool IsActive => m_IsActive;
 
 	public event EventHandler<string> OnConfirmed;
 	public event EventHandler<string> OnModified;
+
+    private bool m_IsActive = false;
 
 	protected override void OnLayout()
 	{
@@ -31,6 +34,7 @@ public class InputField : Control
 		{
 			OnConfirmed?.Invoke(this, Value);
 		}
+        m_IsActive = ImGui.IsItemActive();
 		if (oldVal != Value)
 		{
 			OnModified?.Invoke(this, Value);

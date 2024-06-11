@@ -32,8 +32,6 @@ public static class ToolsFramework
     {
         log.Info("Initializing Engine Tools...");
 
-        GameConsole.RegisterCommand(new LoadToolCommand());
-
         Application.Init();
 
         m_gtkApplication = new Application("org.Fennec.WinterTools", GLib.ApplicationFlags.None);
@@ -108,15 +106,9 @@ public static class ToolsFramework
     {
         m_EngineTools.Add(instance);
     }
-}
 
-internal sealed class LoadToolCommand : ConCmd
-{
-    public override string Command => "tool_load";
-    public override string Description => "Loads a tool from the provided name";
-    public override CmdFlags Flags => CmdFlags.None;
-
-    public override void Exec(string[] args)
+    [ConCmd("tool_load", "Loads a tool from the provided name", CmdFlags.Development)]
+    public static void LoadToolCmdExec(string[] args)
     {
         if (args.Length < 1)
         { return; }
