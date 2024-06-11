@@ -37,7 +37,14 @@ namespace TestGame.Entities
 
         public override void Spawn()
         {
-            m_Model = ResourceManager.Load<GLBModelResource>($"models/{ModelPath}");
+            try
+            {
+                m_Model = ResourceManager.Load<GLBModelResource>($"models/{ModelPath}");
+            }
+            catch
+            {
+                m_Model = ResourceManager.Load<GLBModelResource>($"models/engine/error.glb");
+            }
             CreateDeviceResources();
         }
 

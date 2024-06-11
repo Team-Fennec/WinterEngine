@@ -21,6 +21,9 @@ $shDepthMode = "false";
 $shCullMode = "None";
 $ScriptDir = Split-Path -Parent $PSCommandPath;
 
+$DLLDir = [Path]::Combine($ScriptDir, "Datamodel.NET.dll");
+Add-Type -LiteralPath $DLLDir;
+
 function CompileShader([string]$name)
 {
     if ((Test-Path $name) -eq $false)
@@ -99,19 +102,30 @@ function CompileShader([string]$name)
     $full_file_path = [Path]::Combine($outputDir, $shaderName);
 
     [Console]::WriteLine("Compiling vertex shader code...");
-    & $validatorPath -V "temp_vert_shd.glsl" -o "$full_file_path.vtx.spv" -S vert
+    & $validatorPath -V "temp_vert_shd.glsl" -o "$shaderName.vtx.spv" -S vert
     [Console]::WriteLine("Compiling fragment shader code...");
-    & $validatorPath -V "temp_frag_shd.glsl" -o "$full_file_path.frg.spv" -S frag
+    & $validatorPath -V "temp_frag_shd.glsl" -o "$shaderName.frg.spv" -S frag
 
     [Console]::WriteLine("Writing shader info...");
-    Set-Content "$full_file_path.json" "{
-`"cull_mode`": `"$shCullMode`",
-`"depth_mode`": `"$shDepthMode`"
-}";
+	
+	[Datamodel.Datamodel]$dmxData = [Datamodel.Datamodel]::new("weshader", 1);
+	$dmxData.Root = [Datamodel.Element]::new($dmxData, "shaderRoot");
+	
+	$dmxData.Root["cull_mode"] = $shCullMode;
+	$dmxData.Root["depth_mode"] = [Boolean]::Parse($shDepthMode);
+	
+	[Byte[]]$vtxBytes = Get-Content -Path "$shaderName.vtx.spv" -AsByteStream -Raw;
+	[Byte[]]$frgBytes = Get-Content -Path "$shaderName.frg.spv" -AsByteStream -Raw;
+	$dmxData.Root["vertex_code"] = $vtxBytes;
+	$dmxData.Root["fragment_code"] = $frgBytes;
+	
+    $dmxData.Save("$full_file_path.shd", "keyvalues2", 1);
 
     [Console]::WriteLine("Cleaning up...");
-    Remove-Item "temp_frag_shd.glsl";
+	Remove-Item "$shaderName.vtx.spv";
+	Remove-Item "$shaderName.frg.spv";
     Remove-Item "temp_vert_shd.glsl";
+    Remove-Item "temp_frag_shd.glsl";
 }
 
 function ParseShaderCode([string]$code)

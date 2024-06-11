@@ -397,5 +397,4 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-Game/*/shaders/*.spv
-Game/*/shaders/*.json
+Game/*/shaders/*.shd

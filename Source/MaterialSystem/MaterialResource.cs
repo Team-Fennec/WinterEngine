@@ -70,7 +70,7 @@ public abstract class MaterialResource : IResource
             }
         }
 
-        m_Shader = ResourceManager.Load<ShaderResource>($"shaders/{ShaderName}.glsl");
+        m_Shader = ResourceManager.Load<ShaderResource>($"shaders/{ShaderName}.shd");
         m_Handle = new ShaderHandle(
             ShaderName,
             m_Shader.VertexCode,

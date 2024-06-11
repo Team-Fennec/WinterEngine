@@ -34,19 +34,13 @@ public class ShaderHandle {
     public bool DepthTest { get; private set; }
     public List<ShaderParam> Params = new List<ShaderParam>();
 
-    public ShaderHandle(string shaderName, string vtxCode, string frgCode, bool depthTest, CullMode cullMode) {
+    public ShaderHandle(string shaderName, byte[] vtxCode, byte[] frgCode, bool depthTest, CullMode cullMode) {
         ShaderName = shaderName;
 
-        ShaderDescription vertexShaderDesc = new ShaderDescription(
-            ShaderStages.Vertex,
-            Encoding.UTF8.GetBytes(vtxCode),
-            "main");
-        ShaderDescription fragmentShaderDesc = new ShaderDescription(
-            ShaderStages.Fragment,
-            Encoding.UTF8.GetBytes(frgCode),
-            "main");
-
-        Shader[] shaders = Renderer.GraphicsDevice.ResourceFactory.CreateFromSpirv(vertexShaderDesc, fragmentShaderDesc);
+        Shader[] shaders = Renderer.GraphicsDevice.ResourceFactory.CreateFromSpirv(
+            new ShaderDescription(ShaderStages.Vertex, vtxCode, "main"),
+            new ShaderDescription(ShaderStages.Fragment, frgCode, "main")
+        );
 
         VertexShader = shaders[0];
         FragmentShader = shaders[1];
