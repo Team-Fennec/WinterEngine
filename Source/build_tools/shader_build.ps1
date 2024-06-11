@@ -12,9 +12,11 @@ using namespace System;
 using namespace System.IO;
 
 param (
-    [Parameter(Mandatory=$true)][string]$shader
+    [Parameter(Mandatory=$true)][string]$shader = "",
+    [Parameter(Mandatory=$false)][string]$outputDir = ""
 )
 
+$includeDir = "";
 $shDepthMode = "false";
 $shCullMode = "None";
 $ScriptDir = Split-Path -Parent $PSCommandPath;
@@ -81,6 +83,9 @@ function CompileShader([string]$name)
         }
     }
 
+    # Get shader base path so we know where to look for includes
+    $includeDir = [Path]::GetDirectoryName($name);
+
     $VertexCode = ParseShaderCode $vtxOut;
     $FragmentCode = ParseShaderCode $frgOut;
 
@@ -91,10 +96,18 @@ function CompileShader([string]$name)
     $shaderName = [Path]::GetFileNameWithoutExtension($name);
     $validatorPath = [Path]::Combine($ScriptDir, "glslangValidator");
 
+    $full_file_path = [Path]::Combine($outputDir, $shaderName);
+
     [Console]::WriteLine("Compiling vertex shader code...");
-    & $validatorPath -V "temp_vert_shd.glsl" -o "$shaderName.vtx.spv" -S vert
+    & $validatorPath -V "temp_vert_shd.glsl" -o "$full_file_path.vtx.spv" -S vert
     [Console]::WriteLine("Compiling fragment shader code...");
-    & $validatorPath -V "temp_frag_shd.glsl" -o "$shaderName.frg.spv" -S frag
+    & $validatorPath -V "temp_frag_shd.glsl" -o "$full_file_path.frg.spv" -S frag
+
+    [Console]::WriteLine("Writing shader info...");
+    Set-Content "$full_file_path.json" "{
+`"cull_mode`": `"$shCullMode`",
+`"depth_mode`": `"$shDepthMode`"
+}";
 
     [Console]::WriteLine("Cleaning up...");
     Remove-Item "temp_frag_shd.glsl";
@@ -114,7 +127,7 @@ function ParseShaderCode([string]$code)
             [string]$inclFilename = $line.replace("#include ", "").replace('"', "");
 
             [string]$inclConts = "";
-            $inclPath = [Path]::Combine("include", $inclFilename);
+            $inclPath = [Path]::Combine($includeDir, "include", $inclFilename);
             $inclFile = Get-Content $inclPath;
             foreach ($inclLine in $inclFile)
             {

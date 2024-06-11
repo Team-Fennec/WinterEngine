@@ -9,7 +9,7 @@ VERTEX:
 
 void main()
 {
-    gl_Position = vec4(v_Pos, 0, 1);
+    gl_Position = vec4(v_Pos, 1);
     fsin_texCoords = v_Uv;
     fsin_Color = v_Col;
 }

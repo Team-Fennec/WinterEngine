@@ -1,0 +1,3 @@
+pwsh -noprofile -executionpolicy bypass -File "../../build_tools/shader_build.ps1" "TexturedUI.glsl" "../../../Game/engine/shaders/"
+pwsh -noprofile -executionpolicy bypass -File "../../build_tools/shader_build.ps1" "UnlitTextured.glsl" "../../../Game/engine/shaders/"
+pwsh -noprofile -executionpolicy bypass -File "../../build_tools/shader_build.ps1" "UnlitVertexColored.glsl" "../../../Game/engine/shaders/"
